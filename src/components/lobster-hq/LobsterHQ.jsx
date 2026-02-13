@@ -1,19 +1,35 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { TILE, COLS, ROWS, C, MAP } from "./constants";
+import { useCallback, useEffect, useRef } from "react";
+import { C, COLS, MAP, ROWS, TILE } from "./constants";
 import { drawPixelText } from "./helpers";
 import {
-  drawOcean, drawSand, drawDeep, drawLodgeWall, drawShellRoof,
-  drawDoor, drawPorthole, drawCoral, drawKelp, drawShellDeco,
-  drawBubbles, drawLobsterAgent, drawSignpost,
+  drawBubbles,
+  drawCoral,
+  drawDeep,
+  drawDoor,
+  drawKelp,
+  drawLobsterAgent,
+  drawLodgeWall,
+  drawOcean,
+  drawPorthole,
+  drawSand,
+  drawShellDeco,
+  drawShellRoof,
+  drawSignpost,
 } from "./renderers";
 
-export default function LobsterHQ({ agents = [], onSelectAgent, selectedAgent }) {
+export default function LobsterHQ({
+  agents = [],
+  onSelectAgent,
+  selectedAgent,
+}) {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
 
   const render = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext("2d");
     const f = frameRef.current++;
 
@@ -23,16 +39,36 @@ export default function LobsterHQ({ agents = [], onSelectAgent, selectedAgent })
       for (let x = 0; x < COLS; x++) {
         const tile = MAP[y]?.[x] ?? 0;
         switch (tile) {
-          case 0: drawOcean(ctx, x, y, f); break;
-          case 1: drawSand(ctx, x, y); break;
-          case 2: drawDeep(ctx, x, y, f); break;
-          case 3: drawLodgeWall(ctx, x, y); break;
-          case 4: drawShellRoof(ctx, x, y); break;
-          case 5: drawDoor(ctx, x, y); break;
-          case 6: drawPorthole(ctx, x, y); break;
-          case 7: drawCoral(ctx, x, y, f); break;
-          case 8: drawKelp(ctx, x, y, f); break;
-          case 9: drawShellDeco(ctx, x, y, f); break;
+          case 0:
+            drawOcean(ctx, x, y, f);
+            break;
+          case 1:
+            drawSand(ctx, x, y);
+            break;
+          case 2:
+            drawDeep(ctx, x, y, f);
+            break;
+          case 3:
+            drawLodgeWall(ctx, x, y);
+            break;
+          case 4:
+            drawShellRoof(ctx, x, y);
+            break;
+          case 5:
+            drawDoor(ctx, x, y);
+            break;
+          case 6:
+            drawPorthole(ctx, x, y);
+            break;
+          case 7:
+            drawCoral(ctx, x, y, f);
+            break;
+          case 8:
+            drawKelp(ctx, x, y, f);
+            break;
+          case 9:
+            drawShellDeco(ctx, x, y, f);
+            break;
         }
       }
     }
@@ -47,10 +83,12 @@ export default function LobsterHQ({ agents = [], onSelectAgent, selectedAgent })
     drawBubbles(ctx, f);
 
     const sorted = [...agents].sort((a, b) => a.y - b.y);
-    sorted.forEach(a => drawLobsterAgent(ctx, a, f));
+    for (const a of sorted) {
+      drawLobsterAgent(ctx, a, f);
+    }
 
     if (selectedAgent) {
-      const a = agents.find(ag => ag.id === selectedAgent);
+      const a = agents.find((ag) => ag.id === selectedAgent);
       if (a) {
         const pulse = Math.sin(f * 0.15) * 0.5 + 0.5;
         ctx.strokeStyle = `rgba(244, 162, 97, ${0.4 + pulse * 0.6})`;
@@ -73,9 +111,12 @@ export default function LobsterHQ({ agents = [], onSelectAgent, selectedAgent })
     const scaleY = (ROWS * TILE) / rect.height;
     const mx = (e.clientX - rect.left) * scaleX;
     const my = (e.clientY - rect.top) * scaleY;
-    const clicked = agents.find(a =>
-      mx >= a.x * TILE - 4 && mx <= (a.x + 1) * TILE + 4 &&
-      my >= a.y * TILE - 10 && my <= (a.y + 1) * TILE + 6
+    const clicked = agents.find(
+      (a) =>
+        mx >= a.x * TILE - 4 &&
+        mx <= (a.x + 1) * TILE + 4 &&
+        my >= a.y * TILE - 10 &&
+        my <= (a.y + 1) * TILE + 6,
     );
     onSelectAgent?.(clicked ? clicked.id : null);
   };

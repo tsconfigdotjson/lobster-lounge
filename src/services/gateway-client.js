@@ -1,6 +1,18 @@
-import { getOrCreateIdentity, signConnectPayload, getDeviceToken, setDeviceToken } from "./device-identity";
+import {
+  getDeviceToken,
+  getOrCreateIdentity,
+  setDeviceToken,
+  signConnectPayload,
+} from "./device-identity";
 
-const STATES = ["disconnected", "connecting", "challenged", "handshaking", "pairing", "connected"];
+const _STATES = [
+  "disconnected",
+  "connecting",
+  "challenged",
+  "handshaking",
+  "pairing",
+  "connected",
+];
 
 export default class GatewayClient {
   #ws = null;
@@ -24,10 +36,18 @@ export default class GatewayClient {
   #gatewayToken = "";
   #gatewayHost = null;
 
-  get state() { return this.#state; }
-  get connected() { return this.#state === "connected"; }
-  get pairing() { return this.#state === "pairing"; }
-  get helloPayload() { return this.#helloPayload; }
+  get state() {
+    return this.#state;
+  }
+  get connected() {
+    return this.#state === "connected";
+  }
+  get pairing() {
+    return this.#state === "pairing";
+  }
+  get helloPayload() {
+    return this.#helloPayload;
+  }
 
   constructor({ onEvent, onStateChange } = {}) {
     this.#onEvent = onEvent || null;
@@ -94,7 +114,7 @@ export default class GatewayClient {
     this.#setState("connecting");
     try {
       this.#ws = new WebSocket(this.#url);
-    } catch (err) {
+    } catch (_err) {
       this.#setState("disconnected");
       this.#scheduleReconnect();
       return;
@@ -106,7 +126,11 @@ export default class GatewayClient {
 
     this.#ws.onmessage = (evt) => {
       let frame;
-      try { frame = JSON.parse(evt.data); } catch { return; }
+      try {
+        frame = JSON.parse(evt.data);
+      } catch {
+        return;
+      }
       this.#handleFrame(frame);
     };
 
@@ -114,7 +138,7 @@ export default class GatewayClient {
       // onclose will fire after this
     };
 
-    this.#ws.onclose = (evt) => {
+    this.#ws.onclose = (_evt) => {
       this.#cleanupTick();
       this.#ws = null;
       const wasPairing = this.#state === "pairing";
@@ -125,7 +149,9 @@ export default class GatewayClient {
           // Fixed 3s reconnect during pairing (waiting for operator approval)
           this.#reconnectTimer = setTimeout(() => {
             this.#reconnectTimer = null;
-            if (!this.#intentionalClose) this.#doConnect();
+            if (!this.#intentionalClose) {
+              this.#doConnect();
+            }
           }, 3000);
         } else {
           this.#scheduleReconnect();
@@ -159,17 +185,27 @@ export default class GatewayClient {
 
     // dispatch to listeners
     const cbs = this.#listeners.get(event);
-    if (cbs) cbs.forEach(cb => cb(payload, frame));
-    if (this.#onEvent) this.#onEvent(event, payload, frame);
+    if (cbs) {
+      for (const cb of cbs) {
+        cb(payload, frame);
+      }
+    }
+    if (this.#onEvent) {
+      this.#onEvent(event, payload, frame);
+    }
   }
 
   #handleResponse(frame) {
     const { id, ok, payload, error } = frame;
     const entry = this.#pending.get(id);
-    if (!entry) return;
+    if (!entry) {
+      return;
+    }
 
     // ack-with-final pattern: if status=accepted, keep pending
-    if (ok && payload?.status === "accepted") return;
+    if (ok && payload?.status === "accepted") {
+      return;
+    }
 
     // NOT_PAIRED — enter pairing state
     if (!ok && error?.code === "NOT_PAIRED") {
@@ -221,12 +257,18 @@ export default class GatewayClient {
     const authToken = this.#storedDeviceToken || this.#gatewayToken || "";
     const { signature, signedAt } = await signConnectPayload(
       this.#identity.privateKey,
-      { deviceId: this.#identity.deviceId, nonce: this.#nonce, token: authToken }
+      {
+        deviceId: this.#identity.deviceId,
+        nonce: this.#nonce,
+        token: authToken,
+      },
     );
     params.device = {
       id: this.#identity.deviceId,
       publicKey: this.#identity.publicKeyB64,
-      signature, signedAt, nonce: this.#nonce,
+      signature,
+      signedAt,
+      nonce: this.#nonce,
     };
     if (authToken) {
       params.auth = { token: authToken };
@@ -234,17 +276,25 @@ export default class GatewayClient {
 
     const timer = setTimeout(() => {
       this.#pending.delete(id);
-      if (this.#ws) this.#ws.close(1008);
+      if (this.#ws) {
+        this.#ws.close(1008);
+      }
     }, 10000);
 
     this.#pending.set(id, {
-      resolve: (payload) => { /* handled in #handleResponse */ },
-      reject: (err) => { this.#onEvent?.("error", { message: err.message }); },
+      resolve: (_payload) => {
+        /* handled in #handleResponse */
+      },
+      reject: (err) => {
+        this.#onEvent?.("error", { message: err.message });
+      },
       timer,
       method: "connect",
     });
 
-    this.#ws.send(JSON.stringify({ type: "req", id, method: "connect", params }));
+    this.#ws.send(
+      JSON.stringify({ type: "req", id, method: "connect", params }),
+    );
   }
 
   #startTick() {
@@ -253,7 +303,9 @@ export default class GatewayClient {
     this.#tickTimer = setInterval(() => {
       if (Date.now() - this.#lastTick > this.#tickIntervalMs * 2) {
         // tick timeout
-        if (this.#ws) this.#ws.close(4000, "Tick timeout");
+        if (this.#ws) {
+          this.#ws.close(4000, "Tick timeout");
+        }
       }
     }, this.#tickIntervalMs);
   }
@@ -266,22 +318,28 @@ export default class GatewayClient {
   }
 
   #scheduleReconnect() {
-    if (this.#intentionalClose) return;
+    if (this.#intentionalClose) {
+      return;
+    }
     this.#reconnectTimer = setTimeout(() => {
       this.#reconnectTimer = null;
-      if (!this.#intentionalClose) this.#doConnect();
+      if (!this.#intentionalClose) {
+        this.#doConnect();
+      }
     }, this.#reconnectDelay);
     this.#reconnectDelay = Math.min(this.#reconnectDelay * 2, 30000);
   }
 
   #setState(s) {
-    if (this.#state === s) return;
+    if (this.#state === s) {
+      return;
+    }
     this.#state = s;
     this.#onStateChange?.(s);
   }
 
   #rejectAllPending(reason) {
-    for (const [id, entry] of this.#pending) {
+    for (const [_id, entry] of this.#pending) {
       clearTimeout(entry.timer);
       entry.reject(new Error(reason));
     }

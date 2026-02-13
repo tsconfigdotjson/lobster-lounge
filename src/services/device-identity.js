@@ -5,13 +5,18 @@ const TOKEN_PREFIX = "openclaw-device-token:";
 function base64url(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
   let binary = "";
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 function hexEncode(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
-  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export async function getOrCreateIdentity() {
@@ -22,25 +27,37 @@ export async function getOrCreateIdentity() {
   if (stored) {
     const jwk = JSON.parse(stored);
     publicKey = await crypto.subtle.importKey(
-      "jwk", jwk.publicKey, { name: "Ed25519" }, true, ["verify"]
+      "jwk",
+      jwk.publicKey,
+      { name: "Ed25519" },
+      true,
+      ["verify"],
     );
     privateKey = await crypto.subtle.importKey(
-      "jwk", jwk.privateKey, { name: "Ed25519" }, true, ["sign"]
+      "jwk",
+      jwk.privateKey,
+      { name: "Ed25519" },
+      true,
+      ["sign"],
     );
   } else {
     // Clear any old ECDSA keypair from a previous version
     localStorage.removeItem(KEYPAIR_KEY);
     localStorage.removeItem(DEVICE_ID_KEY);
 
-    const keyPair = await crypto.subtle.generateKey(
-      "Ed25519", true, ["sign", "verify"]
-    );
+    const keyPair = await crypto.subtle.generateKey("Ed25519", true, [
+      "sign",
+      "verify",
+    ]);
     publicKey = keyPair.publicKey;
     privateKey = keyPair.privateKey;
 
     const pubJwk = await crypto.subtle.exportKey("jwk", publicKey);
     const privJwk = await crypto.subtle.exportKey("jwk", privateKey);
-    localStorage.setItem(KEYPAIR_KEY, JSON.stringify({ publicKey: pubJwk, privateKey: privJwk }));
+    localStorage.setItem(
+      KEYPAIR_KEY,
+      JSON.stringify({ publicKey: pubJwk, privateKey: privJwk }),
+    );
   }
 
   const rawPubKey = await crypto.subtle.exportKey("raw", publicKey);
@@ -53,13 +70,14 @@ export async function getOrCreateIdentity() {
   return { deviceId, publicKeyB64, privateKey };
 }
 
-export async function signConnectPayload(privateKey, { deviceId, nonce, token }) {
+export async function signConnectPayload(
+  privateKey,
+  { deviceId, nonce, token },
+) {
   const signedAt = Date.now();
   const payloadStr = `v2|${deviceId}|openclaw-control-ui|ui|operator|operator.read,operator.write|${signedAt}|${token || ""}|${nonce || ""}`;
   const payloadBytes = new TextEncoder().encode(payloadStr);
-  const sigBuf = await crypto.subtle.sign(
-    "Ed25519", privateKey, payloadBytes
-  );
+  const sigBuf = await crypto.subtle.sign("Ed25519", privateKey, payloadBytes);
   return { signature: base64url(sigBuf), signedAt };
 }
 

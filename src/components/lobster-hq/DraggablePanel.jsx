@@ -1,20 +1,35 @@
-import { useState, useRef, useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import { C } from "./constants";
 
-export default function DraggablePanel({ children, defaultX = 0, defaultY = 0, title, style }) {
+export default function DraggablePanel({
+  children,
+  defaultX = 0,
+  defaultY = 0,
+  title,
+  style,
+}) {
   const [pos, setPos] = useState({ x: defaultX, y: defaultY });
   const dragRef = useRef(null);
 
-  const onPointerDown = useCallback((e) => {
-    if (e.target.closest("button, input, textarea, select")) return;
-    e.preventDefault();
-    const startX = e.clientX - pos.x;
-    const startY = e.clientY - pos.y;
-    const onMove = (ev) => setPos({ x: ev.clientX - startX, y: ev.clientY - startY });
-    const onUp = () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [pos.x, pos.y]);
+  const onPointerDown = useCallback(
+    (e) => {
+      if (e.target.closest("button, input, textarea, select")) {
+        return;
+      }
+      e.preventDefault();
+      const startX = e.clientX - pos.x;
+      const startY = e.clientY - pos.y;
+      const onMove = (ev) =>
+        setPos({ x: ev.clientX - startX, y: ev.clientY - startY });
+      const onUp = () => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+    },
+    [pos.x, pos.y],
+  );
 
   return (
     <div
