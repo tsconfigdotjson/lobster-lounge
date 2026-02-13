@@ -8,7 +8,7 @@ import {
   LobsterHQ,
 } from "./lobster-hq";
 import { C } from "./lobster-hq/constants";
-import { AgentChat } from "./open-claw";
+import { AgentChat, AgentCreator } from "./open-claw";
 import { btnSecondaryStyle } from "./open-claw/styles";
 
 export default function DashboardView() {
@@ -20,11 +20,16 @@ export default function DashboardView() {
     disconnect,
     serverInfo,
     helloPayload,
+    createAgent,
+    updateAgent,
+    skills,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [chatCollapsed, setChatCollapsed] = useState(false);
   const [time, setTime] = useState("08:00");
   const [tick, setTick] = useState(0);
+  const [showCreator, setShowCreator] = useState(false);
+  const [editingAgent, setEditingAgent] = useState(null);
 
   useEffect(() => {
     const iv = setInterval(() => {
@@ -35,6 +40,13 @@ export default function DashboardView() {
     }, 1000);
     return () => clearInterval(iv);
   }, []);
+
+  // Auto-show creator when no agents exist
+  useEffect(() => {
+    if (agents.length === 0) {
+      setShowCreator(true);
+    }
+  }, [agents.length]);
 
   const uptimeMs = helloPayload?.snapshot?.uptimeMs;
   const uptimeStr =
@@ -47,6 +59,34 @@ export default function DashboardView() {
       : null;
 
   const sel = agents.find((a) => a.id === selectedAgent);
+
+  const handleCreate = async ({ name, skills: selSkills }) => {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    const emoji = selSkills?.[0]?.icon || "\uD83E\uDD9E";
+    await createAgent({ name, workspace: `/agents/${slug}`, emoji });
+    setShowCreator(false);
+  };
+
+  const handleUpdate = async (data) => {
+    await updateAgent({ agentId: data._gatewayId, name: data.name });
+    setEditingAgent(null);
+  };
+
+  const handleEditClick = () => {
+    if (!sel) {
+      return;
+    }
+    setEditingAgent({
+      _gatewayId: sel._gatewayId,
+      name: sel.id,
+      desc: sel.role || "",
+      skills: [],
+      color: sel.color,
+    });
+  };
 
   return (
     <div
@@ -99,6 +139,22 @@ export default function DashboardView() {
           {uptimeStr ? ` \u00b7 up ${uptimeStr}` : ""}
         </span>
         <div style={{ flex: 1 }} />
+        <button
+          type="button"
+          onClick={() => {
+            setEditingAgent(null);
+            setShowCreator((v) => !v);
+          }}
+          style={{
+            ...btnSecondaryStyle,
+            fontSize: 11,
+            padding: "4px 12px",
+            color: C.green,
+            borderColor: `${C.green}40`,
+          }}
+        >
+          + SPAWN AGENT
+        </button>
         <button
           type="button"
           onClick={disconnect}
@@ -271,7 +327,56 @@ export default function DashboardView() {
           >
             AUTONOMOUS
           </div>
+          <button
+            type="button"
+            onClick={handleEditClick}
+            style={{
+              background: "none",
+              border: `1px solid ${C.amber}40`,
+              borderRadius: 2,
+              padding: "3px 10px",
+              cursor: "pointer",
+              fontSize: 11,
+              color: C.amber,
+              fontFamily: "'Courier New', monospace",
+              letterSpacing: 1,
+            }}
+          >
+            ✎ EDIT
+          </button>
         </div>
+      )}
+
+      {/* Agent Creator panel — create mode */}
+      {showCreator && !editingAgent && (
+        <DraggablePanel
+          title="SPAWN AGENT"
+          defaultX={Math.max(16, (window.innerWidth - 340) / 2)}
+          defaultY={80}
+        >
+          <AgentCreator
+            skills={skills}
+            onDeploy={handleCreate}
+            onCancel={() => setShowCreator(false)}
+          />
+        </DraggablePanel>
+      )}
+
+      {/* Agent Creator panel — edit mode */}
+      {editingAgent && (
+        <DraggablePanel
+          title="EDIT AGENT"
+          defaultX={Math.max(16, (window.innerWidth - 340) / 2)}
+          defaultY={80}
+        >
+          <AgentCreator
+            key={editingAgent._gatewayId}
+            skills={skills}
+            editAgent={editingAgent}
+            onUpdate={handleUpdate}
+            onCancel={() => setEditingAgent(null)}
+          />
+        </DraggablePanel>
       )}
 
       {/* Collapsible AgentChat overlay */}

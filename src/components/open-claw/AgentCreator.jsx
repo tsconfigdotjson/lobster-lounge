@@ -14,14 +14,20 @@ import {
 export default function AgentCreator({
   skills: availableSkills = [],
   onDeploy,
+  editAgent,
+  onUpdate,
+  onCancel,
 }) {
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
+  const isEdit = !!editAgent;
+  const [name, setName] = useState(editAgent?.name || "");
+  const [desc, setDesc] = useState(editAgent?.desc || "");
   const [skillSearch, setSkillSearch] = useState("");
-  const [skills, setSkills] = useState([]);
-  const [color, setColor] = useState("#e74c3c");
+  const [skills, setSkills] = useState(editAgent?.skills || []);
+  const [color, setColor] = useState(editAgent?.color || "#e74c3c");
   const [phase, setPhase] = useState("edit");
   const [showDrop, setShowDrop] = useState(false);
+  const [deploying, setDeploying] = useState(false);
+  const [deployError, setDeployError] = useState(null);
   const dropRef = useRef(null);
   const MAX = 3;
   const colors = [
@@ -110,7 +116,7 @@ export default function AgentCreator({
               setName("");
               setDesc("");
               setSkills([]);
-              onDeploy?.({ name, desc, skills, color });
+              setDeployError(null);
             }}
             style={{ ...btnPrimaryStyle(C.amber), marginTop: 8 }}
           >
@@ -122,10 +128,41 @@ export default function AgentCreator({
     );
   }
 
+  const handleDeploy = async () => {
+    if (deploying) {
+      return;
+    }
+    setDeploying(true);
+    setDeployError(null);
+    try {
+      if (isEdit) {
+        await onUpdate?.({ ...editAgent, name, desc, skills, color });
+      } else {
+        await onDeploy?.({ name, desc, skills, color });
+        setPhase("deployed");
+      }
+    } catch (err) {
+      setDeployError(err?.message || "Deploy failed");
+    } finally {
+      setDeploying(false);
+    }
+  };
+
   if (phase === "preview") {
+    const specRows = [
+      ["Designation", name.toUpperCase()],
+      ["Shell Color", color],
+      ["Skills Loaded", `${skills.length}/${MAX}`],
+      ["Mode", "Autonomous"],
+      ["Pod Assignment", "Default"],
+      ["Est. Boot Time", "~3.2s"],
+    ];
     return (
       <div style={panelStyle}>
-        <PanelHeader icon="🔍" title="PREVIEW AGENT" />
+        <PanelHeader
+          icon={isEdit ? "\u270F\uFE0F" : "\uD83D\uDD0D"}
+          title={isEdit ? "EDIT AGENT" : "PREVIEW AGENT"}
+        />
         <div
           style={{
             background: `linear-gradient(135deg, ${C.deep1}, ${C.deep2})`,
@@ -188,7 +225,7 @@ export default function AgentCreator({
                     letterSpacing: 1,
                   }}
                 >
-                  NEW
+                  {isEdit ? "EDIT" : "NEW"}
                 </span>
               </div>
               <div
@@ -242,16 +279,9 @@ export default function AgentCreator({
               marginBottom: 10,
             }}
           >
-            DEPLOYMENT SPECS
+            {isEdit ? "UPDATE SPECS" : "DEPLOYMENT SPECS"}
           </div>
-          {[
-            ["Designation", name.toUpperCase()],
-            ["Shell Color", color],
-            ["Skills Loaded", `${skills.length}/${MAX}`],
-            ["Mode", "Autonomous"],
-            ["Pod Assignment", "Default"],
-            ["Est. Boot Time", "~3.2s"],
-          ].map(([k, v]) => (
+          {specRows.map(([k, v], i) => (
             <div
               key={k}
               style={{
@@ -259,7 +289,9 @@ export default function AgentCreator({
                 justifyContent: "space-between",
                 padding: "5px 0",
                 borderBottom:
-                  i < 5 ? "1px solid rgba(255,255,255,0.03)" : "none",
+                  i < specRows.length - 1
+                    ? "1px solid rgba(255,255,255,0.03)"
+                    : "none",
                 fontSize: 10,
               }}
             >
@@ -296,20 +328,53 @@ export default function AgentCreator({
             </div>
           ))}
         </div>
+        {deployError && (
+          <div
+            style={{
+              fontSize: 10,
+              color: C.red,
+              marginBottom: 8,
+              textAlign: "center",
+              padding: "6px 10px",
+              background: `${C.red}10`,
+              border: `1px solid ${C.red}30`,
+              borderRadius: 3,
+            }}
+          >
+            {deployError}
+          </div>
+        )}
         <div style={{ display: "flex", gap: 8 }}>
           <button
             type="button"
-            onClick={() => setPhase("edit")}
+            onClick={() => {
+              setDeployError(null);
+              if (isEdit && onCancel) {
+                onCancel();
+              } else {
+                setPhase("edit");
+              }
+            }}
             style={{ ...btnSecondaryStyle, flex: 1 }}
           >
-            ← EDIT
+            {isEdit ? "\u2715 CANCEL" : "\u2190 EDIT"}
           </button>
           <button
             type="button"
-            onClick={() => setPhase("deployed")}
-            style={{ ...btnPrimaryStyle(C.green), flex: 2 }}
+            onClick={handleDeploy}
+            disabled={deploying}
+            style={{
+              ...btnPrimaryStyle(C.green),
+              flex: 2,
+              opacity: deploying ? 0.6 : 1,
+              cursor: deploying ? "wait" : "pointer",
+            }}
           >
-            🦞 CONFIRM AND DEPLOY
+            {deploying
+              ? "\u23F3 DEPLOYING..."
+              : isEdit
+                ? "\u2705 SAVE CHANGES"
+                : "\uD83E\uDD9E CONFIRM AND DEPLOY"}
           </button>
         </div>
       </div>
@@ -318,7 +383,10 @@ export default function AgentCreator({
 
   return (
     <div style={panelStyle}>
-      <PanelHeader icon="✦" title="SPAWN NEW AGENT" />
+      <PanelHeader
+        icon={isEdit ? "\u270F\uFE0F" : "\u2726"}
+        title={isEdit ? "EDIT AGENT" : "SPAWN NEW AGENT"}
+      />
       <div
         style={{
           display: "flex",
@@ -554,6 +622,19 @@ export default function AgentCreator({
           </div>
         )}
       </div>
+      {isEdit && onCancel && (
+        <button
+          type="button"
+          onClick={onCancel}
+          style={{
+            ...btnSecondaryStyle,
+            width: "100%",
+            marginBottom: 8,
+          }}
+        >
+          ✕ CANCEL
+        </button>
+      )}
       <button
         type="button"
         onClick={() => isValid && setPhase("preview")}
@@ -565,7 +646,7 @@ export default function AgentCreator({
           cursor: isValid ? "pointer" : "not-allowed",
         }}
       >
-        PREVIEW AGENT →
+        {isEdit ? "PREVIEW CHANGES \u2192" : "PREVIEW AGENT \u2192"}
       </button>
       {!isValid && (
         <div

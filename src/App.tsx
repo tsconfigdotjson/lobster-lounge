@@ -12,12 +12,11 @@ function AppContent() {
     connectionPhase,
     deviceId,
     connect,
-    agents,
     serverInfo,
     helloPayload,
   } = useGateway();
 
-  const showDashboard = connectionPhase === "connected" && agents.length > 0;
+  const showDashboard = connectionPhase === "connected";
 
   if (showDashboard) {
     return <DashboardView />;

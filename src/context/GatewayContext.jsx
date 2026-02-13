@@ -60,6 +60,7 @@ export function GatewayProvider({ children }) {
   const [connectionPhase, setConnectionPhase] = useState("disconnected");
   const [pairingState, setPairingState] = useState(null);
   const [deviceId, setDeviceId] = useState(null);
+  const [skills, setSkills] = useState([]);
   const clientRef = useRef(null);
   const unsubsRef = useRef([]);
 
@@ -79,27 +80,89 @@ export function GatewayProvider({ children }) {
     }
   }, []);
 
-  const syncAgents = useCallback(async (client) => {
-    setConnectionPhase("syncing");
+  const fetchSkills = useCallback(async (client, agentId) => {
     try {
-      const res = await client.request("agents.list");
-      const gwAgents = res.agents || [];
-      setAgents(mapToHqAgents(gwAgents));
-      setChatAgents(mapToChatAgents(gwAgents));
-      gwAgents.forEach((a) => {
-        const name = (a.identity?.name || a.name || a.id)
-          .toUpperCase()
-          .slice(0, 8);
-        setActivityLogs((prev) => [
-          ...prev,
-          createLogEntry(name, "Connected", "#2ecc71"),
-        ]);
-      });
-      setConnectionPhase("connected");
+      const res = await client.request("skills.status", { agentId });
+      const entries = res.skills || res.entries || [];
+      const mapped = entries
+        .filter((s) => s.eligible !== false && !s.disabled)
+        .map((s) => ({
+          id: s.skillKey || s.name,
+          name: s.name,
+          icon: s.emoji || "\u2699\uFE0F",
+          desc: s.description || "",
+          cat: s.source || "skill",
+        }));
+      return mapped;
     } catch (_err) {
-      setConnectionPhase("connected");
+      return [];
     }
   }, []);
+
+  const syncAgents = useCallback(
+    async (client) => {
+      setConnectionPhase("syncing");
+      try {
+        const res = await client.request("agents.list");
+        const gwAgents = res.agents || [];
+        setAgents(mapToHqAgents(gwAgents));
+        setChatAgents(mapToChatAgents(gwAgents));
+        gwAgents.forEach((a) => {
+          const name = (a.identity?.name || a.name || a.id)
+            .toUpperCase()
+            .slice(0, 8);
+          setActivityLogs((prev) => [
+            ...prev,
+            createLogEntry(name, "Connected", "#2ecc71"),
+          ]);
+        });
+        // Fetch available skills after syncing agents
+        const skillsList = await fetchSkills(client);
+        setSkills(skillsList);
+        setConnectionPhase("connected");
+      } catch (_err) {
+        setConnectionPhase("connected");
+      }
+    },
+    [fetchSkills],
+  );
+
+  const createAgent = useCallback(
+    async ({ name, workspace, emoji }) => {
+      const client = clientRef.current;
+      if (!client?.connected) {
+        throw new Error("Not connected");
+      }
+      await client.request("agents.create", { name, workspace, emoji });
+      await syncAgents(client);
+    },
+    [syncAgents],
+  );
+
+  const updateAgent = useCallback(
+    async ({ agentId, name, workspace, model, avatar }) => {
+      const client = clientRef.current;
+      if (!client?.connected) {
+        throw new Error("Not connected");
+      }
+      const params = { agentId };
+      if (name !== undefined) {
+        params.name = name;
+      }
+      if (workspace !== undefined) {
+        params.workspace = workspace;
+      }
+      if (model !== undefined) {
+        params.model = model;
+      }
+      if (avatar !== undefined) {
+        params.avatar = avatar;
+      }
+      await client.request("agents.update", params);
+      await syncAgents(client);
+    },
+    [syncAgents],
+  );
 
   const connect = useCallback(
     (url, gatewayToken) => {
@@ -181,6 +244,7 @@ export function GatewayProvider({ children }) {
     setServerInfo(null);
     setFeatures(null);
     setHelloPayload(null);
+    setSkills([]);
   }, [cleanup]);
 
   const sendAgentMessage = useCallback(
@@ -315,6 +379,9 @@ export function GatewayProvider({ children }) {
     serverInfo,
     features,
     sendAgentMessage,
+    createAgent,
+    updateAgent,
+    skills,
     client: clientRef.current,
     helloPayload,
     savedConnection: loadSavedConnection(),
