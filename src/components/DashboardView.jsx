@@ -22,7 +22,10 @@ export default function DashboardView() {
     helloPayload,
     createAgent,
     updateAgent,
+    updateSkill,
+    refreshSkills,
     skills,
+    fetchAgentSkills,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [chatCollapsed, setChatCollapsed] = useState(false);
@@ -66,24 +69,43 @@ export default function DashboardView() {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
     const emoji = selSkills?.[0]?.icon || "\uD83E\uDD9E";
-    await createAgent({ name, workspace: `/agents/${slug}`, emoji });
+    await createAgent({ name, workspace: `agents/${slug}`, emoji });
     setShowCreator(false);
   };
 
   const handleUpdate = async (data) => {
     await updateAgent({ agentId: data._gatewayId, name: data.name });
+    const originalSkillIds = new Set(
+      (editingAgent?.skills || []).map((s) => s.id),
+    );
+    const newSkillIds = new Set((data.skills || []).map((s) => s.id));
+    const skillUpdates = [];
+    for (const id of originalSkillIds) {
+      if (!newSkillIds.has(id)) {
+        skillUpdates.push(updateSkill({ skillKey: id, enabled: false }));
+      }
+    }
+    for (const id of newSkillIds) {
+      if (!originalSkillIds.has(id)) {
+        skillUpdates.push(updateSkill({ skillKey: id, enabled: true }));
+      }
+    }
+    if (skillUpdates.length > 0) {
+      await Promise.all(skillUpdates);
+      await refreshSkills();
+    }
     setEditingAgent(null);
   };
 
-  const handleEditClick = () => {
+  const handleEditClick = async () => {
     if (!sel) {
       return;
     }
+    const agentSkills = await fetchAgentSkills(sel._gatewayId);
     setEditingAgent({
       _gatewayId: sel._gatewayId,
       name: sel.id,
-      desc: sel.role || "",
-      skills: [],
+      skills: agentSkills,
       color: sel.color,
     });
   };

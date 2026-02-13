@@ -251,7 +251,7 @@ export default class GatewayClient {
         mode: "ui",
       },
       role: "operator",
-      scopes: ["operator.read", "operator.write"],
+      scopes: ["operator.read", "operator.write", "operator.admin"],
     };
     // Device identity — prefer stored device token, fall back to gateway token
     const authToken = this.#storedDeviceToken || this.#gatewayToken || "";
