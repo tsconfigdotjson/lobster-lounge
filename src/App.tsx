@@ -8,6 +8,7 @@ import DashboardView from "./components/DashboardView";
 function AppContent() {
   const {
     connectionState, connectionError, connectionPhase,
+    pairingState, deviceId,
     connect, agents, serverInfo, helloPayload,
   } = useGateway();
 
@@ -26,12 +27,13 @@ function AppContent() {
         minHeight: "100vh", fontFamily: "'Courier New', monospace",
       }}>
         <GatewayScreen
-          connectionState={connectionPhase === "syncing" ? "syncing" : connectionState}
+          connectionState={connectionPhase === "syncing" ? "syncing" : connectionPhase === "pairing" ? "pairing" : connectionState}
           connectionError={connectionError}
           serverInfo={serverInfo}
           helloPayload={helloPayload}
-          onStartConnect={(url: string, token: string) => connect(url, token)}
+          onStartConnect={(url: string) => connect(url)}
           onConnect={() => { /* dashboard will show automatically via state */ }}
+          deviceId={deviceId}
         />
       </div>
     </>

@@ -1,10 +1,11 @@
-const STATES = ["disconnected", "connecting", "challenged", "handshaking", "connected"];
+import { getOrCreateIdentity, signConnectPayload, getDeviceToken, setDeviceToken } from "./device-identity";
+
+const STATES = ["disconnected", "connecting", "challenged", "handshaking", "pairing", "connected"];
 
 export default class GatewayClient {
   #ws = null;
   #state = "disconnected";
   #url = "";
-  #token = "";
   #nextId = 1;
   #pending = new Map();
   #listeners = new Map();
@@ -18,9 +19,13 @@ export default class GatewayClient {
   #reconnectDelay = 1000;
   #intentionalClose = false;
   #nonce = null;
+  #identity = null;
+  #storedDeviceToken = null;
+  #gatewayHost = null;
 
   get state() { return this.#state; }
   get connected() { return this.#state === "connected"; }
+  get pairing() { return this.#state === "pairing"; }
   get helloPayload() { return this.#helloPayload; }
 
   constructor({ onEvent, onStateChange } = {}) {
@@ -28,11 +33,20 @@ export default class GatewayClient {
     this.#onStateChange = onStateChange || null;
   }
 
-  connect(url, token) {
+  async connect(url) {
     this.#intentionalClose = false;
     this.#url = url;
-    this.#token = token;
     this.#reconnectDelay = 1000;
+
+    try {
+      this.#gatewayHost = new URL(url).host;
+    } catch {
+      this.#gatewayHost = url;
+    }
+
+    this.#identity = await getOrCreateIdentity();
+    this.#storedDeviceToken = getDeviceToken(this.#gatewayHost);
+
     this.#doConnect();
   }
 
@@ -101,11 +115,19 @@ export default class GatewayClient {
     this.#ws.onclose = (evt) => {
       this.#cleanupTick();
       this.#ws = null;
-      const wasConnected = this.#state === "connected";
+      const wasPairing = this.#state === "pairing";
       this.#setState("disconnected");
       this.#rejectAllPending("Connection closed");
       if (!this.#intentionalClose) {
-        this.#scheduleReconnect();
+        if (wasPairing) {
+          // Fixed 3s reconnect during pairing (waiting for operator approval)
+          this.#reconnectTimer = setTimeout(() => {
+            this.#reconnectTimer = null;
+            if (!this.#intentionalClose) this.#doConnect();
+          }, 3000);
+        } else {
+          this.#scheduleReconnect();
+        }
       }
     };
   }
@@ -147,12 +169,25 @@ export default class GatewayClient {
     // ack-with-final pattern: if status=accepted, keep pending
     if (ok && payload?.status === "accepted") return;
 
+    // NOT_PAIRED — enter pairing state
+    if (!ok && error?.code === "NOT_PAIRED") {
+      clearTimeout(entry.timer);
+      this.#pending.delete(id);
+      this.#setState("pairing");
+      return;
+    }
+
     clearTimeout(entry.timer);
     this.#pending.delete(id);
 
     if (ok) {
       // hello-ok handshake response
       if (payload?.type === "hello-ok") {
+        // Store device token if present
+        if (payload?.auth?.deviceToken) {
+          setDeviceToken(this.#gatewayHost, payload.auth.deviceToken);
+          this.#storedDeviceToken = payload.auth.deviceToken;
+        }
         this.#helloPayload = payload;
         this.#tickIntervalMs = payload.policy?.tickIntervalMs || 30000;
         this.#startTick();
@@ -165,7 +200,7 @@ export default class GatewayClient {
     }
   }
 
-  #sendHandshake() {
+  async #sendHandshake() {
     this.#setState("handshaking");
     const id = String(this.#nextId++);
     const params = {
@@ -179,10 +214,23 @@ export default class GatewayClient {
       },
       role: "operator",
       scopes: ["operator.read", "operator.write"],
-      auth: { token: this.#token },
     };
     if (this.#nonce) {
       params.nonce = this.#nonce;
+    }
+
+    // Device identity
+    const { signature, signedAt } = await signConnectPayload(
+      this.#identity.privateKey,
+      { deviceId: this.#identity.deviceId, nonce: this.#nonce, token: this.#storedDeviceToken || "" }
+    );
+    params.device = {
+      id: this.#identity.deviceId,
+      publicKey: this.#identity.publicKeyB64,
+      signature, signedAt, nonce: this.#nonce,
+    };
+    if (this.#storedDeviceToken) {
+      params.auth = { token: this.#storedDeviceToken };
     }
 
     const timer = setTimeout(() => {

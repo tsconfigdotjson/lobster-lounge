@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
 import GatewayClient from "../services/gateway-client";
+import { getOrCreateIdentity } from "../services/device-identity";
 import { mapToHqAgents, mapToChatAgents, createLogEntry } from "../services/data-mappers";
 
 const STORAGE_KEY = "openclaw-gateway";
@@ -12,12 +13,12 @@ function loadSavedConnection() {
   } catch { return null; }
 }
 
-function saveConnection(url, token) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ url, token }));
+function saveConnection(url) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ url }));
   // also add to history
   let history = loadConnectionHistory();
   history = history.filter(h => h.url !== url);
-  history.unshift({ url, token, ts: Date.now() });
+  history.unshift({ url, ts: Date.now() });
   if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
   localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
 }
@@ -40,8 +41,15 @@ export function GatewayProvider({ children }) {
   const [features, setFeatures] = useState(null);
   const [helloPayload, setHelloPayload] = useState(null);
   const [connectionPhase, setConnectionPhase] = useState("disconnected");
+  const [pairingState, setPairingState] = useState(null);
+  const [deviceId, setDeviceId] = useState(null);
   const clientRef = useRef(null);
   const unsubsRef = useRef([]);
+
+  // Initialize device ID on mount
+  useEffect(() => {
+    getOrCreateIdentity().then(id => setDeviceId(id.deviceId));
+  }, []);
 
   const cleanup = useCallback(() => {
     unsubsRef.current.forEach(fn => fn());
@@ -69,7 +77,7 @@ export function GatewayProvider({ children }) {
     }
   }, []);
 
-  const connect = useCallback((url, token) => {
+  const connect = useCallback((url) => {
     cleanup();
     setConnectionError(null);
     setAgents([]);
@@ -78,18 +86,24 @@ export function GatewayProvider({ children }) {
     setServerInfo(null);
     setFeatures(null);
     setHelloPayload(null);
+    setPairingState(null);
 
     const client = new GatewayClient({
       onStateChange: (state) => {
         setConnectionState(state);
+        if (state === "pairing") {
+          setConnectionPhase("pairing");
+          setPairingState("pending");
+        }
         if (state === "connected") {
+          setPairingState(null);
           const hello = client.helloPayload;
           if (hello) {
             setHelloPayload(hello);
             setServerInfo(hello.server);
             setFeatures(hello.features);
           }
-          saveConnection(url, token);
+          saveConnection(url);
           syncAgents(client);
         }
         if (state === "disconnected") {
@@ -123,7 +137,7 @@ export function GatewayProvider({ children }) {
     });
     unsubsRef.current.push(unsub1);
 
-    client.connect(url, token);
+    client.connect(url);
   }, [cleanup, syncAgents]);
 
   const disconnect = useCallback(() => {
@@ -131,6 +145,7 @@ export function GatewayProvider({ children }) {
     setConnectionState("disconnected");
     setConnectionPhase("disconnected");
     setConnectionError(null);
+    setPairingState(null);
     setAgents([]);
     setChatAgents([]);
     setActivityLogs([]);
@@ -220,6 +235,8 @@ export function GatewayProvider({ children }) {
     connectionState,
     connectionError,
     connectionPhase,
+    pairingState,
+    deviceId,
     connect,
     disconnect,
     agents,

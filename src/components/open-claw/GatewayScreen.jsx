@@ -10,14 +10,14 @@ const STATE_TO_STEP = {
   connecting: 0,
   challenged: 1,
   handshaking: 2,
+  pairing: 2,
   syncing: 3,
   connected: 4,
 };
 
-export default function GatewayScreen({ onConnect, connectionState, connectionError, onStartConnect, serverInfo, helloPayload }) {
+export default function GatewayScreen({ onConnect, connectionState, connectionError, onStartConnect, serverInfo, helloPayload, deviceId }) {
   const [phase, setPhase] = useState("select");
   const [url, setUrl] = useState("");
-  const [token, setToken] = useState("");
   const [connectStep, setConnectStep] = useState(0);
   const history = loadConnectionHistory();
 
@@ -27,7 +27,6 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
       const saved = JSON.parse(localStorage.getItem("openclaw-gateway"));
       if (saved) {
         setUrl(saved.url || "");
-        setToken(saved.token || "");
       }
     } catch { /* ignore */ }
   }, []);
@@ -54,20 +53,25 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
     if (!url.trim()) return;
     setPhase("connecting");
     setConnectStep(0);
-    onStartConnect?.(url.trim(), token);
+    onStartConnect?.(url.trim());
   };
 
   const fillFromHistory = (entry) => {
     setUrl(entry.url);
-    setToken(entry.token || "");
   };
+
+  const truncatedDeviceId = deviceId
+    ? deviceId.slice(0, 4) + "..." + deviceId.slice(-4)
+    : null;
+
+  const isPairing = connectionState === "pairing";
 
   if (phase === "select") {
     return (
       <div style={panelStyle}>
         <PanelHeader icon="🌊" title="GATEWAY LOGIN" />
         <div style={{ fontSize: 11, color: C.textDim, marginBottom: 16, lineHeight: 1.5 }}>
-          Connect to an OpenClaw Gateway to begin reef operations.
+          Connect to an OpenClaw Gateway. Your device will be paired automatically.
         </div>
 
         <label style={labelStyle}>GATEWAY URL</label>
@@ -76,18 +80,15 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
           onChange={e => setUrl(e.target.value)}
           placeholder="ws://127.0.0.1:18789"
           style={inputStyle}
-        />
-        <div style={{ marginBottom: 14 }} />
-
-        <label style={labelStyle}>AUTH TOKEN</label>
-        <input
-          value={token}
-          onChange={e => setToken(e.target.value)}
-          placeholder="Enter gateway token..."
-          type="password"
-          style={inputStyle}
           onKeyDown={e => e.key === "Enter" && startConnect()}
         />
+
+        {truncatedDeviceId && (
+          <div style={{ fontSize: 9, color: C.textDim, marginTop: 6 }}>
+            🔑 DEVICE  {truncatedDeviceId}
+          </div>
+        )}
+
         <div style={{ marginBottom: 20 }} />
 
         <button
@@ -205,27 +206,31 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
           {CONNECTION_STEPS.map((step, i) => {
             const isActive = i === connectStep && phase === "connecting";
             const isDone = i < connectStep || phase === "done";
+            const isPairingStep = isPairing && i === 2;
+            const stepColor = isPairingStep ? C.purple : isActive ? C.amber : isDone ? C.green : C.textDim;
             return (
               <div key={step.id} style={{
                 display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 3,
-                background: isActive ? `${C.amber}08` : isDone ? `${C.green}06` : "transparent",
+                background: isPairingStep ? `${C.purple}08` : isActive ? `${C.amber}08` : isDone ? `${C.green}06` : "transparent",
               }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: 28, flexShrink: 0,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 11, fontWeight: "bold",
-                  background: isDone ? `${C.green}20` : isActive ? `${C.amber}15` : "rgba(255,255,255,0.03)",
-                  border: `2px solid ${isDone ? C.green : isActive ? C.amber : "rgba(255,255,255,0.06)"}`,
-                  color: isDone ? C.green : isActive ? C.amber : C.textDim,
+                  background: isDone ? `${C.green}20` : isPairingStep ? `${C.purple}15` : isActive ? `${C.amber}15` : "rgba(255,255,255,0.03)",
+                  border: `2px solid ${isDone ? C.green : isPairingStep ? C.purple : isActive ? C.amber : "rgba(255,255,255,0.06)"}`,
+                  color: isDone ? C.green : isPairingStep ? C.purple : isActive ? C.amber : C.textDim,
                 }}>
                   {isDone ? "\u2713" : i + 1}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: "bold", color: isDone ? C.green : isActive ? C.amber : C.textDim }}>
+                  <div style={{ fontSize: 11, fontWeight: "bold", color: stepColor }}>
                     {step.label.toUpperCase()}
                   </div>
-                  <div style={{ fontSize: 9, color: C.textDim, marginTop: 2 }}>{step.desc}</div>
-                  {isActive && (
+                  <div style={{ fontSize: 9, color: C.textDim, marginTop: 2 }}>
+                    {isPairingStep ? "Waiting for operator approval..." : step.desc}
+                  </div>
+                  {isActive && !isPairingStep && (
                     <div style={{ marginTop: 6, height: 3, borderRadius: 3, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
                       <div style={{
                         height: "100%", borderRadius: 3,
@@ -236,13 +241,37 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
                       }} />
                     </div>
                   )}
+                  {isPairingStep && (
+                    <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                      <div style={{
+                        width: 6, height: 6, borderRadius: 6,
+                        background: C.purple,
+                        animation: "pulse 1.5s infinite ease-in-out",
+                      }} />
+                      <span style={{ fontSize: 9, color: C.purple }}>Pairing in progress</span>
+                    </div>
+                  )}
                 </div>
                 {isDone && <span style={{ fontSize: 9, color: C.green, flexShrink: 0 }}>\u2713</span>}
-                {isActive && <Spinner color={C.amber} />}
+                {(isActive && !isPairingStep) && <Spinner color={C.amber} />}
+                {isPairingStep && <Spinner color={C.purple} />}
               </div>
             );
           })}
         </div>
+        {isPairing && (
+          <div style={{
+            background: `${C.purple}08`,
+            border: `1px solid ${C.purple}25`,
+            borderRadius: 4,
+            padding: "14px",
+            marginBottom: 20,
+          }}>
+            <div style={{ fontSize: 10, color: C.textDim, lineHeight: 1.5 }}>
+              This device needs to be approved by an existing operator. Ask them to check their pairing requests.
+            </div>
+          </div>
+        )}
         {phase === "done" && (
           <div style={{ animation: "fadeIn 0.4s ease" }}>
             <div style={{ display: "flex", gap: 1, marginBottom: 16, borderRadius: 4, overflow: "hidden" }}>
@@ -265,6 +294,7 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
         <style>{`
           @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
           @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+          @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         `}</style>
       </div>
     );

@@ -21,7 +21,7 @@ export const C = {
 export const CONNECTION_STEPS = [
   { id: "discover", label: "Discovering gateway", desc: "Scanning local reef network...", duration: 1800 },
   { id: "handshake", label: "Claw handshake", desc: "Establishing secure pinch protocol...", duration: 2200 },
-  { id: "auth", label: "Pod authentication", desc: "Verifying shell credentials...", duration: 1600 },
+  { id: "auth", label: "Device pairing", desc: "Authenticating device identity...", duration: 1600 },
   { id: "sync", label: "Syncing tide data", desc: "Downloading current maps and agent roster...", duration: 2400 },
   { id: "ready", label: "Gateway connected", desc: "All systems nominal. Welcome to the reef.", duration: 0 },
 ];
