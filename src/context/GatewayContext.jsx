@@ -38,6 +38,7 @@ export function GatewayProvider({ children }) {
   const [activityLogs, setActivityLogs] = useState([]);
   const [serverInfo, setServerInfo] = useState(null);
   const [features, setFeatures] = useState(null);
+  const [helloPayload, setHelloPayload] = useState(null);
   const [connectionPhase, setConnectionPhase] = useState("disconnected");
   const clientRef = useRef(null);
   const unsubsRef = useRef([]);
@@ -76,6 +77,7 @@ export function GatewayProvider({ children }) {
     setActivityLogs([]);
     setServerInfo(null);
     setFeatures(null);
+    setHelloPayload(null);
 
     const client = new GatewayClient({
       onStateChange: (state) => {
@@ -83,6 +85,7 @@ export function GatewayProvider({ children }) {
         if (state === "connected") {
           const hello = client.helloPayload;
           if (hello) {
+            setHelloPayload(hello);
             setServerInfo(hello.server);
             setFeatures(hello.features);
           }
@@ -133,6 +136,7 @@ export function GatewayProvider({ children }) {
     setActivityLogs([]);
     setServerInfo(null);
     setFeatures(null);
+    setHelloPayload(null);
   }, [cleanup]);
 
   const sendAgentMessage = useCallback((agentDisplayId, text) => {
@@ -225,7 +229,7 @@ export function GatewayProvider({ children }) {
     features,
     sendAgentMessage,
     client: clientRef.current,
-    helloPayload: clientRef.current?.helloPayload,
+    helloPayload,
     savedConnection: loadSavedConnection(),
     connectionHistory: loadConnectionHistory(),
   };
