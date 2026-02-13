@@ -1,5 +1,5 @@
-import { TILE, COLS, ROWS, C, MAP, BUBBLES } from "./constants";
-import { shadeColor, drawPixelText } from "./helpers";
+import { BUBBLES, C, COLS, MAP, ROWS, TILE } from "./constants";
+import { drawPixelText, shadeColor } from "./helpers";
 
 export function drawOcean(ctx, x, y, frame) {
   const hash = (x * 7 + y * 13) % 5;
@@ -9,11 +9,16 @@ export function drawOcean(ctx, x, y, frame) {
   const ripple = Math.sin(frame * 0.04 + x * 1.2 + y * 0.8);
   if (ripple > 0.6) {
     ctx.fillStyle = "rgba(93,173,226,0.08)";
-    ctx.fillRect(x * TILE + ((frame + x * 3) % 12), y * TILE + ((frame + y * 5) % 12), 5, 2);
+    ctx.fillRect(
+      x * TILE + ((frame + x * 3) % 12),
+      y * TILE + ((frame + y * 5) % 12),
+      5,
+      2,
+    );
   }
   // Tiny sand particles floating
   if ((x * 11 + y * 7) % 13 === 0) {
-    const py = (y * TILE + (frame * 0.3 + x * 5) % TILE) % (ROWS * TILE);
+    const py = (y * TILE + ((frame * 0.3 + x * 5) % TILE)) % (ROWS * TILE);
     ctx.fillStyle = "rgba(210,180,120,0.15)";
     ctx.fillRect(x * TILE + 6, py, 1, 1);
   }
@@ -36,10 +41,16 @@ export function drawSand(ctx, x, y) {
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
   // Sand texture
   ctx.fillStyle = C.sand2;
-  if ((x + y) % 3 === 0) ctx.fillRect(x * TILE + 3, y * TILE + 5, 2, 1);
-  if ((x * 5 + y) % 4 === 0) ctx.fillRect(x * TILE + 10, y * TILE + 11, 3, 1);
+  if ((x + y) % 3 === 0) {
+    ctx.fillRect(x * TILE + 3, y * TILE + 5, 2, 1);
+  }
+  if ((x * 5 + y) % 4 === 0) {
+    ctx.fillRect(x * TILE + 10, y * TILE + 11, 3, 1);
+  }
   ctx.fillStyle = C.sandD;
-  if ((x + y * 3) % 5 === 0) ctx.fillRect(x * TILE + 7, y * TILE + 2, 1, 1);
+  if ((x + y * 3) % 5 === 0) {
+    ctx.fillRect(x * TILE + 7, y * TILE + 2, 1, 1);
+  }
   // Edge darkening
   if (y > 0 && MAP[y - 1]?.[x] !== 1) {
     ctx.fillStyle = C.sandD;
@@ -77,7 +88,9 @@ export function drawShellRoof(ctx, x, y) {
   ctx.fillRect(x * TILE + (ridge ? 8 : 10), y * TILE + 9, 5, 2);
   // Highlight
   ctx.fillStyle = C.lob2;
-  if ((x + y) % 3 === 0) ctx.fillRect(x * TILE + 4, y * TILE + 1, 3, 1);
+  if ((x + y) % 3 === 0) {
+    ctx.fillRect(x * TILE + 4, y * TILE + 1, 3, 1);
+  }
   // Bottom shadow
   ctx.fillStyle = C.lobD;
   ctx.fillRect(x * TILE, y * TILE + TILE - 2, TILE, 2);
@@ -209,10 +222,13 @@ export function drawShellDeco(ctx, x, y, frame) {
 }
 
 export function drawBubbles(ctx, frame) {
-  BUBBLES.forEach(b => {
+  BUBBLES.forEach((b) => {
     b.y -= b.speed;
     b.x += Math.sin(frame * 0.03 + b.wobble) * 0.3;
-    if (b.y < -4) { b.y = ROWS * TILE + 4; b.x = Math.random() * COLS * TILE; }
+    if (b.y < -4) {
+      b.y = ROWS * TILE + 4;
+      b.x = Math.random() * COLS * TILE;
+    }
     ctx.fillStyle = C.bubble;
     ctx.fillRect(Math.round(b.x), Math.round(b.y), b.size, b.size);
     ctx.fillStyle = C.bubbleH;
@@ -305,7 +321,13 @@ export function drawLobsterAgent(ctx, agent, frame) {
   ctx.fillStyle = C.uiBg;
   ctx.fillRect(px + 8 - nameWidth / 2, nameY - 1, nameWidth, 7);
   ctx.fillStyle = ac;
-  drawPixelText(ctx, agent.id, px + 8 - (agent.id.length * 4) / 2 + 2, nameY, 1);
+  drawPixelText(
+    ctx,
+    agent.id,
+    px + 8 - (agent.id.length * 4) / 2 + 2,
+    nameY,
+    1,
+  );
 }
 
 export function drawSignpost(ctx, x, y) {

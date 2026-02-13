@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { shadeColor } from "./helpers";
 
 export default function LobsterAvatar({ color, size = 48, style: extra }) {
@@ -8,7 +8,9 @@ export default function LobsterAvatar({ color, size = 48, style: extra }) {
     let raf;
     const draw = () => {
       const cv = ref.current;
-      if (!cv) return;
+      if (!cv) {
+        return;
+      }
       const ctx = cv.getContext("2d");
       const fr = f.current++;
       ctx.clearRect(0, 0, 16, 16);
@@ -58,5 +60,17 @@ export default function LobsterAvatar({ color, size = 48, style: extra }) {
     draw();
     return () => cancelAnimationFrame(raf);
   }, [color]);
-  return <canvas ref={ref} width={16} height={16} style={{ width: size, height: size, imageRendering: "pixelated", ...extra }} />;
+  return (
+    <canvas
+      ref={ref}
+      width={16}
+      height={16}
+      style={{
+        width: size,
+        height: size,
+        imageRendering: "pixelated",
+        ...extra,
+      }}
+    />
+  );
 }

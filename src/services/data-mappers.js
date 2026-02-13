@@ -1,7 +1,16 @@
 const PALETTE = [
-  "#e74c3c", "#ff6b8a", "#f4a261", "#9b59b6",
-  "#2ecc71", "#1abc9c", "#5dade2", "#e76f51",
-  "#f39c12", "#8e44ad", "#3498db", "#e74c6f",
+  "#e74c3c",
+  "#ff6b8a",
+  "#f4a261",
+  "#9b59b6",
+  "#2ecc71",
+  "#1abc9c",
+  "#5dade2",
+  "#e76f51",
+  "#f39c12",
+  "#8e44ad",
+  "#3498db",
+  "#e74c6f",
 ];
 
 const POSITIONS = [
@@ -20,7 +29,9 @@ const POSITIONS = [
 ];
 
 export function mapToHqAgents(gatewayAgents) {
-  if (!gatewayAgents) return [];
+  if (!gatewayAgents) {
+    return [];
+  }
   return gatewayAgents.map((agent, i) => {
     const pos = POSITIONS[i % POSITIONS.length];
     const color = PALETTE[i % PALETTE.length];
@@ -39,7 +50,9 @@ export function mapToHqAgents(gatewayAgents) {
 }
 
 export function mapToChatAgents(gatewayAgents) {
-  if (!gatewayAgents) return [];
+  if (!gatewayAgents) {
+    return [];
+  }
   return gatewayAgents.map((agent, i) => {
     const color = PALETTE[i % PALETTE.length];
     const name = agent.identity?.name || agent.name || agent.id;
