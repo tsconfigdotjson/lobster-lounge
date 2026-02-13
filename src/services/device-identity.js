@@ -9,6 +9,11 @@ function base64url(arrayBuffer) {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+function hexEncode(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+}
+
 export async function getOrCreateIdentity() {
   const stored = localStorage.getItem(KEYPAIR_KEY);
 
@@ -17,14 +22,18 @@ export async function getOrCreateIdentity() {
   if (stored) {
     const jwk = JSON.parse(stored);
     publicKey = await crypto.subtle.importKey(
-      "jwk", jwk.publicKey, { name: "ECDSA", namedCurve: "P-256" }, true, ["verify"]
+      "jwk", jwk.publicKey, { name: "Ed25519" }, true, ["verify"]
     );
     privateKey = await crypto.subtle.importKey(
-      "jwk", jwk.privateKey, { name: "ECDSA", namedCurve: "P-256" }, true, ["sign"]
+      "jwk", jwk.privateKey, { name: "Ed25519" }, true, ["sign"]
     );
   } else {
+    // Clear any old ECDSA keypair from a previous version
+    localStorage.removeItem(KEYPAIR_KEY);
+    localStorage.removeItem(DEVICE_ID_KEY);
+
     const keyPair = await crypto.subtle.generateKey(
-      { name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]
+      "Ed25519", true, ["sign", "verify"]
     );
     publicKey = keyPair.publicKey;
     privateKey = keyPair.privateKey;
@@ -36,7 +45,7 @@ export async function getOrCreateIdentity() {
 
   const rawPubKey = await crypto.subtle.exportKey("raw", publicKey);
   const hash = await crypto.subtle.digest("SHA-256", rawPubKey);
-  const deviceId = base64url(hash);
+  const deviceId = hexEncode(hash);
   const publicKeyB64 = base64url(rawPubKey);
 
   localStorage.setItem(DEVICE_ID_KEY, deviceId);
@@ -49,7 +58,7 @@ export async function signConnectPayload(privateKey, { deviceId, nonce, token })
   const payloadStr = `v2|${deviceId}|openclaw-control-ui|ui|operator|operator.read,operator.write|${signedAt}|${token || ""}|${nonce || ""}`;
   const payloadBytes = new TextEncoder().encode(payloadStr);
   const sigBuf = await crypto.subtle.sign(
-    { name: "ECDSA", hash: "SHA-256" }, privateKey, payloadBytes
+    "Ed25519", privateKey, payloadBytes
   );
   return { signature: base64url(sigBuf), signedAt };
 }
