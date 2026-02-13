@@ -215,10 +215,6 @@ export default class GatewayClient {
       role: "operator",
       scopes: ["operator.read", "operator.write"],
     };
-    if (this.#nonce) {
-      params.nonce = this.#nonce;
-    }
-
     // Device identity
     const { signature, signedAt } = await signConnectPayload(
       this.#identity.privateKey,
