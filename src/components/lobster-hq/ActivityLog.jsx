@@ -5,7 +5,7 @@ export default function ActivityLog({ logs = [], tick }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      {visible.map((l) => (
+      {visible.map((l, i) => (
         <div
           key={`${l.agent}-${l.action}`}
           style={{
