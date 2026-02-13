@@ -9,6 +9,7 @@ import {
 } from "./lobster-hq";
 import { C } from "./lobster-hq/constants";
 import { AgentChat, AgentCreator } from "./open-claw";
+import SkillsPanel from "./open-claw/SkillsPanel";
 import { btnSecondaryStyle } from "./open-claw/styles";
 
 export default function DashboardView() {
@@ -24,8 +25,7 @@ export default function DashboardView() {
     updateAgent,
     updateSkill,
     refreshSkills,
-    skills,
-    fetchAgentSkills,
+    allSkills,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [chatCollapsed, setChatCollapsed] = useState(false);
@@ -63,51 +63,38 @@ export default function DashboardView() {
 
   const sel = agents.find((a) => a.id === selectedAgent);
 
-  const handleCreate = async ({ name, skills: selSkills }) => {
+  const handleCreate = async ({ name }) => {
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
-    const emoji = selSkills?.[0]?.icon || "\uD83E\uDD9E";
-    await createAgent({ name, workspace: `agents/${slug}`, emoji });
+    await createAgent({
+      name,
+      workspace: `agents/${slug}`,
+      emoji: "\uD83E\uDD9E",
+    });
     setShowCreator(false);
   };
 
   const handleUpdate = async (data) => {
     await updateAgent({ agentId: data._gatewayId, name: data.name });
-    const originalSkillIds = new Set(
-      (editingAgent?.skills || []).map((s) => s.id),
-    );
-    const newSkillIds = new Set((data.skills || []).map((s) => s.id));
-    const skillUpdates = [];
-    for (const id of originalSkillIds) {
-      if (!newSkillIds.has(id)) {
-        skillUpdates.push(updateSkill({ skillKey: id, enabled: false }));
-      }
-    }
-    for (const id of newSkillIds) {
-      if (!originalSkillIds.has(id)) {
-        skillUpdates.push(updateSkill({ skillKey: id, enabled: true }));
-      }
-    }
-    if (skillUpdates.length > 0) {
-      await Promise.all(skillUpdates);
-      await refreshSkills();
-    }
     setEditingAgent(null);
   };
 
-  const handleEditClick = async () => {
+  const handleEditClick = () => {
     if (!sel) {
       return;
     }
-    const agentSkills = await fetchAgentSkills(sel._gatewayId);
     setEditingAgent({
       _gatewayId: sel._gatewayId,
       name: sel.id,
-      skills: agentSkills,
       color: sel.color,
     });
+  };
+
+  const handleSkillToggle = async (skillKey, enabled) => {
+    await updateSkill({ skillKey, enabled });
+    await refreshSkills();
   };
 
   return (
@@ -282,6 +269,11 @@ export default function DashboardView() {
         </div>
       </DraggablePanel>
 
+      {/* Skills panel — below Pod Roster */}
+      <DraggablePanel title="SKILLS" defaultX={16} defaultY={340}>
+        <SkillsPanel skills={allSkills} onToggle={handleSkillToggle} />
+      </DraggablePanel>
+
       {/* Activity Log overlay — top-right */}
       <DraggablePanel
         title="TIDE LOG"
@@ -377,7 +369,6 @@ export default function DashboardView() {
           defaultY={80}
         >
           <AgentCreator
-            skills={skills}
             onDeploy={handleCreate}
             onCancel={() => setShowCreator(false)}
           />
@@ -393,7 +384,6 @@ export default function DashboardView() {
         >
           <AgentCreator
             key={editingAgent._gatewayId}
-            skills={skills}
             editAgent={editingAgent}
             onUpdate={handleUpdate}
             onCancel={() => setEditingAgent(null)}

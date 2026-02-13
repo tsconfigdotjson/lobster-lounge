@@ -62,6 +62,7 @@ export function GatewayProvider({ children }) {
   const [pairingState, setPairingState] = useState(null);
   const [deviceId, setDeviceId] = useState(null);
   const [skills, setSkills] = useState([]);
+  const [allSkills, setAllSkills] = useState([]);
   const clientRef = useRef(null);
   const unsubsRef = useRef([]);
 
@@ -100,16 +101,24 @@ export function GatewayProvider({ children }) {
     }
   }, []);
 
-  const fetchAgentSkills = useCallback(
-    async (agentId) => {
-      const client = clientRef.current;
-      if (!client?.connected) {
-        return [];
-      }
-      return fetchSkills(client, agentId);
-    },
-    [fetchSkills],
-  );
+  const fetchAllSkills = useCallback(async (client) => {
+    try {
+      const res = await client.request("skills.status", {});
+      const entries = res.skills || res.entries || [];
+      return entries
+        .filter((s) => s.eligible !== false)
+        .map((s) => ({
+          id: s.skillKey || s.name,
+          name: s.name,
+          icon: s.emoji || "\u2699\uFE0F",
+          desc: s.description || "",
+          cat: s.source || "skill",
+          enabled: !s.disabled,
+        }));
+    } catch (_err) {
+      return [];
+    }
+  }, []);
 
   const syncAgents = useCallback(
     async (client) => {
@@ -130,14 +139,18 @@ export function GatewayProvider({ children }) {
           ]);
         });
         // Fetch available skills after syncing agents
-        const skillsList = await fetchSkills(client);
+        const [skillsList, allSkillsList] = await Promise.all([
+          fetchSkills(client),
+          fetchAllSkills(client),
+        ]);
         setSkills(skillsList);
+        setAllSkills(allSkillsList);
         setConnectionPhase("connected");
       } catch (_err) {
         setConnectionPhase("connected");
       }
     },
-    [fetchSkills],
+    [fetchSkills, fetchAllSkills],
   );
 
   const createAgent = useCallback(
@@ -190,9 +203,13 @@ export function GatewayProvider({ children }) {
     if (!client?.connected) {
       return;
     }
-    const skillsList = await fetchSkills(client);
+    const [skillsList, allSkillsList] = await Promise.all([
+      fetchSkills(client),
+      fetchAllSkills(client),
+    ]);
     setSkills(skillsList);
-  }, [fetchSkills]);
+    setAllSkills(allSkillsList);
+  }, [fetchSkills, fetchAllSkills]);
 
   const connect = useCallback(
     (url, gatewayToken) => {
@@ -277,6 +294,7 @@ export function GatewayProvider({ children }) {
     setFeatures(null);
     setHelloPayload(null);
     setSkills([]);
+    setAllSkills([]);
   }, [cleanup]);
 
   const sendAgentMessage = useCallback(
@@ -417,7 +435,7 @@ export function GatewayProvider({ children }) {
     updateSkill,
     refreshSkills,
     skills,
-    fetchAgentSkills,
+    allSkills,
     client: clientRef.current,
     helloPayload,
     savedConnection: loadSavedConnection(),

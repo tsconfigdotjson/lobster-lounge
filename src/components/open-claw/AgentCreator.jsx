@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { C } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
 import PanelHeader from "./PanelHeader";
@@ -12,211 +12,11 @@ import {
 
 const containerStyle = { padding: 20, width: 400 };
 
-function SkillPicker({
-  skills,
-  setSkills,
-  availableSkills,
-  color,
-  max,
-  skillSearch,
-  setSkillSearch,
-}) {
-  const [showDrop, setShowDrop] = useState(false);
-  const dropRef = useRef(null);
-
-  useEffect(() => {
-    const h = (e) => {
-      if (dropRef.current && !dropRef.current.contains(e.target)) {
-        setShowDrop(false);
-      }
-    };
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, []);
-
-  const filtered = availableSkills.filter(
-    (s) =>
-      !skills.find((sel) => sel.id === s.id) &&
-      (s.name.toLowerCase().includes(skillSearch.toLowerCase()) ||
-        s.cat.toLowerCase().includes(skillSearch.toLowerCase()) ||
-        s.desc.toLowerCase().includes(skillSearch.toLowerCase())),
-  );
-
-  return (
-    <>
-      {skills.length > 0 && (
-        <div
-          style={{
-            display: "flex",
-            gap: 6,
-            flexWrap: "wrap",
-            marginBottom: 8,
-            marginTop: 4,
-          }}
-        >
-          {skills.map((s) => (
-            <div
-              key={s.id}
-              style={{
-                padding: "4px 8px 4px 10px",
-                borderRadius: 3,
-                background: `${color}15`,
-                border: `1px solid ${color}35`,
-                fontSize: 10,
-                color,
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              {s.icon} {s.name}
-              <button
-                type="button"
-                onClick={() => setSkills(skills.filter((sk) => sk.id !== s.id))}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: C.textDim,
-                  cursor: "pointer",
-                  padding: 0,
-                  fontSize: 13,
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-      <div ref={dropRef} style={{ position: "relative" }}>
-        <input
-          value={skillSearch}
-          onChange={(e) => {
-            setSkillSearch(e.target.value);
-            setShowDrop(true);
-          }}
-          onFocus={() => setShowDrop(true)}
-          placeholder={
-            skills.length >= max ? "Max skills reached" : "Search skills..."
-          }
-          disabled={skills.length >= max}
-          style={{ ...inputStyle, opacity: skills.length >= max ? 0.4 : 1 }}
-        />
-        <span
-          style={{
-            position: "absolute",
-            right: 10,
-            top: "50%",
-            transform: "translateY(-50%)",
-            fontSize: 10,
-            color: C.textDim,
-            pointerEvents: "none",
-          }}
-        >
-          🔍
-        </span>
-        {showDrop && skills.length < max && (
-          <div
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              right: 0,
-              zIndex: 10,
-              background: C.deep0,
-              border: `1px solid ${C.uiBorder}`,
-              borderTop: "none",
-              borderRadius: "0 0 4px 4px",
-              maxHeight: 170,
-              overflowY: "auto",
-            }}
-          >
-            {filtered.length === 0 ? (
-              <div
-                style={{
-                  padding: 12,
-                  fontSize: 10,
-                  color: C.textDim,
-                  textAlign: "center",
-                }}
-              >
-                No matching skills
-              </div>
-            ) : (
-              filtered.map((s) => (
-                <button
-                  type="button"
-                  key={s.id}
-                  onClick={() => {
-                    setSkills([...skills, s]);
-                    setSkillSearch("");
-                    setShowDrop(false);
-                  }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    width: "100%",
-                    padding: "8px 12px",
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: C.text,
-                    fontFamily: "'Courier New', monospace",
-                    fontSize: 10,
-                    textAlign: "left",
-                    borderBottom: "1px solid rgba(255,255,255,0.03)",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = `${C.amber}08`)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "transparent")
-                  }
-                >
-                  <span
-                    style={{ fontSize: 15, width: 22, textAlign: "center" }}
-                  >
-                    {s.icon}
-                  </span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: "bold" }}>{s.name}</div>
-                    <div
-                      style={{ color: C.textDim, fontSize: 9, marginTop: 1 }}
-                    >
-                      {s.desc}
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 8,
-                      color: C.amber,
-                      padding: "2px 6px",
-                      background: `${C.amber}12`,
-                      borderRadius: 2,
-                    }}
-                  >
-                    {s.cat}
-                  </span>
-                </button>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
 function PropertySheet({
   name,
   setName,
-  skills,
-  setSkills,
   color,
   setColor,
-  availableSkills,
   editAgent,
   onUpdate,
   onCancel,
@@ -226,8 +26,6 @@ function PropertySheet({
   setDeployError,
 }) {
   const [editingField, setEditingField] = useState(null);
-  const [skillSearch, setSkillSearch] = useState("");
-  const MAX = 3;
   const colors = [
     "#e74c3c",
     "#ff6b8a",
@@ -272,7 +70,7 @@ function PropertySheet({
     setDeploying(true);
     setDeployError(null);
     try {
-      await onUpdate?.({ ...editAgent, name, skills, color });
+      await onUpdate?.({ ...editAgent, name, color });
     } catch (err) {
       setDeployError(err?.message || "Update failed");
     } finally {
@@ -334,7 +132,7 @@ function PropertySheet({
         }}
       >
         {/* NAME row */}
-        <div style={rowStyle}>
+        <div style={{ ...rowStyle, borderBottom: "none" }}>
           <span
             style={{
               fontSize: 9,
@@ -375,63 +173,6 @@ function PropertySheet({
           </div>
           {pencilBtn("name")}
         </div>
-
-        {/* SKILLS row */}
-        <div style={{ ...rowStyle, borderBottom: "none", flexWrap: "wrap" }}>
-          <span
-            style={{
-              fontSize: 9,
-              letterSpacing: 2,
-              color: C.amber,
-              fontWeight: "bold",
-              width: 60,
-              flexShrink: 0,
-            }}
-          >
-            SKILLS
-          </span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {skills.length === 0 ? (
-              <span style={{ fontSize: 10, color: C.textDim }}>
-                No skills assigned
-              </span>
-            ) : (
-              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                {skills.map((s) => (
-                  <span
-                    key={s.id}
-                    style={{
-                      padding: "3px 8px",
-                      borderRadius: 3,
-                      background: `${color}12`,
-                      border: `1px solid ${color}30`,
-                      fontSize: 10,
-                      color,
-                    }}
-                  >
-                    {s.icon} {s.name}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          {pencilBtn("skills")}
-        </div>
-
-        {/* Expanded skill picker */}
-        {editingField === "skills" && (
-          <div style={{ padding: "0 0 10px", marginTop: -4 }}>
-            <SkillPicker
-              skills={skills}
-              setSkills={setSkills}
-              availableSkills={availableSkills}
-              color={color}
-              max={MAX}
-              skillSearch={skillSearch}
-              setSkillSearch={setSkillSearch}
-            />
-          </div>
-        )}
       </div>
 
       {/* Error */}
@@ -480,7 +221,6 @@ function PropertySheet({
 }
 
 export default function AgentCreator({
-  skills: availableSkills = [],
   onDeploy,
   editAgent,
   onUpdate,
@@ -488,13 +228,10 @@ export default function AgentCreator({
 }) {
   const isEdit = !!editAgent;
   const [name, setName] = useState(editAgent?.name || "");
-  const [skillSearch, setSkillSearch] = useState("");
-  const [skills, setSkills] = useState(editAgent?.skills || []);
   const [color, setColor] = useState(editAgent?.color || "#e74c3c");
   const [phase, setPhase] = useState("edit");
   const [deploying, setDeploying] = useState(false);
   const [deployError, setDeployError] = useState(null);
-  const MAX = 3;
   const colors = [
     "#e74c3c",
     "#ff6b8a",
@@ -506,7 +243,7 @@ export default function AgentCreator({
     "#e67e22",
   ];
 
-  const isValid = name.trim().length > 0 && skills.length > 0;
+  const isValid = name.trim().length > 0;
 
   // --- Edit mode: property sheet ---
   if (isEdit) {
@@ -514,11 +251,8 @@ export default function AgentCreator({
       <PropertySheet
         name={name}
         setName={setName}
-        skills={skills}
-        setSkills={setSkills}
         color={color}
         setColor={setColor}
-        availableSkills={availableSkills}
         editAgent={editAgent}
         onUpdate={onUpdate}
         onCancel={onCancel}
@@ -584,7 +318,6 @@ export default function AgentCreator({
             onClick={() => {
               setPhase("edit");
               setName("");
-              setSkills([]);
               setDeployError(null);
             }}
             style={{ ...btnPrimaryStyle(C.amber), marginTop: 8 }}
@@ -605,7 +338,7 @@ export default function AgentCreator({
     setDeploying(true);
     setDeployError(null);
     try {
-      await onDeploy?.({ name, skills, color });
+      await onDeploy?.({ name, color });
       setPhase("deployed");
     } catch (err) {
       setDeployError(err?.message || "Deploy failed");
@@ -619,7 +352,6 @@ export default function AgentCreator({
     const specRows = [
       ["Designation", name.toUpperCase()],
       ["Shell Color", color],
-      ["Skills Loaded", `${skills.length}/${MAX}`],
       ["Mode", "Autonomous"],
       ["Pod Assignment", "Default"],
       ["Est. Boot Time", "~3.2s"],
@@ -691,26 +423,6 @@ export default function AgentCreator({
                 >
                   NEW
                 </span>
-              </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {skills.map((s) => (
-                  <div
-                    key={s.id}
-                    style={{
-                      padding: "4px 10px",
-                      borderRadius: 3,
-                      background: `${color}12`,
-                      border: `1px solid ${color}30`,
-                      fontSize: 10,
-                      color,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    {s.icon} {s.name}
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -887,23 +599,6 @@ export default function AgentCreator({
         style={inputStyle}
       />
       <div style={counterStyle}>{name.length}/12</div>
-      <span style={labelStyle}>
-        SKILLS{" "}
-        <span style={{ color: C.textDim, fontWeight: "normal" }}>
-          ({skills.length}/{MAX})
-        </span>
-      </span>
-      <div style={{ marginBottom: 16 }}>
-        <SkillPicker
-          skills={skills}
-          setSkills={setSkills}
-          availableSkills={availableSkills}
-          color={color}
-          max={MAX}
-          skillSearch={skillSearch}
-          setSkillSearch={setSkillSearch}
-        />
-      </div>
       {onCancel && (
         <button
           type="button"
@@ -939,7 +634,7 @@ export default function AgentCreator({
             textAlign: "center",
           }}
         >
-          Fill in name and at least 1 skill
+          Fill in a name
         </div>
       )}
     </div>
