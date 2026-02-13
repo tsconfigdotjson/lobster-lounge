@@ -7,7 +7,7 @@ export const panelStyle = {
 
 export const labelStyle = { display: "block", fontSize: 9, letterSpacing: 2, color: C.amber, marginBottom: 6, fontWeight: "bold", fontFamily: "'Courier New', monospace" };
 
-export const inputStyle = { width: "100%", padding: "10px 12px", background: C.inputBg, border: `1px solid ${C.inputBorder}`, borderRadius: 3, color: C.text, fontFamily: "'Courier New', monospace", fontSize: 12, outline: "none", boxSizing: "border-box" };
+export const inputStyle = { width: "100%", padding: "10px 12px", background: C.inputBg, border: `1px solid ${C.inputBorder}`, borderRadius: 3, color: C.text, fontFamily: "'Courier New', monospace", fontSize: 13, outline: "none", boxSizing: "border-box" };
 
 export const counterStyle = { fontSize: 9, color: C.textDim, marginTop: 2, marginBottom: 14, textAlign: "right" };
 

@@ -21,6 +21,7 @@ export default class GatewayClient {
   #nonce = null;
   #identity = null;
   #storedDeviceToken = null;
+  #gatewayToken = "";
   #gatewayHost = null;
 
   get state() { return this.#state; }
@@ -33,9 +34,10 @@ export default class GatewayClient {
     this.#onStateChange = onStateChange || null;
   }
 
-  async connect(url) {
+  async connect(url, gatewayToken) {
     this.#intentionalClose = false;
     this.#url = url;
+    this.#gatewayToken = gatewayToken || "";
     this.#reconnectDelay = 1000;
 
     try {
@@ -215,18 +217,19 @@ export default class GatewayClient {
       role: "operator",
       scopes: ["operator.read", "operator.write"],
     };
-    // Device identity
+    // Device identity — prefer stored device token, fall back to gateway token
+    const authToken = this.#storedDeviceToken || this.#gatewayToken || "";
     const { signature, signedAt } = await signConnectPayload(
       this.#identity.privateKey,
-      { deviceId: this.#identity.deviceId, nonce: this.#nonce, token: this.#storedDeviceToken || "" }
+      { deviceId: this.#identity.deviceId, nonce: this.#nonce, token: authToken }
     );
     params.device = {
       id: this.#identity.deviceId,
       publicKey: this.#identity.publicKeyB64,
       signature, signedAt, nonce: this.#nonce,
     };
-    if (this.#storedDeviceToken) {
-      params.auth = { token: this.#storedDeviceToken };
+    if (authToken) {
+      params.auth = { token: authToken };
     }
 
     const timer = setTimeout(() => {

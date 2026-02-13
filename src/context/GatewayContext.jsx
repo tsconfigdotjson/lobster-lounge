@@ -77,7 +77,7 @@ export function GatewayProvider({ children }) {
     }
   }, []);
 
-  const connect = useCallback((url) => {
+  const connect = useCallback((url, gatewayToken) => {
     cleanup();
     setConnectionError(null);
     setAgents([]);
@@ -137,7 +137,7 @@ export function GatewayProvider({ children }) {
     });
     unsubsRef.current.push(unsub1);
 
-    client.connect(url);
+    client.connect(url, gatewayToken);
   }, [cleanup, syncAgents]);
 
   const disconnect = useCallback(() => {

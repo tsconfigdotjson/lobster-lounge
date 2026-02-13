@@ -7,7 +7,7 @@ export default function ActivityLog({ logs = [], tick }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       {visible.map((l, i) => (
         <div key={i} style={{
-          fontSize: 9, lineHeight: 1.4,
+          fontSize: 11, lineHeight: 1.4,
           opacity: 0.4 + (i / visible.length) * 0.6,
           borderLeft: `2px solid ${l.color}`,
           paddingLeft: 6,

@@ -1,4 +1,4 @@
-import { TILE, ROWS, C, MAP, BUBBLES } from "./constants";
+import { TILE, COLS, ROWS, C, MAP, BUBBLES } from "./constants";
 import { shadeColor, drawPixelText } from "./helpers";
 
 export function drawOcean(ctx, x, y, frame) {

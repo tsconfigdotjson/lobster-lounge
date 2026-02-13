@@ -31,7 +31,7 @@ function AppContent() {
           connectionError={connectionError}
           serverInfo={serverInfo}
           helloPayload={helloPayload}
-          onStartConnect={(url: string) => connect(url)}
+          onStartConnect={(url: string, token?: string) => connect(url, token)}
           onConnect={() => { /* dashboard will show automatically via state */ }}
           deviceId={deviceId}
         />

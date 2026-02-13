@@ -41,14 +41,14 @@ export default function AgentChat({ agents = [], onSendMessage }) {
   if (!active) return null;
 
   return (
-    <div style={{ ...panelStyle, padding: 0, display: "flex", flexDirection: "column", height: 560 }}>
+    <div style={{ ...panelStyle, padding: 0, width: "100%", display: "flex", flexDirection: "column", height: 560, boxSizing: "border-box", border: "none", borderRadius: 0 }}>
       <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.05)", overflowX: "auto", flexShrink: 0 }}>
         {agents.map(a => (
           <button key={a.id} onClick={() => setActive(a)} style={{
             padding: "10px 12px", background: active.id === a.id ? `${a.color}10` : "transparent",
             border: "none", borderBottom: `2px solid ${active.id === a.id ? a.color : "transparent"}`,
             cursor: "pointer", color: active.id === a.id ? a.color : C.textDim,
-            fontFamily: "'Courier New', monospace", fontSize: 9, fontWeight: "bold",
+            fontFamily: "'Courier New', monospace", fontSize: 11, fontWeight: "bold",
             letterSpacing: 1, display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap",
           }}>
             <span style={{ width: 6, height: 6, borderRadius: 6, background: sc[a.status], boxShadow: a.status === "active" ? `0 0 4px ${C.green}60` : "none" }} />
@@ -59,10 +59,10 @@ export default function AgentChat({ agents = [], onSendMessage }) {
       <div style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.03)", flexShrink: 0 }}>
         <LobsterAvatar color={active.color} size={32} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: "bold", color: active.color }}>{active.id}</div>
-          <div style={{ fontSize: 9, color: C.textDim }}>{active.role} · {active.status.toUpperCase()}</div>
+          <div style={{ fontSize: 15, fontWeight: "bold", color: active.color }}>{active.id}</div>
+          <div style={{ fontSize: 11, color: C.textDim }}>{active.role} · {active.status.toUpperCase()}</div>
         </div>
-        <div style={{ padding: "3px 8px", borderRadius: 2, background: `${sc[active.status]}12`, border: `1px solid ${sc[active.status]}35`, fontSize: 8, color: sc[active.status], letterSpacing: 1 }}>
+        <div style={{ padding: "3px 8px", borderRadius: 2, background: `${sc[active.status]}12`, border: `1px solid ${sc[active.status]}35`, fontSize: 10, color: sc[active.status], letterSpacing: 1 }}>
           {active.status.toUpperCase()}
         </div>
       </div>
@@ -70,8 +70,8 @@ export default function AgentChat({ agents = [], onSendMessage }) {
         {msgs.length === 0 && !typing && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, opacity: 0.4 }}>
             <LobsterAvatar color={active.color} size={44} />
-            <div style={{ fontSize: 10, color: C.textDim, textAlign: "center", lineHeight: 1.6 }}>
-              Send a message to {active.id}<br /><span style={{ fontSize: 9 }}>Try: "Status report" or "What did you find?"</span>
+            <div style={{ fontSize: 12, color: C.textDim, textAlign: "center", lineHeight: 1.6 }}>
+              Send a message to {active.id}<br /><span style={{ fontSize: 11 }}>Try: "Status report" or "What did you find?"</span>
             </div>
           </div>
         )}
@@ -83,7 +83,7 @@ export default function AgentChat({ agents = [], onSendMessage }) {
               borderRadius: m.from === "user" ? "8px 8px 2px 8px" : "8px 8px 8px 2px",
               background: m.from === "user" ? C.chatUser : C.chatAgent,
               border: `1px solid ${m.from === "user" ? `${C.amber}18` : `${active.color}18`}`,
-              fontSize: 11, lineHeight: 1.55, color: C.text,
+              fontSize: 13, lineHeight: 1.55, color: C.text,
             }}>
               {m.text}
             </div>
@@ -103,7 +103,7 @@ export default function AgentChat({ agents = [], onSendMessage }) {
         <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()}
           placeholder={`Message ${active.id}...`} style={{ ...inputStyle, marginBottom: 0, flex: 1 }} />
         <button onClick={send} disabled={!input.trim() || typing}
-          style={{ ...btnPrimaryStyle(active.color), opacity: input.trim() && !typing ? 1 : 0.3, padding: "8px 16px", fontSize: 10 }}>
+          style={{ ...btnPrimaryStyle(active.color), opacity: input.trim() && !typing ? 1 : 0.3, padding: "8px 16px", fontSize: 12 }}>
           SEND
         </button>
       </div>

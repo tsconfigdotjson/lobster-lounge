@@ -5,6 +5,7 @@ import PanelHeader from "./PanelHeader";
 import Spinner from "./Spinner";
 import LobsterAvatar from "./LobsterAvatar";
 import { loadConnectionHistory } from "../../context/GatewayContext";
+import { getDeviceToken } from "../../services/device-identity";
 
 const STATE_TO_STEP = {
   connecting: 0,
@@ -18,6 +19,7 @@ const STATE_TO_STEP = {
 export default function GatewayScreen({ onConnect, connectionState, connectionError, onStartConnect, serverInfo, helloPayload, deviceId }) {
   const [phase, setPhase] = useState("select");
   const [url, setUrl] = useState("");
+  const [token, setToken] = useState("");
   const [connectStep, setConnectStep] = useState(0);
   const history = loadConnectionHistory();
 
@@ -53,7 +55,7 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
     if (!url.trim()) return;
     setPhase("connecting");
     setConnectStep(0);
-    onStartConnect?.(url.trim());
+    onStartConnect?.(url.trim(), token || undefined);
   };
 
   const fillFromHistory = (entry) => {
@@ -63,6 +65,13 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
   const truncatedDeviceId = deviceId
     ? deviceId.slice(0, 4) + "..." + deviceId.slice(-4)
     : null;
+
+  // Check if device is already paired for current URL
+  let hasPairedToken = false;
+  try {
+    const host = url.trim() ? new URL(url.trim()).host : null;
+    hasPairedToken = host ? !!getDeviceToken(host) : false;
+  } catch { /* invalid URL, ignore */ }
 
   const isPairing = connectionState === "pairing";
 
@@ -83,10 +92,46 @@ export default function GatewayScreen({ onConnect, connectionState, connectionEr
           onKeyDown={e => e.key === "Enter" && startConnect()}
         />
 
-        {truncatedDeviceId && (
-          <div style={{ fontSize: 9, color: C.textDim, marginTop: 6 }}>
-            🔑 DEVICE  {truncatedDeviceId}
+        <div style={{ marginBottom: 14 }} />
+
+        {/* Device auth status */}
+        <div style={{
+          padding: "10px 12px", borderRadius: 4, marginBottom: 14,
+          background: hasPairedToken ? `${C.green}08` : `${C.purple}08`,
+          border: `1px solid ${hasPairedToken ? C.green : C.purple}20`,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{
+              width: 8, height: 8, borderRadius: 8,
+              background: hasPairedToken ? C.green : C.purple,
+              boxShadow: hasPairedToken ? `0 0 6px ${C.green}60` : "none",
+            }} />
+            <span style={{ fontSize: 10, fontWeight: "bold", color: hasPairedToken ? C.green : C.purple, letterSpacing: 0.5 }}>
+              {hasPairedToken ? "DEVICE PAIRED" : "NEW DEVICE"}
+            </span>
           </div>
+          {truncatedDeviceId && (
+            <div style={{ fontSize: 9, color: C.textDim, marginTop: 5, marginLeft: 16 }}>
+              {hasPairedToken
+                ? `Device ${truncatedDeviceId} has a stored token for this gateway`
+                : `Device ${truncatedDeviceId} — gateway token required for first pairing`}
+            </div>
+          )}
+        </div>
+
+        {!hasPairedToken && (
+          <>
+            <label style={labelStyle}>GATEWAY TOKEN</label>
+            <input
+              value={token}
+              onChange={e => setToken(e.target.value)}
+              placeholder="Paste gateway token to pair this device"
+              type="password"
+              style={inputStyle}
+              onKeyDown={e => e.key === "Enter" && startConnect()}
+            />
+            <div style={{ marginBottom: 6 }} />
+          </>
         )}
 
         <div style={{ marginBottom: 20 }} />
