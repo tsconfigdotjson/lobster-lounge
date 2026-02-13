@@ -166,57 +166,70 @@ export function GatewayProvider({ children }) {
       const idempotencyKey = crypto.randomUUID();
       let accumulated = "";
       let resolved = false;
-      let unsub;
+      let runId = null;
 
-      const timeout = setTimeout(() => {
-        if (!resolved) {
-          resolved = true;
-          unsub?.();
-          reject(new Error("Agent response timed out"));
+      const finish = (text) => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timeout);
+        unsub?.();
+        resolve(text);
+      };
+
+      const fail = (err) => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timeout);
+        unsub?.();
+        reject(err);
+      };
+
+      const timeout = setTimeout(() => fail(new Error("Agent response timed out")), 60000);
+
+      // Subscribe to chat events BEFORE sending the request,
+      // per the ack-with-final streaming pattern (protocol §10).
+      // Events may arrive before the ack resolves.
+      const unsub = client.on("chat", (payload) => {
+        if (runId && payload.runId !== runId) return;
+
+        if (payload.state === "delta") {
+          const delta = payload.message?.content?.[0]?.text
+            || payload.message?.text
+            || payload.message?.delta
+            || "";
+          accumulated += delta;
+        } else if (payload.state === "final" || payload.state === "error" || payload.state === "aborted") {
+          if (payload.state === "error") {
+            fail(new Error(payload.errorMessage || "Agent error"));
+          } else {
+            const finalText = payload.message?.content?.[0]?.text
+              || payload.message?.text
+              || accumulated
+              || "[No response]";
+            finish(finalText);
+          }
         }
-      }, 60000);
+      });
 
       client.request("agent", {
         message: text,
         agentId,
         idempotencyKey,
       }).then(ack => {
-        // ack has runId or status
-        const runId = ack?.runId;
+        runId = ack?.runId;
 
-        unsub = client.on("chat", (payload) => {
-          if (runId && payload.runId !== runId) return;
-
-          if (payload.state === "delta") {
-            const delta = payload.message?.content?.[0]?.text
-              || payload.message?.text
-              || payload.message?.delta
-              || "";
-            accumulated += delta;
-          } else if (payload.state === "final" || payload.state === "error" || payload.state === "aborted") {
-            clearTimeout(timeout);
-            if (!resolved) {
-              resolved = true;
-              unsub?.();
-              if (payload.state === "error") {
-                reject(new Error(payload.errorMessage || "Agent error"));
-              } else {
-                // grab final text if available
-                const finalText = payload.message?.content?.[0]?.text
-                  || payload.message?.text
-                  || accumulated
-                  || "[No response]";
-                resolve(finalText);
-              }
-            }
-          }
-        });
-      }).catch(err => {
-        clearTimeout(timeout);
-        if (!resolved) {
-          resolved = true;
-          reject(err);
+        // If the server returned the complete result inline (status "ok"
+        // with result payload), resolve immediately — no streaming follows.
+        if (ack?.status === "ok" && ack?.result) {
+          const payloads = ack.result.payloads || [];
+          const finalText = payloads.map(p => p.text).filter(Boolean).join("\n")
+            || "[No response]";
+          finish(finalText);
         }
+        // Otherwise status is "accepted" (ack-with-final) — chat events
+        // will stream in via the listener we set up above.
+      }).catch(err => {
+        fail(err);
       });
     });
   }, [chatAgents]);
