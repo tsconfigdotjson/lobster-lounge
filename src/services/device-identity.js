@@ -75,7 +75,7 @@ export async function signConnectPayload(
   { deviceId, nonce, token },
 ) {
   const signedAt = Date.now();
-  const payloadStr = `v2|${deviceId}|openclaw-control-ui|ui|operator|operator.read,operator.write|${signedAt}|${token || ""}|${nonce || ""}`;
+  const payloadStr = `v2|${deviceId}|openclaw-control-ui|ui|operator|operator.read,operator.write,operator.admin|${signedAt}|${token || ""}|${nonce || ""}`;
   const payloadBytes = new TextEncoder().encode(payloadStr);
   const sigBuf = await crypto.subtle.sign("Ed25519", privateKey, payloadBytes);
   return { signature: base64url(sigBuf), signedAt };

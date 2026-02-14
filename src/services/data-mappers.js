@@ -28,13 +28,33 @@ const POSITIONS = [
   { x: 13, y: 11, dir: 2 },
 ];
 
+const AGENT_COLORS_KEY = "openclaw-agent-colors";
+
+function loadAgentColors() {
+  try {
+    return JSON.parse(localStorage.getItem(AGENT_COLORS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+export function getAgentColor(agentId) {
+  return loadAgentColors()[agentId] || null;
+}
+
+export function setAgentColor(agentId, color) {
+  const colors = loadAgentColors();
+  colors[agentId] = color;
+  localStorage.setItem(AGENT_COLORS_KEY, JSON.stringify(colors));
+}
+
 export function mapToHqAgents(gatewayAgents) {
   if (!gatewayAgents) {
     return [];
   }
   return gatewayAgents.map((agent, i) => {
     const pos = POSITIONS[i % POSITIONS.length];
-    const color = PALETTE[i % PALETTE.length];
+    const color = getAgentColor(agent.id) || PALETTE[i % PALETTE.length];
     const name = agent.identity?.name || agent.name || agent.id;
     return {
       id: name.toUpperCase().slice(0, 8),
@@ -54,7 +74,7 @@ export function mapToChatAgents(gatewayAgents) {
     return [];
   }
   return gatewayAgents.map((agent, i) => {
-    const color = PALETTE[i % PALETTE.length];
+    const color = getAgentColor(agent.id) || PALETTE[i % PALETTE.length];
     const name = agent.identity?.name || agent.name || agent.id;
     return {
       id: name.toUpperCase().slice(0, 8),

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGateway } from "../context/GatewayContext";
+import { setAgentColor } from "../services/data-mappers";
 import {
   ActivityLog,
   Divider,
@@ -8,7 +9,8 @@ import {
   LobsterHQ,
 } from "./lobster-hq";
 import { C } from "./lobster-hq/constants";
-import { AgentChat } from "./open-claw";
+import { AgentChat, AgentCreator } from "./open-claw";
+import SkillsPanel from "./open-claw/SkillsPanel";
 import { btnSecondaryStyle } from "./open-claw/styles";
 
 export default function DashboardView() {
@@ -20,21 +22,78 @@ export default function DashboardView() {
     disconnect,
     serverInfo,
     helloPayload,
+    createAgent,
+    updateAgent,
+    updateSkill,
+    refreshSkills,
+    remapAgents,
+    allSkills,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState(null);
-  const [chatCollapsed, setChatCollapsed] = useState(false);
-  const [time, setTime] = useState("08:00");
+  const [chatCollapsed, setChatCollapsed] = useState(true);
+  const [chatInitialAgentId, setChatInitialAgentId] = useState(null);
+  const [skillsCollapsed, setSkillsCollapsed] = useState(true);
+  const [time, setTime] = useState(() => {
+    const now = new Date();
+    return `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;
+  });
   const [tick, setTick] = useState(0);
+  const [currentStrength, setCurrentStrength] = useState("STRONG");
+  const [showCreator, setShowCreator] = useState(false);
+  const [editingAgent, setEditingAgent] = useState(null);
+  const chatRef = useRef(null);
+  const skillsRef = useRef(null);
 
   useEffect(() => {
+    if (chatCollapsed && skillsCollapsed) {
+      return;
+    }
+    const handleClickOutside = (e) => {
+      if (
+        !chatCollapsed &&
+        chatRef.current &&
+        !chatRef.current.contains(e.target)
+      ) {
+        setChatCollapsed(true);
+      }
+      if (
+        !skillsCollapsed &&
+        skillsRef.current &&
+        !skillsRef.current.contains(e.target)
+      ) {
+        setSkillsCollapsed(true);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [chatCollapsed, skillsCollapsed]);
+
+  useEffect(() => {
+    const CURRENT_OPTIONS = ["STRONG", "MEDIUM", "WEAK"];
+    let nextChange = Date.now() + (60 + Math.random() * 180) * 1000;
     const iv = setInterval(() => {
       setTick((t) => t + 1);
-      const h = 8 + Math.floor((Date.now() / 3000) % 10);
-      const m = Math.floor((Date.now() / 500) % 60);
-      setTime(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      const now = new Date();
+      setTime(
+        `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`,
+      );
+      if (Date.now() >= nextChange) {
+        setCurrentStrength((prev) => {
+          const others = CURRENT_OPTIONS.filter((o) => o !== prev);
+          return others[Math.floor(Math.random() * others.length)];
+        });
+        nextChange = Date.now() + (60 + Math.random() * 180) * 1000;
+      }
     }, 1000);
     return () => clearInterval(iv);
   }, []);
+
+  // Auto-show creator when no agents exist
+  useEffect(() => {
+    if (agents.length === 0) {
+      setShowCreator(true);
+    }
+  }, [agents.length]);
 
   const uptimeMs = helloPayload?.snapshot?.uptimeMs;
   const uptimeStr =
@@ -47,6 +106,52 @@ export default function DashboardView() {
       : null;
 
   const sel = agents.find((a) => a.id === selectedAgent);
+
+  const handleCreate = async ({ name, color }) => {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    const gwAgents = await createAgent({
+      name,
+      workspace: `agents/${slug}`,
+      emoji: "\uD83E\uDD9E",
+    });
+    if (color && gwAgents) {
+      const created = gwAgents.find(
+        (a) => (a.identity?.name || a.name) === name,
+      );
+      if (created) {
+        setAgentColor(created.id, color);
+        remapAgents(gwAgents);
+      }
+    }
+    setShowCreator(false);
+  };
+
+  const handleUpdate = async (data) => {
+    if (data._gatewayId && data.color) {
+      setAgentColor(data._gatewayId, data.color);
+    }
+    await updateAgent({ agentId: data._gatewayId, name: data.name });
+    setEditingAgent(null);
+  };
+
+  const handleEditClick = () => {
+    if (!sel) {
+      return;
+    }
+    setEditingAgent({
+      _gatewayId: sel._gatewayId,
+      name: sel.id,
+      color: sel.color,
+    });
+  };
+
+  const handleSkillToggle = async (skillKey, enabled) => {
+    await updateSkill({ skillKey, enabled });
+    await refreshSkills();
+  };
 
   return (
     <div
@@ -101,6 +206,22 @@ export default function DashboardView() {
         <div style={{ flex: 1 }} />
         <button
           type="button"
+          onClick={() => {
+            setEditingAgent(null);
+            setShowCreator((v) => !v);
+          }}
+          style={{
+            ...btnSecondaryStyle,
+            fontSize: 11,
+            padding: "4px 12px",
+            color: C.green,
+            borderColor: `${C.green}40`,
+          }}
+        >
+          + SPAWN AGENT
+        </button>
+        <button
+          type="button"
           onClick={disconnect}
           style={{
             ...btnSecondaryStyle,
@@ -137,9 +258,27 @@ export default function DashboardView() {
             color={C.green}
           />
           <Divider />
-          <HudItem label="TIDE" value={time} color={C.amber} />
+          <HudItem label="TIME" value={`${time} UTC`} color={C.amber} />
           <Divider />
-          <HudItem label="CURRENT" value="STRONG" color={C.green} pulse />
+          <HudItem
+            label="CURRENT"
+            value={currentStrength}
+            color={
+              currentStrength === "STRONG"
+                ? C.red
+                : currentStrength === "MEDIUM"
+                  ? C.amber
+                  : C.green
+            }
+            pulse
+            pulseRate={
+              currentStrength === "STRONG"
+                ? "0.8s"
+                : currentStrength === "MEDIUM"
+                  ? "2s"
+                  : "4s"
+            }
+          />
         </div>
       </DraggablePanel>
 
@@ -203,6 +342,62 @@ export default function DashboardView() {
           ))}
         </div>
       </DraggablePanel>
+
+      {/* Skills panel — bottom-left collapsible */}
+      <div
+        ref={skillsRef}
+        style={{
+          position: "fixed",
+          bottom: 16,
+          left: 16,
+          zIndex: 200,
+          width: skillsCollapsed ? "auto" : 320,
+          border: `2px solid ${C.uiBorderAlt}`,
+          boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+          borderRadius: 6,
+          overflow: "hidden",
+          background: C.uiBg,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            if (skillsCollapsed) {
+              setSelectedAgent(null);
+            }
+            setSkillsCollapsed((c) => !c);
+          }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            width: "100%",
+            padding: "8px 14px",
+            background: "transparent",
+            border: "none",
+            borderBottom: skillsCollapsed
+              ? "none"
+              : "1px solid rgba(255,255,255,0.05)",
+            cursor: "pointer",
+            color: C.textDim,
+            fontFamily: "'Courier New', monospace",
+            fontSize: 11,
+            letterSpacing: 2,
+            textAlign: "left",
+          }}
+        >
+          <span style={{ color: C.amber }}>
+            {skillsCollapsed ? "\u25B6" : "\u25BC"}
+          </span>
+          SKILLS
+          <span style={{ marginLeft: "auto", fontSize: 10, opacity: 0.5 }}>
+            {allSkills.filter((s) => s.enabled).length}/{allSkills.length}
+          </span>
+        </button>
+        {!skillsCollapsed && (
+          <SkillsPanel skills={allSkills} onToggle={handleSkillToggle} />
+        )}
+      </div>
 
       {/* Activity Log overlay — top-right */}
       <DraggablePanel
@@ -271,12 +466,52 @@ export default function DashboardView() {
           >
             AUTONOMOUS
           </div>
+          <button
+            type="button"
+            onClick={handleEditClick}
+            style={{
+              background: "none",
+              border: `1px solid ${C.amber}40`,
+              borderRadius: 2,
+              padding: "3px 10px",
+              cursor: "pointer",
+              fontSize: 11,
+              color: C.amber,
+              fontFamily: "'Courier New', monospace",
+              letterSpacing: 1,
+            }}
+          >
+            ✎ EDIT
+          </button>
         </div>
+      )}
+
+      {/* Agent Creator panel — create mode */}
+      {showCreator && !editingAgent && (
+        <DraggablePanel title="SPAWN AGENT" centered>
+          <AgentCreator
+            onDeploy={handleCreate}
+            onCancel={() => setShowCreator(false)}
+          />
+        </DraggablePanel>
+      )}
+
+      {/* Agent Creator panel — edit mode */}
+      {editingAgent && (
+        <DraggablePanel title="EDIT AGENT" centered>
+          <AgentCreator
+            key={editingAgent._gatewayId}
+            editAgent={editingAgent}
+            onUpdate={handleUpdate}
+            onCancel={() => setEditingAgent(null)}
+          />
+        </DraggablePanel>
       )}
 
       {/* Collapsible AgentChat overlay */}
       {chatAgents.length > 0 && (
         <div
+          ref={chatRef}
           style={{
             position: "fixed",
             bottom: 16,
@@ -292,7 +527,13 @@ export default function DashboardView() {
         >
           <button
             type="button"
-            onClick={() => setChatCollapsed((c) => !c)}
+            onClick={() => {
+              if (chatCollapsed) {
+                setChatInitialAgentId(selectedAgent);
+                setSelectedAgent(null);
+              }
+              setChatCollapsed((c) => !c);
+            }}
             style={{
               display: "flex",
               alignItems: "center",
@@ -320,9 +561,13 @@ export default function DashboardView() {
               {chatAgents.length}
             </span>
           </button>
-          {!chatCollapsed && (
-            <AgentChat agents={chatAgents} onSendMessage={sendAgentMessage} />
-          )}
+          <div style={{ display: chatCollapsed ? "none" : "contents" }}>
+            <AgentChat
+              agents={chatAgents}
+              onSendMessage={sendAgentMessage}
+              initialActiveId={chatInitialAgentId}
+            />
+          </div>
         </div>
       )}
 

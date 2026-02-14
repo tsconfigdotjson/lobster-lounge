@@ -52,6 +52,7 @@ export function GatewayProvider({ children }) {
   const [connectionState, setConnectionState] = useState("disconnected");
   const [connectionError, setConnectionError] = useState(null);
   const [agents, setAgents] = useState([]);
+  const [rawAgents, setRawAgents] = useState([]);
   const [chatAgents, setChatAgents] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
   const [serverInfo, setServerInfo] = useState(null);
@@ -60,6 +61,8 @@ export function GatewayProvider({ children }) {
   const [connectionPhase, setConnectionPhase] = useState("disconnected");
   const [pairingState, setPairingState] = useState(null);
   const [deviceId, setDeviceId] = useState(null);
+  const [skills, setSkills] = useState([]);
+  const [allSkills, setAllSkills] = useState([]);
   const clientRef = useRef(null);
   const unsubsRef = useRef([]);
 
@@ -79,33 +82,145 @@ export function GatewayProvider({ children }) {
     }
   }, []);
 
-  const syncAgents = useCallback(async (client) => {
-    setConnectionPhase("syncing");
+  const fetchSkills = useCallback(async (client, agentId) => {
     try {
-      const res = await client.request("agents.list");
-      const gwAgents = res.agents || [];
-      setAgents(mapToHqAgents(gwAgents));
-      setChatAgents(mapToChatAgents(gwAgents));
-      gwAgents.forEach((a) => {
-        const name = (a.identity?.name || a.name || a.id)
-          .toUpperCase()
-          .slice(0, 8);
-        setActivityLogs((prev) => [
-          ...prev,
-          createLogEntry(name, "Connected", "#2ecc71"),
-        ]);
-      });
-      setConnectionPhase("connected");
+      const params = agentId ? { agentId } : {};
+      const res = await client.request("skills.status", params);
+      const entries = res.skills || res.entries || [];
+      return entries
+        .filter((s) => s.eligible !== false && !s.disabled)
+        .map((s) => ({
+          id: s.skillKey || s.name,
+          name: s.name,
+          icon: s.emoji || "\u2699\uFE0F",
+          desc: s.description || "",
+          cat: s.source || "skill",
+        }));
     } catch (_err) {
-      setConnectionPhase("connected");
+      return [];
     }
   }, []);
+
+  const fetchAllSkills = useCallback(async (client) => {
+    try {
+      const res = await client.request("skills.status", {});
+      const entries = res.skills || res.entries || [];
+      return entries
+        .filter(
+          (s) => !s.blockedByAllowlist && (s.eligible !== false || s.disabled),
+        )
+        .map((s) => ({
+          id: s.skillKey || s.name,
+          name: s.name,
+          icon: s.emoji || "\u2699\uFE0F",
+          desc: s.description || "",
+          cat: s.source || "skill",
+          enabled: !s.disabled,
+        }));
+    } catch (_err) {
+      return [];
+    }
+  }, []);
+
+  const syncAgents = useCallback(
+    async (client) => {
+      setConnectionPhase("syncing");
+      try {
+        const res = await client.request("agents.list");
+        const gwAgents = res.agents || [];
+        setRawAgents(gwAgents);
+        setAgents(mapToHqAgents(gwAgents));
+        setChatAgents(mapToChatAgents(gwAgents));
+        gwAgents.forEach((a) => {
+          const name = (a.identity?.name || a.name || a.id)
+            .toUpperCase()
+            .slice(0, 8);
+          setActivityLogs((prev) => [
+            ...prev,
+            createLogEntry(name, "Connected", "#2ecc71"),
+          ]);
+        });
+        // Fetch available skills after syncing agents
+        const [skillsList, allSkillsList] = await Promise.all([
+          fetchSkills(client),
+          fetchAllSkills(client),
+        ]);
+        setSkills(skillsList);
+        setAllSkills(allSkillsList);
+        setConnectionPhase("connected");
+        return gwAgents;
+      } catch (_err) {
+        setConnectionPhase("connected");
+        return [];
+      }
+    },
+    [fetchSkills, fetchAllSkills],
+  );
+
+  const createAgent = useCallback(
+    async ({ name, workspace, emoji }) => {
+      const client = clientRef.current;
+      if (!client?.connected) {
+        throw new Error("Not connected");
+      }
+      await client.request("agents.create", { name, workspace, emoji });
+      return syncAgents(client);
+    },
+    [syncAgents],
+  );
+
+  const updateAgent = useCallback(
+    async ({ agentId, name, workspace, model, avatar }) => {
+      const client = clientRef.current;
+      if (!client?.connected) {
+        throw new Error("Not connected");
+      }
+      const params = { agentId };
+      if (name !== undefined) {
+        params.name = name;
+      }
+      if (workspace !== undefined) {
+        params.workspace = workspace;
+      }
+      if (model !== undefined) {
+        params.model = model;
+      }
+      if (avatar !== undefined) {
+        params.avatar = avatar;
+      }
+      await client.request("agents.update", params);
+      await syncAgents(client);
+    },
+    [syncAgents],
+  );
+
+  const updateSkill = useCallback(async ({ skillKey, enabled }) => {
+    const client = clientRef.current;
+    if (!client?.connected) {
+      throw new Error("Not connected");
+    }
+    await client.request("skills.update", { skillKey, enabled });
+  }, []);
+
+  const refreshSkills = useCallback(async () => {
+    const client = clientRef.current;
+    if (!client?.connected) {
+      return;
+    }
+    const [skillsList, allSkillsList] = await Promise.all([
+      fetchSkills(client),
+      fetchAllSkills(client),
+    ]);
+    setSkills(skillsList);
+    setAllSkills(allSkillsList);
+  }, [fetchSkills, fetchAllSkills]);
 
   const connect = useCallback(
     (url, gatewayToken) => {
       cleanup();
       setConnectionError(null);
       setAgents([]);
+      setRawAgents([]);
       setChatAgents([]);
       setActivityLogs([]);
       setServerInfo(null);
@@ -176,11 +291,14 @@ export function GatewayProvider({ children }) {
     setConnectionError(null);
     setPairingState(null);
     setAgents([]);
+    setRawAgents([]);
     setChatAgents([]);
     setActivityLogs([]);
     setServerInfo(null);
     setFeatures(null);
     setHelloPayload(null);
+    setSkills([]);
+    setAllSkills([]);
   }, [cleanup]);
 
   const sendAgentMessage = useCallback(
@@ -301,6 +419,15 @@ export function GatewayProvider({ children }) {
     return unsub;
   }, []);
 
+  const remapAgents = useCallback(
+    (gwAgents) => {
+      const src = gwAgents || rawAgents;
+      setAgents(mapToHqAgents(src));
+      setChatAgents(mapToChatAgents(src));
+    },
+    [rawAgents],
+  );
+
   const value = {
     connectionState,
     connectionError,
@@ -310,11 +437,19 @@ export function GatewayProvider({ children }) {
     connect,
     disconnect,
     agents,
+    rawAgents,
     chatAgents,
     activityLogs,
     serverInfo,
     features,
     sendAgentMessage,
+    createAgent,
+    updateAgent,
+    updateSkill,
+    refreshSkills,
+    remapAgents,
+    skills,
+    allSkills,
     client: clientRef.current,
     helloPayload,
     savedConnection: loadSavedConnection(),

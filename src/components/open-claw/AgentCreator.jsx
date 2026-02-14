@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { C } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
 import PanelHeader from "./PanelHeader";
@@ -8,22 +8,24 @@ import {
   counterStyle,
   inputStyle,
   labelStyle,
-  panelStyle,
 } from "./styles";
 
-export default function AgentCreator({
-  skills: availableSkills = [],
-  onDeploy,
+const containerStyle = { padding: 20, width: 400 };
+
+function PropertySheet({
+  name,
+  setName,
+  color,
+  setColor,
+  editAgent,
+  onUpdate,
+  onCancel,
+  deploying,
+  deployError,
+  setDeploying,
+  setDeployError,
 }) {
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
-  const [skillSearch, setSkillSearch] = useState("");
-  const [skills, setSkills] = useState([]);
-  const [color, setColor] = useState("#e74c3c");
-  const [phase, setPhase] = useState("edit");
-  const [showDrop, setShowDrop] = useState(false);
-  const dropRef = useRef(null);
-  const MAX = 3;
+  const [editingField, setEditingField] = useState(null);
   const colors = [
     "#e74c3c",
     "#ff6b8a",
@@ -35,29 +37,237 @@ export default function AgentCreator({
     "#e67e22",
   ];
 
-  const filtered = availableSkills.filter(
-    (s) =>
-      !skills.find((sel) => sel.id === s.id) &&
-      (s.name.toLowerCase().includes(skillSearch.toLowerCase()) ||
-        s.cat.toLowerCase().includes(skillSearch.toLowerCase()) ||
-        s.desc.toLowerCase().includes(skillSearch.toLowerCase())),
+  const pencilBtn = (field) => (
+    <button
+      type="button"
+      onClick={() => setEditingField(editingField === field ? null : field)}
+      style={{
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        fontSize: 14,
+        color: editingField === field ? C.green : C.textDim,
+        padding: "2px 6px",
+        flexShrink: 0,
+      }}
+    >
+      {editingField === field ? "\u2713" : "\u270E"}
+    </button>
   );
-  const isValid =
-    name.trim().length > 0 && desc.trim().length > 0 && skills.length > 0;
 
-  useEffect(() => {
-    const h = (e) => {
-      if (dropRef.current && !dropRef.current.contains(e.target)) {
-        setShowDrop(false);
-      }
-    };
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, []);
+  const rowStyle = {
+    display: "flex",
+    alignItems: "center",
+    padding: "10px 0",
+    borderBottom: `1px solid rgba(255,255,255,0.05)`,
+    gap: 12,
+  };
 
+  const handleSave = async () => {
+    if (deploying) {
+      return;
+    }
+    setDeploying(true);
+    setDeployError(null);
+    try {
+      await onUpdate?.({ ...editAgent, name, color });
+    } catch (err) {
+      setDeployError(err?.message || "Update failed");
+    } finally {
+      setDeploying(false);
+    }
+  };
+
+  return (
+    <div style={containerStyle}>
+      {/* Avatar + color row */}
+      <div
+        style={{
+          display: "flex",
+          gap: 14,
+          alignItems: "center",
+          marginBottom: 16,
+        }}
+      >
+        <div
+          style={{
+            background: `${color}10`,
+            border: `1px solid ${color}25`,
+            borderRadius: 4,
+            padding: 6,
+          }}
+        >
+          <LobsterAvatar color={color} size={48} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <span style={labelStyle}>SHELL COLOR</span>
+          <div
+            style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 4 }}
+          >
+            {colors.map((c) => (
+              <button
+                type="button"
+                key={c}
+                onClick={() => setColor(c)}
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: 3,
+                  background: c,
+                  border:
+                    color === c ? "2px solid #fff" : "2px solid transparent",
+                  cursor: "pointer",
+                  transform: color === c ? "scale(1.15)" : "scale(1)",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          borderTop: `1px solid rgba(255,255,255,0.06)`,
+          borderBottom: `1px solid rgba(255,255,255,0.06)`,
+        }}
+      >
+        {/* NAME row */}
+        <div style={{ ...rowStyle, borderBottom: "none" }}>
+          <span
+            style={{
+              fontSize: 9,
+              letterSpacing: 2,
+              color: C.amber,
+              fontWeight: "bold",
+              width: 60,
+              flexShrink: 0,
+            }}
+          >
+            NAME
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {editingField === "name" ? (
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value.slice(0, 12))}
+                maxLength={12}
+                style={{ ...inputStyle, padding: "6px 10px", fontSize: 12 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setEditingField(null);
+                  }
+                }}
+              />
+            ) : (
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: "bold",
+                  color,
+                  letterSpacing: 1,
+                }}
+              >
+                {name.toUpperCase() || "---"}
+              </span>
+            )}
+          </div>
+          {pencilBtn("name")}
+        </div>
+      </div>
+
+      {/* Error */}
+      {deployError && (
+        <div
+          style={{
+            fontSize: 10,
+            color: C.red,
+            marginTop: 12,
+            textAlign: "center",
+            padding: "6px 10px",
+            background: `${C.red}10`,
+            border: `1px solid ${C.red}30`,
+            borderRadius: 3,
+          }}
+        >
+          {deployError}
+        </div>
+      )}
+
+      {/* Actions */}
+      <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+        <button
+          type="button"
+          onClick={onCancel}
+          style={{ ...btnSecondaryStyle, flex: 1 }}
+        >
+          CANCEL
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={deploying || name.trim().length === 0}
+          style={{
+            ...btnPrimaryStyle(C.green),
+            flex: 2,
+            opacity: deploying || name.trim().length === 0 ? 0.5 : 1,
+            cursor: deploying ? "wait" : "pointer",
+          }}
+        >
+          {deploying ? "\u23F3 SAVING..." : "SAVE"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function AgentCreator({
+  onDeploy,
+  editAgent,
+  onUpdate,
+  onCancel,
+}) {
+  const isEdit = !!editAgent;
+  const [name, setName] = useState(editAgent?.name || "");
+  const [color, setColor] = useState(editAgent?.color || "#e74c3c");
+  const [phase, setPhase] = useState("edit");
+  const [deploying, setDeploying] = useState(false);
+  const [deployError, setDeployError] = useState(null);
+  const colors = [
+    "#e74c3c",
+    "#ff6b8a",
+    "#f4a261",
+    "#2ecc71",
+    "#1abc9c",
+    "#5dade2",
+    "#9b59b6",
+    "#e67e22",
+  ];
+
+  const isValid = name.trim().length > 0;
+
+  // --- Edit mode: property sheet ---
+  if (isEdit) {
+    return (
+      <PropertySheet
+        name={name}
+        setName={setName}
+        color={color}
+        setColor={setColor}
+        editAgent={editAgent}
+        onUpdate={onUpdate}
+        onCancel={onCancel}
+        deploying={deploying}
+        deployError={deployError}
+        setDeploying={setDeploying}
+        setDeployError={setDeployError}
+      />
+    );
+  }
+
+  // --- Deployed phase ---
   if (phase === "deployed") {
     return (
-      <div style={panelStyle}>
+      <div style={containerStyle}>
         <div
           style={{
             display: "flex",
@@ -108,9 +318,7 @@ export default function AgentCreator({
             onClick={() => {
               setPhase("edit");
               setName("");
-              setDesc("");
-              setSkills([]);
-              onDeploy?.({ name, desc, skills, color });
+              setDeployError(null);
             }}
             style={{ ...btnPrimaryStyle(C.amber), marginTop: 8 }}
           >
@@ -122,10 +330,35 @@ export default function AgentCreator({
     );
   }
 
+  // --- Deploy handler ---
+  const handleDeploy = async () => {
+    if (deploying) {
+      return;
+    }
+    setDeploying(true);
+    setDeployError(null);
+    try {
+      await onDeploy?.({ name, color });
+      setPhase("deployed");
+    } catch (err) {
+      setDeployError(err?.message || "Deploy failed");
+    } finally {
+      setDeploying(false);
+    }
+  };
+
+  // --- Preview phase ---
   if (phase === "preview") {
+    const specRows = [
+      ["Designation", name.toUpperCase()],
+      ["Shell Color", color],
+      ["Mode", "Autonomous"],
+      ["Pod Assignment", "Default"],
+      ["Est. Boot Time", "~3.2s"],
+    ];
     return (
-      <div style={panelStyle}>
-        <PanelHeader icon="🔍" title="PREVIEW AGENT" />
+      <div style={containerStyle}>
+        <PanelHeader icon={"\uD83D\uDD0D"} title="PREVIEW AGENT" />
         <div
           style={{
             background: `linear-gradient(135deg, ${C.deep1}, ${C.deep2})`,
@@ -191,37 +424,6 @@ export default function AgentCreator({
                   NEW
                 </span>
               </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: C.text,
-                  lineHeight: 1.55,
-                  marginBottom: 12,
-                  opacity: 0.85,
-                }}
-              >
-                {desc}
-              </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {skills.map((s) => (
-                  <div
-                    key={s.id}
-                    style={{
-                      padding: "4px 10px",
-                      borderRadius: 3,
-                      background: `${color}12`,
-                      border: `1px solid ${color}30`,
-                      fontSize: 10,
-                      color,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    {s.icon} {s.name}
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -244,14 +446,7 @@ export default function AgentCreator({
           >
             DEPLOYMENT SPECS
           </div>
-          {[
-            ["Designation", name.toUpperCase()],
-            ["Shell Color", color],
-            ["Skills Loaded", `${skills.length}/${MAX}`],
-            ["Mode", "Autonomous"],
-            ["Pod Assignment", "Default"],
-            ["Est. Boot Time", "~3.2s"],
-          ].map(([k, v]) => (
+          {specRows.map(([k, v], i) => (
             <div
               key={k}
               style={{
@@ -259,7 +454,9 @@ export default function AgentCreator({
                 justifyContent: "space-between",
                 padding: "5px 0",
                 borderBottom:
-                  i < 5 ? "1px solid rgba(255,255,255,0.03)" : "none",
+                  i < specRows.length - 1
+                    ? "1px solid rgba(255,255,255,0.03)"
+                    : "none",
                 fontSize: 10,
               }}
             >
@@ -296,29 +493,57 @@ export default function AgentCreator({
             </div>
           ))}
         </div>
+        {deployError && (
+          <div
+            style={{
+              fontSize: 10,
+              color: C.red,
+              marginBottom: 8,
+              textAlign: "center",
+              padding: "6px 10px",
+              background: `${C.red}10`,
+              border: `1px solid ${C.red}30`,
+              borderRadius: 3,
+            }}
+          >
+            {deployError}
+          </div>
+        )}
         <div style={{ display: "flex", gap: 8 }}>
           <button
             type="button"
-            onClick={() => setPhase("edit")}
+            onClick={() => {
+              setDeployError(null);
+              setPhase("edit");
+            }}
             style={{ ...btnSecondaryStyle, flex: 1 }}
           >
-            ← EDIT
+            {"\u2190 EDIT"}
           </button>
           <button
             type="button"
-            onClick={() => setPhase("deployed")}
-            style={{ ...btnPrimaryStyle(C.green), flex: 2 }}
+            onClick={handleDeploy}
+            disabled={deploying}
+            style={{
+              ...btnPrimaryStyle(C.green),
+              flex: 2,
+              opacity: deploying ? 0.6 : 1,
+              cursor: deploying ? "wait" : "pointer",
+            }}
           >
-            🦞 CONFIRM AND DEPLOY
+            {deploying
+              ? "\u23F3 DEPLOYING..."
+              : "\uD83E\uDD9E CONFIRM AND DEPLOY"}
           </button>
         </div>
       </div>
     );
   }
 
+  // --- Create form ---
   return (
-    <div style={panelStyle}>
-      <PanelHeader icon="✦" title="SPAWN NEW AGENT" />
+    <div style={containerStyle}>
+      <PanelHeader icon={"\u2726"} title="SPAWN NEW AGENT" />
       <div
         style={{
           display: "flex",
@@ -374,186 +599,19 @@ export default function AgentCreator({
         style={inputStyle}
       />
       <div style={counterStyle}>{name.length}/12</div>
-      <label style={labelStyle} htmlFor="agent-mission">
-        MISSION BRIEF
-      </label>
-      <textarea
-        id="agent-mission"
-        value={desc}
-        onChange={(e) => setDesc(e.target.value.slice(0, 160))}
-        placeholder="Describe what this agent should do..."
-        maxLength={160}
-        rows={3}
-        style={{ ...inputStyle, resize: "none", lineHeight: 1.5 }}
-      />
-      <div style={counterStyle}>{desc.length}/160</div>
-      <span style={labelStyle}>
-        SKILLS{" "}
-        <span style={{ color: C.textDim, fontWeight: "normal" }}>
-          ({skills.length}/{MAX})
-        </span>
-      </span>
-      {skills.length > 0 && (
-        <div
+      {onCancel && (
+        <button
+          type="button"
+          onClick={onCancel}
           style={{
-            display: "flex",
-            gap: 6,
-            flexWrap: "wrap",
+            ...btnSecondaryStyle,
+            width: "100%",
             marginBottom: 8,
-            marginTop: 4,
           }}
         >
-          {skills.map((s) => (
-            <div
-              key={s.id}
-              style={{
-                padding: "4px 8px 4px 10px",
-                borderRadius: 3,
-                background: `${color}15`,
-                border: `1px solid ${color}35`,
-                fontSize: 10,
-                color,
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              {s.icon} {s.name}
-              <button
-                type="button"
-                onClick={() => setSkills(skills.filter((sk) => sk.id !== s.id))}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: C.textDim,
-                  cursor: "pointer",
-                  padding: 0,
-                  fontSize: 13,
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
+          ✕ CANCEL
+        </button>
       )}
-      <div ref={dropRef} style={{ position: "relative", marginBottom: 16 }}>
-        <input
-          value={skillSearch}
-          onChange={(e) => {
-            setSkillSearch(e.target.value);
-            setShowDrop(true);
-          }}
-          onFocus={() => setShowDrop(true)}
-          placeholder={
-            skills.length >= MAX ? "Max skills reached" : "Search skills..."
-          }
-          disabled={skills.length >= MAX}
-          style={{ ...inputStyle, opacity: skills.length >= MAX ? 0.4 : 1 }}
-        />
-        <span
-          style={{
-            position: "absolute",
-            right: 10,
-            top: "50%",
-            transform: "translateY(-50%)",
-            fontSize: 10,
-            color: C.textDim,
-            pointerEvents: "none",
-          }}
-        >
-          🔍
-        </span>
-        {showDrop && skills.length < MAX && (
-          <div
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              right: 0,
-              zIndex: 10,
-              background: C.deep0,
-              border: `1px solid ${C.uiBorder}`,
-              borderTop: "none",
-              borderRadius: "0 0 4px 4px",
-              maxHeight: 170,
-              overflowY: "auto",
-            }}
-          >
-            {filtered.length === 0 ? (
-              <div
-                style={{
-                  padding: 12,
-                  fontSize: 10,
-                  color: C.textDim,
-                  textAlign: "center",
-                }}
-              >
-                No matching skills
-              </div>
-            ) : (
-              filtered.map((s) => (
-                <button
-                  type="button"
-                  key={s.id}
-                  onClick={() => {
-                    setSkills([...skills, s]);
-                    setSkillSearch("");
-                    setShowDrop(false);
-                  }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    width: "100%",
-                    padding: "8px 12px",
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: C.text,
-                    fontFamily: "'Courier New', monospace",
-                    fontSize: 10,
-                    textAlign: "left",
-                    borderBottom: "1px solid rgba(255,255,255,0.03)",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = `${C.amber}08`)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "transparent")
-                  }
-                >
-                  <span
-                    style={{ fontSize: 15, width: 22, textAlign: "center" }}
-                  >
-                    {s.icon}
-                  </span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: "bold" }}>{s.name}</div>
-                    <div
-                      style={{ color: C.textDim, fontSize: 9, marginTop: 1 }}
-                    >
-                      {s.desc}
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 8,
-                      color: C.amber,
-                      padding: "2px 6px",
-                      background: `${C.amber}12`,
-                      borderRadius: 2,
-                    }}
-                  >
-                    {s.cat}
-                  </span>
-                </button>
-              ))
-            )}
-          </div>
-        )}
-      </div>
       <button
         type="button"
         onClick={() => isValid && setPhase("preview")}
@@ -565,7 +623,7 @@ export default function AgentCreator({
           cursor: isValid ? "pointer" : "not-allowed",
         }}
       >
-        PREVIEW AGENT →
+        {"PREVIEW AGENT \u2192"}
       </button>
       {!isValid && (
         <div
@@ -576,7 +634,7 @@ export default function AgentCreator({
             textAlign: "center",
           }}
         >
-          Fill in name, mission, and at least 1 skill
+          Fill in a name
         </div>
       )}
     </div>
