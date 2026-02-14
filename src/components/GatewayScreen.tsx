@@ -106,10 +106,11 @@ export default function GatewayScreen({
       <div
         style={{ ...(panelStyle as React.CSSProperties), overflow: "visible" }}
       >
-        <div style={{ position: "absolute", top: 12, right: 12, zIndex: 300 }}>
-          <LanguageDropdown />
-        </div>
-        <PanelHeader icon="🌊" title={t("gateway.loginTitle")} />
+        <PanelHeader
+          icon="🌊"
+          title={t("gateway.loginTitle")}
+          trailing={<LanguageDropdown />}
+        />
         <div
           style={{
             fontSize: 11,

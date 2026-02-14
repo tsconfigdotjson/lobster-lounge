@@ -3,9 +3,11 @@ import { C } from "./constants";
 export default function PanelHeader({
   icon,
   title,
+  trailing,
 }: {
   icon: string;
   title: string;
+  trailing?: React.ReactNode;
 }) {
   return (
     <div
@@ -29,6 +31,7 @@ export default function PanelHeader({
       >
         {title}
       </div>
+      {trailing && <div style={{ marginLeft: "auto" }}>{trailing}</div>}
     </div>
   );
 }
