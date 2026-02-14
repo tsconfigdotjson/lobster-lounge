@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadConnectionHistory } from "../context/GatewayContext";
 import { getDeviceToken } from "../services/device-identity";
-import type { HelloPayload, ServerInfo } from "../types";
 import { C, CONNECTION_STEPS } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
 import PanelHeader from "./PanelHeader";
@@ -14,26 +13,19 @@ const STATE_TO_STEP: Record<string, number> = {
   handshaking: 2,
   pairing: 2,
   syncing: 3,
-  connected: 4,
 };
 
 export default function GatewayScreen({
-  onConnect,
   connectionState,
   connectionError,
   onStartConnect,
   onRetryPairing,
-  serverInfo,
-  helloPayload,
   deviceId,
 }: {
-  onConnect?: () => void;
   connectionState: string;
   connectionError?: string | null;
   onStartConnect?: (url: string, token?: string) => void;
   onRetryPairing?: () => void;
-  serverInfo?: ServerInfo | null;
-  helloPayload?: HelloPayload | null;
   deviceId?: string | null;
 }) {
   const defaultGatewayUrl = (() => {
@@ -63,21 +55,17 @@ export default function GatewayScreen({
 
   // Derive connectStep from connectionState prop
   useEffect(() => {
-    if (phase === "connecting" || phase === "done") {
-      const step =
-        STATE_TO_STEP[connectionState] ?? STATE_TO_STEP[connectionState];
+    if (phase === "connecting") {
+      const step = STATE_TO_STEP[connectionState];
       if (step !== undefined) {
         setConnectStep(step);
-      }
-      if (connectionState === "connected") {
-        setPhase("done");
       }
     }
   }, [connectionState, phase]);
 
   // Switch to error phase
   useEffect(() => {
-    if (connectionError && (phase === "connecting" || phase === "done")) {
+    if (connectionError && phase === "connecting") {
       setPhase("error");
     }
   }, [connectionError, phase]);
@@ -398,7 +386,7 @@ export default function GatewayScreen({
     );
   }
 
-  if (phase === "connecting" || phase === "done") {
+  if (phase === "connecting") {
     let hostname = url;
     try {
       hostname = new URL(url).host;
@@ -408,26 +396,17 @@ export default function GatewayScreen({
 
     return (
       <div style={panelStyle as React.CSSProperties}>
-        <PanelHeader
-          icon={phase === "done" ? "\u2713" : "\u27F3"}
-          title={phase === "done" ? "CONNECTED" : "CONNECTING..."}
-        />
+        <PanelHeader icon={"\u27F3"} title="CONNECTING..." />
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div
             style={{
               display: "inline-block",
               padding: 16,
               borderRadius: 8,
-              background:
-                phase === "done"
-                  ? `radial-gradient(circle, ${C.green}15 0%, transparent 70%)`
-                  : `radial-gradient(circle, ${C.amber}10 0%, transparent 70%)`,
+              background: `radial-gradient(circle, ${C.amber}10 0%, transparent 70%)`,
             }}
           >
-            <LobsterAvatar
-              color={phase === "done" ? C.green : C.amber}
-              size={56}
-            />
+            <LobsterAvatar color={C.amber} size={56} />
           </div>
           <div
             style={{
@@ -449,8 +428,8 @@ export default function GatewayScreen({
           }}
         >
           {CONNECTION_STEPS.map((step, i) => {
-            const isActive = i === connectStep && phase === "connecting";
-            const isDone = i < connectStep || phase === "done";
+            const isActive = i === connectStep;
+            const isDone = i < connectStep;
             const isPairingStep = isPairing && i === 2;
             const stepColor = isPairingStep
               ? C.purple
@@ -617,75 +596,7 @@ export default function GatewayScreen({
             </button>
           </div>
         )}
-        {phase === "done" && (
-          <div style={{ animation: "fadeIn 0.4s ease" }}>
-            <div
-              style={{
-                display: "flex",
-                gap: 1,
-                marginBottom: 16,
-                borderRadius: 4,
-                overflow: "hidden",
-              }}
-            >
-              {[
-                {
-                  label: "VERSION",
-                  value: serverInfo?.version || "—",
-                  color: C.green,
-                },
-                {
-                  label: "UPTIME",
-                  value: formatUptime(helloPayload),
-                  color: C.green,
-                },
-                { label: "STATUS", value: "READY", color: C.cyan },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  style={{
-                    flex: 1,
-                    padding: "10px 8px",
-                    textAlign: "center",
-                    background: `${s.color}08`,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 8,
-                      color: C.textDim,
-                      letterSpacing: 1,
-                      marginBottom: 3,
-                    }}
-                  >
-                    {s.label}
-                  </div>
-                  <div
-                    style={{ fontSize: 12, fontWeight: "bold", color: s.color }}
-                  >
-                    {s.value}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => onConnect?.()}
-              style={{
-                ...btnPrimaryStyle(C.green),
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-              }}
-            >
-              <LobsterAvatar color={C.lob1} size={16} /> ENTER THE REEF →
-            </button>
-          </div>
-        )}
         <style>{`
-          @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
           @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
           @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         `}</style>
@@ -694,18 +605,4 @@ export default function GatewayScreen({
   }
 
   return null;
-}
-
-function formatUptime(helloPayload: HelloPayload | null | undefined) {
-  const ms = helloPayload?.snapshot?.uptimeMs;
-  if (ms == null) {
-    return "\u2014";
-  }
-  if (ms < 60000) {
-    return `${Math.round(ms / 1000)}s`;
-  }
-  if (ms < 3600000) {
-    return `${Math.round(ms / 60000)}m`;
-  }
-  return `${Math.round(ms / 3600000)}h`;
 }
