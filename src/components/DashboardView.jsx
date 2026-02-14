@@ -252,7 +252,8 @@ export default function DashboardView() {
             label="CURRENT"
             value={currentStrength}
             color={currentStrength === "STRONG" ? C.red : currentStrength === "MEDIUM" ? C.amber : C.green}
-            pulse={currentStrength === "STRONG"}
+            pulse
+            pulseRate={currentStrength === "STRONG" ? "0.8s" : currentStrength === "MEDIUM" ? "2s" : "4s"}
           />
         </div>
       </DraggablePanel>
