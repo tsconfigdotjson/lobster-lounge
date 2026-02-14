@@ -34,9 +34,13 @@ const resources = {
   fr: { translation: fr },
 };
 
+const saved = localStorage.getItem("lobster-lounge-lang");
+const browserLang = navigator.language?.split("-")[0] || "en";
+const lng = saved || (browserLang in resources ? browserLang : "en");
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: localStorage.getItem("lobster-lounge-lang") || "en",
+  lng,
   fallbackLng: "en",
   interpolation: {
     escapeValue: false,
