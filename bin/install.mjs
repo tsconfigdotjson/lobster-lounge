@@ -71,24 +71,6 @@ const loungeRoot = findLoungeRoot();
 const distDir = join(loungeRoot, "dist");
 
 if (!existsSync(distDir) || readdirSync(distDir).length === 0) {
-  // Delete macOS-generated lock file so npm resolves correct platform binaries
-  const lockFile = join(loungeRoot, "package-lock.json");
-  if (existsSync(lockFile)) {
-    console.log("Removing package-lock.json for fresh platform resolve...");
-    rmSync(lockFile);
-  }
-
-  console.log("Installing dependencies...");
-  const installResult = spawnSync("npm", ["install"], {
-    cwd: loungeRoot,
-    stdio: "inherit",
-    shell: true,
-  });
-  if (installResult.status !== 0) {
-    console.error("npm install failed.");
-    process.exit(1);
-  }
-
   console.log("Building Lobster Lounge...");
   const buildResult = spawnSync("npm", ["run", "build"], {
     cwd: loungeRoot,
