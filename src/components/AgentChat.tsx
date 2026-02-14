@@ -244,6 +244,7 @@ export default function AgentChat({
         </div>
       </div>
       <div
+        className="thin-scroll"
         style={{
           flex: 1,
           overflowY: "auto",

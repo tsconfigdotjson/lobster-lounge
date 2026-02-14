@@ -650,11 +650,6 @@ export default function DashboardView() {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.3; }
         }
-        .thin-scroll::-webkit-scrollbar { width: 4px; }
-        .thin-scroll::-webkit-scrollbar-track { background: transparent; }
-        .thin-scroll::-webkit-scrollbar-thumb { background: rgba(244, 162, 97, 0.25); border-radius: 2px; }
-        .thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(244, 162, 97, 0.45); }
-        .thin-scroll { scrollbar-width: thin; scrollbar-color: rgba(244, 162, 97, 0.25) transparent; }
       `}</style>
     </div>
   );
