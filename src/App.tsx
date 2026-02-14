@@ -1,8 +1,5 @@
-// @ts-expect-error -- JSX modules without declarations
+import { GatewayScreen, OceanBg } from "./components";
 import DashboardView from "./components/DashboardView";
-// @ts-expect-error -- JSX modules without declarations
-import { GatewayScreen, OceanBg } from "./components/open-claw";
-// @ts-expect-error -- JSX modules without declarations
 import { GatewayProvider, useGateway } from "./context/GatewayContext";
 
 function AppContent() {
