@@ -107,10 +107,11 @@ export function mapToChatAgents(gatewayAgents: GatewayAgent[]): ChatAgent[] {
   });
 }
 
+let logSeq = 0;
 export function createLogEntry(
   agent: string,
   action: string,
   color: string,
 ): LogEntry {
-  return { agent, action, color, t: 0 };
+  return { id: String(++logSeq), agent, action, color, t: 0 };
 }

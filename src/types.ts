@@ -45,6 +45,7 @@ export interface ChatAgent {
 }
 
 export interface LogEntry {
+  id: string;
   agent: string;
   action: string;
   color: string;

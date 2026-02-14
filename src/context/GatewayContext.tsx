@@ -159,10 +159,57 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
   const [allSkills, setAllSkills] = useState<SkillWithStatus[]>([]);
   const clientRef = useRef<GatewayClient | null>(null);
   const unsubsRef = useRef<Array<() => void>>([]);
+  const rawAgentsRef = useRef<GatewayAgent[]>([]);
+  const agentsRef = useRef<HqAgent[]>([]);
 
   // Initialize device ID on mount
   useEffect(() => {
     getOrCreateIdentity().then((id) => setDeviceId(id.deviceId));
+  }, []);
+
+  // Keep refs in sync so the onEvent closure can access current agents
+  useEffect(() => {
+    rawAgentsRef.current = rawAgents;
+  }, [rawAgents]);
+  useEffect(() => {
+    agentsRef.current = agents;
+  }, [agents]);
+
+  // Stable event handler — reads from refs, no stale closures
+  const handleEvent = useCallback((event: string, payload: GatewayPayload) => {
+    if (event === "agent") {
+      const agentPayload = payload as AgentEventPayload;
+      // Extract agent ID from sessionKey (format: "agent:{id}:{sub}")
+      const sessionKey = payload.sessionKey as string | undefined;
+      const gatewayId = sessionKey?.startsWith("agent:")
+        ? sessionKey.split(":")[1]
+        : undefined;
+      const gwAgent = gatewayId
+        ? rawAgentsRef.current.find((a) => a.id === gatewayId)
+        : undefined;
+      const label = (
+        gwAgent?.identity?.name ||
+        gwAgent?.name ||
+        gatewayId ||
+        "AGENT"
+      )
+        .toUpperCase()
+        .slice(0, 8);
+      const hqAgent = gatewayId
+        ? agentsRef.current.find((a) => a._gatewayId === gatewayId)
+        : undefined;
+      const color = hqAgent?.color || "#f4a261";
+      setActivityLogs((prev) => [
+        ...prev.slice(-14),
+        createLogEntry(label, String(agentPayload?.stream || "event"), color),
+      ]);
+    }
+    if (event === "presence") {
+      setActivityLogs((prev) => [
+        ...prev.slice(-14),
+        createLogEntry("SYSTEM", "Presence update", "#5dade2"),
+      ]);
+    }
   }, []);
 
   const cleanup = useCallback(() => {
@@ -241,7 +288,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             .toUpperCase()
             .slice(0, 8);
           setActivityLogs((prev) => [
-            ...prev,
+            ...prev.slice(-14),
             createLogEntry(name, "Connected", "#2ecc71"),
           ]);
         });
@@ -378,26 +425,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             setConnectionPhase("disconnected");
           }
         },
-        onEvent: (event: string, payload: GatewayPayload) => {
-          if (event === "agent") {
-            const agentPayload = payload as AgentEventPayload;
-            const label = agentPayload?.data?.agentId || "AGENT";
-            setActivityLogs((prev) => [
-              ...prev.slice(-50),
-              createLogEntry(
-                label.toUpperCase().slice(0, 8),
-                String(agentPayload?.stream || "event"),
-                "#f4a261",
-              ),
-            ]);
-          }
-          if (event === "presence") {
-            setActivityLogs((prev) => [
-              ...prev.slice(-50),
-              createLogEntry("SYSTEM", "Presence update", "#5dade2"),
-            ]);
-          }
-        },
+        onEvent: handleEvent,
       });
 
       clientRef.current = client;
@@ -410,7 +438,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
 
       client.connect(url, gatewayToken);
     },
-    [cleanup, syncAgents],
+    [cleanup, syncAgents, handleEvent],
   );
 
   const disconnect = useCallback(() => {

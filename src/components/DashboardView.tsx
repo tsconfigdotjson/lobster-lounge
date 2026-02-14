@@ -49,6 +49,7 @@ export default function DashboardView() {
   const [editingAgent, setEditingAgent] = useState<EditAgentData | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
   const skillsRef = useRef<HTMLDivElement>(null);
+  const tideLogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatState === "collapsed" && skillsCollapsed) {
@@ -100,6 +101,14 @@ export default function DashboardView() {
       setShowCreator(true);
     }
   }, [agents.length]);
+
+  // Auto-scroll Tide log to bottom on new entries
+  useEffect(() => {
+    const el = tideLogRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, []);
 
   const uptimeMs = helloPayload?.snapshot?.uptimeMs;
   const uptimeStr =
@@ -418,6 +427,7 @@ export default function DashboardView() {
         defaultY={120}
       >
         <div
+          ref={tideLogRef}
           className="thin-scroll"
           style={{
             padding: "8px 10px",
@@ -471,19 +481,6 @@ export default function DashboardView() {
             </div>
             <div style={{ fontSize: 12, color: C.textDim }}>{sel.role}</div>
           </div>
-          <div
-            style={{
-              padding: "3px 10px",
-              borderRadius: 2,
-              background: "rgba(46,204,113,0.12)",
-              border: `1px solid ${C.green}`,
-              fontSize: 11,
-              color: C.green,
-              letterSpacing: 1,
-            }}
-          >
-            AUTONOMOUS
-          </div>
           <button
             type="button"
             onClick={handleEditClick}
@@ -500,6 +497,27 @@ export default function DashboardView() {
             }}
           >
             ✎ EDIT
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setChatInitialAgentId(selectedAgent);
+              setSelectedAgent(null);
+              setChatState("normal");
+            }}
+            style={{
+              background: "rgba(46,204,113,0.12)",
+              border: `1px solid ${C.green}`,
+              borderRadius: 2,
+              padding: "3px 10px",
+              cursor: "pointer",
+              fontSize: 11,
+              color: C.green,
+              fontFamily: "'Courier New', monospace",
+              letterSpacing: 1,
+            }}
+          >
+            CHAT
           </button>
         </div>
       )}
@@ -686,6 +704,10 @@ export default function DashboardView() {
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.3; }
+        }
+        @keyframes tideFadeIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
