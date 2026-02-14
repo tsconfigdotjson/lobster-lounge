@@ -361,7 +361,12 @@ export default function DashboardView() {
       >
         <button
           type="button"
-          onClick={() => setSkillsCollapsed((c) => !c)}
+          onClick={() => {
+            if (skillsCollapsed) {
+              setSelectedAgent(null);
+            }
+            setSkillsCollapsed((c) => !c);
+          }}
           style={{
             display: "flex",
             alignItems: "center",
