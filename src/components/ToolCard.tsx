@@ -2,40 +2,72 @@ import { useState } from "react";
 import type { ContentBlock } from "../types";
 import { C } from "./constants";
 import Spinner from "./Spinner";
+import ToolIcon from "./ToolIcon";
 
 type ToolCallBlock = Extract<ContentBlock, { type: "tool_call" }>;
 
-// Tool config: icon, label, and key to extract for the detail line
-const TOOL_CONFIG: Record<
-  string,
-  { icon: string; label: string; detailKey?: string }
-> = {
-  Read: { icon: "\uD83D\uDCC4", label: "Read File", detailKey: "file_path" },
-  Write: { icon: "\u270D\uFE0F", label: "Write File", detailKey: "file_path" },
-  Edit: { icon: "\u2702\uFE0F", label: "Edit File", detailKey: "file_path" },
-  Bash: { icon: "\uD83D\uDCBB", label: "Run Command", detailKey: "command" },
-  Glob: { icon: "\uD83D\uDD0D", label: "Find Files", detailKey: "pattern" },
-  Grep: { icon: "\uD83D\uDD0E", label: "Search Code", detailKey: "pattern" },
-  WebFetch: { icon: "\uD83C\uDF10", label: "Fetch URL", detailKey: "url" },
-  WebSearch: { icon: "\uD83C\uDF10", label: "Web Search", detailKey: "query" },
-  Task: { icon: "\uD83E\uDD16", label: "Sub-Agent", detailKey: "prompt" },
+// Tool config: label and keys to try for the detail line
+type ToolDef = { label: string; detailKeys?: string[] };
+
+const TOOL_CONFIG: Record<string, ToolDef> = {
+  read:        { label: "Read File",    detailKeys: ["file_path", "path"] },
+  write:       { label: "Write File",   detailKeys: ["file_path", "path"] },
+  edit:        { label: "Edit File",    detailKeys: ["file_path", "path"] },
+  bash:        { label: "Run Command",  detailKeys: ["command", "cmd"] },
+  exec:        { label: "Run Command",  detailKeys: ["command", "cmd"] },
+  glob:        { label: "Find Files",   detailKeys: ["pattern", "path"] },
+  grep:        { label: "Search Code",  detailKeys: ["pattern", "query"] },
+  web_fetch:   { label: "Fetch URL",    detailKeys: ["url", "targetUrl"] },
+  webfetch:    { label: "Fetch URL",    detailKeys: ["url", "targetUrl"] },
+  web_search:  { label: "Web Search",   detailKeys: ["query"] },
+  websearch:   { label: "Web Search",   detailKeys: ["query"] },
+  task:        { label: "Sub-Agent",    detailKeys: ["prompt", "description"] },
+  browser:     { label: "Browser",      detailKeys: ["targetUrl", "url"] },
+  apply_patch: { label: "Apply Patch",  detailKeys: ["path"] },
 };
 
-const FALLBACK_CONFIG = { icon: "\u2699\uFE0F", label: "Tool Call" };
+function lookupConfig(toolName: string): ToolDef {
+  const key = toolName.trim().toLowerCase();
+  return TOOL_CONFIG[key] ?? { label: toolName || "Tool Call" };
+}
 
 const INLINE_THRESHOLD = 80;
 const PREVIEW_MAX_CHARS = 100;
 
+/** Try to coerce args from a JSON string into an object */
+function coerceArgs(args: Record<string, unknown>): Record<string, unknown> {
+  // If args has a single string value that looks like JSON, parse it
+  const keys = Object.keys(args);
+  if (keys.length === 0) {
+    return args;
+  }
+  // Sometimes the whole args is wrapped: { "0": "{...}" } or similar
+  for (const k of keys) {
+    const v = args[k];
+    if (typeof v === "string" && v.startsWith("{")) {
+      try {
+        return JSON.parse(v) as Record<string, unknown>;
+      } catch {
+        // not JSON
+      }
+    }
+  }
+  return args;
+}
+
 function getDetail(block: ToolCallBlock): string | null {
-  const cfg = TOOL_CONFIG[block.toolName];
-  if (!cfg?.detailKey) {
+  const cfg = lookupConfig(block.toolName);
+  if (!cfg.detailKeys?.length) {
     return null;
   }
-  const val = block.args?.[cfg.detailKey];
-  if (typeof val !== "string" || !val) {
-    return null;
+  const args = coerceArgs(block.args ?? {});
+  for (const key of cfg.detailKeys) {
+    const val = args[key];
+    if (typeof val === "string" && val) {
+      return val.length > 120 ? `${val.slice(0, 117)}...` : val;
+    }
   }
-  return val.length > 120 ? `${val.slice(0, 117)}...` : val;
+  return null;
 }
 
 function getPreview(
@@ -68,7 +100,7 @@ export default function ToolCard({
   agentColor: string;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const cfg = TOOL_CONFIG[block.toolName] || FALLBACK_CONFIG;
+  const cfg = lookupConfig(block.toolName);
   const isRunning = block.phase !== "result";
   const detail = getDetail(block);
   const preview = getPreview(block.output);
@@ -100,17 +132,18 @@ export default function ToolCard({
           display: "flex",
           alignItems: "center",
           gap: 8,
-          padding: "7px 10px",
+          padding: "6px 10px 2px",
         }}
       >
-        <span style={{ fontSize: 14, flexShrink: 0 }}>{cfg.icon}</span>
+        <ToolIcon toolName={block.toolName} color={agentColor} size={22} />
         <span
           style={{
             fontSize: 11,
-            fontWeight: "bold",
+            fontWeight: 500,
             fontFamily: "'Courier New', monospace",
             letterSpacing: 0.5,
-            color: C.text,
+            color: C.amber,
+            opacity: 0.75,
             flex: 1,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -118,12 +151,6 @@ export default function ToolCard({
           }}
         >
           {cfg.label}
-          {cfg.label === "Tool Call" && (
-            <span style={{ color: C.textDim, fontWeight: "normal" }}>
-              {" "}
-              ({block.toolName})
-            </span>
-          )}
         </span>
         {isRunning ? (
           <Spinner color={agentColor} />
@@ -151,7 +178,7 @@ export default function ToolCard({
       {detail && (
         <div
           style={{
-            padding: "0 10px 6px 32px",
+            padding: "0 10px 4px 32px",
             fontSize: 11,
             fontFamily: "'Courier New', monospace",
             color: C.textDim,
@@ -168,7 +195,7 @@ export default function ToolCard({
       {!expanded && preview && (
         <div
           style={{
-            padding: "0 10px 7px 32px",
+            padding: "0 10px 4px 32px",
             fontSize: 11,
             fontFamily: "'Courier New', monospace",
             color: preview.inline ? C.text : C.textDim,
@@ -187,7 +214,7 @@ export default function ToolCard({
       {!expanded && !preview && !isRunning && (
         <div
           style={{
-            padding: "0 10px 7px 32px",
+            padding: "0 10px 4px 32px",
             fontSize: 10,
             color: C.green,
             letterSpacing: 0.5,

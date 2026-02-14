@@ -13,4 +13,5 @@ export { default as PanelHeader } from "./PanelHeader";
 export { default as Section } from "./Section";
 export { default as Spinner } from "./Spinner";
 export { default as ToolCard } from "./ToolCard";
+export { default as ToolIcon } from "./ToolIcon";
 export { default as TypingDots } from "./TypingDots";
