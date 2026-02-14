@@ -4,12 +4,15 @@ import LobsterAvatar from "./LobsterAvatar";
 import { btnPrimaryStyle, inputStyle, panelStyle } from "./styles";
 import TypingDots from "./TypingDots";
 
-export default function AgentChat({ agents = [], onSendMessage }) {
-  const [active, setActive] = useState(agents[0] || null);
+export default function AgentChat({ agents = [], onSendMessage, initialActiveId }) {
+  const [active, setActive] = useState(
+    () => (initialActiveId && agents.find((a) => a.id === initialActiveId)) || agents[0] || null,
+  );
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const endRef = useRef(null);
+  const inputRef = useRef(null);
   const msgs = active ? messages[active.id] || [] : [];
   const sc = { active: C.green, busy: C.amber, idle: C.textDim };
 
@@ -18,6 +21,16 @@ export default function AgentChat({ agents = [], onSendMessage }) {
       setActive(agents[0]);
     }
   }, [agents, active]);
+
+  useEffect(() => {
+    if (initialActiveId) {
+      const match = agents.find((a) => a.id === initialActiveId);
+      if (match) {
+        setActive(match);
+      }
+      inputRef.current?.focus();
+    }
+  }, [initialActiveId, agents]);
 
   const send = () => {
     if (!input.trim() || typing || !active) {
@@ -60,6 +73,7 @@ export default function AgentChat({ agents = [], onSendMessage }) {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
+    inputRef.current?.focus();
   }, []);
 
   if (!active) {
@@ -263,6 +277,7 @@ export default function AgentChat({ agents = [], onSendMessage }) {
         }}
       >
         <input
+          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}

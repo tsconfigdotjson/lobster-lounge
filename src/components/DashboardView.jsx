@@ -31,6 +31,7 @@ export default function DashboardView() {
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [chatCollapsed, setChatCollapsed] = useState(true);
+  const [chatInitialAgentId, setChatInitialAgentId] = useState(null);
   const [skillsCollapsed, setSkillsCollapsed] = useState(true);
   const [time, setTime] = useState("08:00");
   const [tick, setTick] = useState(0);
@@ -127,7 +128,12 @@ export default function DashboardView() {
       <LobsterHQ
         agents={agents}
         selectedAgent={selectedAgent}
-        onSelectAgent={setSelectedAgent}
+        onSelectAgent={(id) => {
+          setSelectedAgent(id);
+          if (id && !chatCollapsed) {
+            setChatCollapsed(true);
+          }
+        }}
       />
 
       {/* Status bar */}
@@ -467,7 +473,13 @@ export default function DashboardView() {
         >
           <button
             type="button"
-            onClick={() => setChatCollapsed((c) => !c)}
+            onClick={() => {
+              if (chatCollapsed) {
+                setChatInitialAgentId(selectedAgent);
+                setSelectedAgent(null);
+              }
+              setChatCollapsed((c) => !c);
+            }}
             style={{
               display: "flex",
               alignItems: "center",
@@ -495,9 +507,9 @@ export default function DashboardView() {
               {chatAgents.length}
             </span>
           </button>
-          {!chatCollapsed && (
-            <AgentChat agents={chatAgents} onSendMessage={sendAgentMessage} />
-          )}
+          <div style={{ display: chatCollapsed ? "none" : "contents" }}>
+            <AgentChat agents={chatAgents} onSendMessage={sendAgentMessage} initialActiveId={chatInitialAgentId} />
+          </div>
         </div>
       )}
 

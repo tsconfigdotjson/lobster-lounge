@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { C, COLS, MAP, ROWS, TILE } from "./constants";
 import { drawPixelText } from "./helpers";
 import {
@@ -24,86 +24,95 @@ export default function LobsterHQ({
 }) {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
+  const rafRef = useRef(0);
+  const selectedAgentRef = useRef(selectedAgent);
+  const agentsRef = useRef(agents);
 
-  const render = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-    const ctx = canvas.getContext("2d");
-    const f = frameRef.current++;
-
-    ctx.clearRect(0, 0, COLS * TILE, ROWS * TILE);
-
-    for (let y = 0; y < ROWS; y++) {
-      for (let x = 0; x < COLS; x++) {
-        const tile = MAP[y]?.[x] ?? 0;
-        switch (tile) {
-          case 0:
-            drawOcean(ctx, x, y, f);
-            break;
-          case 1:
-            drawSand(ctx, x, y);
-            break;
-          case 2:
-            drawDeep(ctx, x, y, f);
-            break;
-          case 3:
-            drawLodgeWall(ctx, x, y);
-            break;
-          case 4:
-            drawShellRoof(ctx, x, y);
-            break;
-          case 5:
-            drawDoor(ctx, x, y);
-            break;
-          case 6:
-            drawPorthole(ctx, x, y);
-            break;
-          case 7:
-            drawCoral(ctx, x, y, f);
-            break;
-          case 8:
-            drawKelp(ctx, x, y, f);
-            break;
-          case 9:
-            drawShellDeco(ctx, x, y, f);
-            break;
-        }
-      }
-    }
-
-    drawSignpost(ctx, 2 * TILE, 7 * TILE);
-
-    ctx.fillStyle = "rgba(10,22,40,0.85)";
-    ctx.fillRect(7 * TILE + 8, 5 * TILE + 10, 7 * TILE, 9);
-    ctx.fillStyle = C.amber;
-    drawPixelText(ctx, "LOBSTER LODGE", 7 * TILE + 12, 5 * TILE + 12, 1);
-
-    drawBubbles(ctx, f);
-
-    const sorted = [...agents].sort((a, b) => a.y - b.y);
-    for (const a of sorted) {
-      drawLobsterAgent(ctx, a, f);
-    }
-
-    if (selectedAgent) {
-      const a = agents.find((ag) => ag.id === selectedAgent);
-      if (a) {
-        const pulse = Math.sin(f * 0.15) * 0.5 + 0.5;
-        ctx.strokeStyle = `rgba(244, 162, 97, ${0.4 + pulse * 0.6})`;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(a.x * TILE - 2, a.y * TILE - 10, TILE + 4, TILE + 14);
-      }
-    }
-
-    requestAnimationFrame(render);
-  }, [selectedAgent, agents]);
+  selectedAgentRef.current = selectedAgent;
+  agentsRef.current = agents;
 
   useEffect(() => {
-    const raf = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(raf);
-  }, [render]);
+    const render = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        rafRef.current = requestAnimationFrame(render);
+        return;
+      }
+      const ctx = canvas.getContext("2d");
+      const f = frameRef.current++;
+
+      ctx.clearRect(0, 0, COLS * TILE, ROWS * TILE);
+
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const tile = MAP[y]?.[x] ?? 0;
+          switch (tile) {
+            case 0:
+              drawOcean(ctx, x, y, f);
+              break;
+            case 1:
+              drawSand(ctx, x, y);
+              break;
+            case 2:
+              drawDeep(ctx, x, y, f);
+              break;
+            case 3:
+              drawLodgeWall(ctx, x, y);
+              break;
+            case 4:
+              drawShellRoof(ctx, x, y);
+              break;
+            case 5:
+              drawDoor(ctx, x, y);
+              break;
+            case 6:
+              drawPorthole(ctx, x, y);
+              break;
+            case 7:
+              drawCoral(ctx, x, y, f);
+              break;
+            case 8:
+              drawKelp(ctx, x, y, f);
+              break;
+            case 9:
+              drawShellDeco(ctx, x, y, f);
+              break;
+          }
+        }
+      }
+
+      drawSignpost(ctx, 2 * TILE, 7 * TILE);
+
+      ctx.fillStyle = "rgba(10,22,40,0.85)";
+      ctx.fillRect(7 * TILE + 8, 5 * TILE + 10, 7 * TILE, 9);
+      ctx.fillStyle = C.amber;
+      drawPixelText(ctx, "LOBSTER LODGE", 7 * TILE + 12, 5 * TILE + 12, 1);
+
+      drawBubbles(ctx, f);
+
+      const currentAgents = agentsRef.current;
+      const sorted = [...currentAgents].sort((a, b) => a.y - b.y);
+      for (const a of sorted) {
+        drawLobsterAgent(ctx, a, f);
+      }
+
+      const sel = selectedAgentRef.current;
+      if (sel) {
+        const a = currentAgents.find((ag) => ag.id === sel);
+        if (a) {
+          const pulse = Math.sin(f * 0.15) * 0.5 + 0.5;
+          ctx.strokeStyle = `rgba(244, 162, 97, ${0.4 + pulse * 0.6})`;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(a.x * TILE - 2, a.y * TILE - 10, TILE + 4, TILE + 14);
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(render);
+    };
+
+    rafRef.current = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
   const handleCanvasClick = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
