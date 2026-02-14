@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGateway } from "../context/GatewayContext";
 import { setAgentColor } from "../services/data-mappers";
 import {
@@ -45,12 +45,22 @@ export default function DashboardView() {
   const skillsRef = useRef(null);
 
   useEffect(() => {
-    if (chatCollapsed && skillsCollapsed) return;
+    if (chatCollapsed && skillsCollapsed) {
+      return;
+    }
     const handleClickOutside = (e) => {
-      if (!chatCollapsed && chatRef.current && !chatRef.current.contains(e.target)) {
+      if (
+        !chatCollapsed &&
+        chatRef.current &&
+        !chatRef.current.contains(e.target)
+      ) {
         setChatCollapsed(true);
       }
-      if (!skillsCollapsed && skillsRef.current && !skillsRef.current.contains(e.target)) {
+      if (
+        !skillsCollapsed &&
+        skillsRef.current &&
+        !skillsRef.current.contains(e.target)
+      ) {
         setSkillsCollapsed(true);
       }
     };
@@ -64,7 +74,9 @@ export default function DashboardView() {
     const iv = setInterval(() => {
       setTick((t) => t + 1);
       const now = new Date();
-      setTime(`${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`);
+      setTime(
+        `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`,
+      );
       if (Date.now() >= nextChange) {
         setCurrentStrength((prev) => {
           const others = CURRENT_OPTIONS.filter((o) => o !== prev);
@@ -251,9 +263,21 @@ export default function DashboardView() {
           <HudItem
             label="CURRENT"
             value={currentStrength}
-            color={currentStrength === "STRONG" ? C.red : currentStrength === "MEDIUM" ? C.amber : C.green}
+            color={
+              currentStrength === "STRONG"
+                ? C.red
+                : currentStrength === "MEDIUM"
+                  ? C.amber
+                  : C.green
+            }
             pulse
-            pulseRate={currentStrength === "STRONG" ? "0.8s" : currentStrength === "MEDIUM" ? "2s" : "4s"}
+            pulseRate={
+              currentStrength === "STRONG"
+                ? "0.8s"
+                : currentStrength === "MEDIUM"
+                  ? "2s"
+                  : "4s"
+            }
           />
         </div>
       </DraggablePanel>
@@ -459,10 +483,7 @@ export default function DashboardView() {
 
       {/* Agent Creator panel — create mode */}
       {showCreator && !editingAgent && (
-        <DraggablePanel
-          title="SPAWN AGENT"
-          centered
-        >
+        <DraggablePanel title="SPAWN AGENT" centered>
           <AgentCreator
             onDeploy={handleCreate}
             onCancel={() => setShowCreator(false)}
@@ -472,10 +493,7 @@ export default function DashboardView() {
 
       {/* Agent Creator panel — edit mode */}
       {editingAgent && (
-        <DraggablePanel
-          title="EDIT AGENT"
-          centered
-        >
+        <DraggablePanel title="EDIT AGENT" centered>
           <AgentCreator
             key={editingAgent._gatewayId}
             editAgent={editingAgent}
@@ -539,7 +557,11 @@ export default function DashboardView() {
             </span>
           </button>
           <div style={{ display: chatCollapsed ? "none" : "contents" }}>
-            <AgentChat agents={chatAgents} onSendMessage={sendAgentMessage} initialActiveId={chatInitialAgentId} />
+            <AgentChat
+              agents={chatAgents}
+              onSendMessage={sendAgentMessage}
+              initialActiveId={chatInitialAgentId}
+            />
           </div>
         </div>
       )}

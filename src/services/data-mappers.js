@@ -54,8 +54,7 @@ export function mapToHqAgents(gatewayAgents) {
   }
   return gatewayAgents.map((agent, i) => {
     const pos = POSITIONS[i % POSITIONS.length];
-    const color =
-      getAgentColor(agent.id) || PALETTE[i % PALETTE.length];
+    const color = getAgentColor(agent.id) || PALETTE[i % PALETTE.length];
     const name = agent.identity?.name || agent.name || agent.id;
     return {
       id: name.toUpperCase().slice(0, 8),
@@ -75,8 +74,7 @@ export function mapToChatAgents(gatewayAgents) {
     return [];
   }
   return gatewayAgents.map((agent, i) => {
-    const color =
-      getAgentColor(agent.id) || PALETTE[i % PALETTE.length];
+    const color = getAgentColor(agent.id) || PALETTE[i % PALETTE.length];
     const name = agent.identity?.name || agent.name || agent.id;
     return {
       id: name.toUpperCase().slice(0, 8),

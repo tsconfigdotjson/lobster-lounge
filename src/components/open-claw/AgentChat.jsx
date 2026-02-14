@@ -4,9 +4,16 @@ import LobsterAvatar from "./LobsterAvatar";
 import { btnPrimaryStyle, inputStyle, panelStyle } from "./styles";
 import TypingDots from "./TypingDots";
 
-export default function AgentChat({ agents = [], onSendMessage, initialActiveId }) {
+export default function AgentChat({
+  agents = [],
+  onSendMessage,
+  initialActiveId,
+}) {
   const [active, setActive] = useState(
-    () => (initialActiveId && agents.find((a) => a.id === initialActiveId)) || agents[0] || null,
+    () =>
+      (initialActiveId && agents.find((a) => a.id === initialActiveId)) ||
+      agents[0] ||
+      null,
   );
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState("");

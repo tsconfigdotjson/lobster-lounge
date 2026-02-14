@@ -1,6 +1,12 @@
 import { C } from "./constants";
 
-export default function HudItem({ label, value, color, pulse, pulseRate = "2s" }) {
+export default function HudItem({
+  label,
+  value,
+  color,
+  pulse,
+  pulseRate = "2s",
+}) {
   return (
     <div style={{ textAlign: "center" }}>
       <div
