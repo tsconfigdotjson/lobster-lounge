@@ -49,6 +49,7 @@ export default function DashboardView() {
   const [editingAgent, setEditingAgent] = useState<EditAgentData | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
   const skillsRef = useRef<HTMLDivElement>(null);
+  const tideLogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatState === "collapsed" && skillsCollapsed) {
@@ -100,6 +101,14 @@ export default function DashboardView() {
       setShowCreator(true);
     }
   }, [agents.length]);
+
+  // Auto-scroll Tide log to bottom on new entries
+  useEffect(() => {
+    const el = tideLogRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [activityLogs]);
 
   const uptimeMs = helloPayload?.snapshot?.uptimeMs;
   const uptimeStr =
@@ -418,6 +427,7 @@ export default function DashboardView() {
         defaultY={120}
       >
         <div
+          ref={tideLogRef}
           className="thin-scroll"
           style={{
             padding: "8px 10px",
@@ -694,6 +704,10 @@ export default function DashboardView() {
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.3; }
+        }
+        @keyframes tideFadeIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

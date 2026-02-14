@@ -1,25 +1,26 @@
 import { C } from "./constants";
+import type { LogEntry } from "../types";
 
 export default function ActivityLog({
   logs = [],
-  tick,
 }: {
-  logs?: { agent: string; action: string; color: string; t: number }[];
-  tick: number;
+  logs?: LogEntry[];
+  tick?: number;
 }) {
-  const visible = logs.filter((l) => tick % 24 >= l.t).slice(-7);
+  const visible = logs.slice(-15);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       {visible.map((l, i) => (
         <div
-          key={`${l.agent}-${l.action}`}
+          key={l.id}
           style={{
             fontSize: 11,
             lineHeight: 1.4,
             opacity: 0.4 + (i / visible.length) * 0.6,
             borderLeft: `2px solid ${l.color}`,
             paddingLeft: 6,
+            animation: "tideFadeIn 0.3s ease-out",
           }}
         >
           <span style={{ color: l.color, fontWeight: "bold" }}>{l.agent}</span>
