@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import type { ChatAgent } from "../types";
+import type { ChatAgent, ChatMessage } from "../types";
 import { C } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
+import MarkdownRenderer from "./MarkdownRenderer";
 import { btnPrimaryStyle, inputStyle, panelStyle } from "./styles";
+import ToolCard from "./ToolCard";
 import TypingDots from "./TypingDots";
 
 export default function AgentChat({
@@ -11,7 +13,11 @@ export default function AgentChat({
   initialActiveId,
 }: {
   agents?: ChatAgent[];
-  onSendMessage?: (agentId: string, text: string) => Promise<string>;
+  onSendMessage?: (
+    agentId: string,
+    text: string,
+    onDelta?: (partial: ChatMessage) => void,
+  ) => Promise<ChatMessage>;
   initialActiveId?: string | null;
 }) {
   const [active, setActive] = useState(
@@ -20,9 +26,7 @@ export default function AgentChat({
       agents[0] ||
       null,
   );
-  const [messages, setMessages] = useState<
-    Record<string, { from: string; text: string }[]>
-  >({});
+  const [messages, setMessages] = useState<Record<string, ChatMessage[]>>({});
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -55,32 +59,64 @@ export default function AgentChat({
       return;
     }
     const text = input.trim();
+    const agentId = active.id;
     setInput("");
+
+    // Add user message
+    const userMsg: ChatMessage = {
+      from: "user",
+      blocks: [{ type: "text", text }],
+    };
+
+    // Add streaming placeholder for agent
+    const placeholderMsg: ChatMessage = {
+      from: "agent",
+      blocks: [{ type: "text", text: "" }],
+      streaming: true,
+    };
+
     setMessages((p) => ({
       ...p,
-      [active.id]: [...(p[active.id] || []), { from: "user", text }],
+      [agentId]: [...(p[agentId] || []), userMsg, placeholderMsg],
     }));
     setTyping(true);
-    if (onSendMessage) {
-      Promise.resolve(onSendMessage(active.id, text)).then((response) => {
-        setMessages((p) => ({
+
+    const onDelta = (partial: ChatMessage) => {
+      setMessages((p) => {
+        const list = p[agentId] || [];
+        // Replace the last message (streaming agent message)
+        return {
           ...p,
-          [active.id]: [
-            ...(p[active.id] || []),
-            { from: "agent", text: response },
-          ],
-        }));
-        setTyping(false);
+          [agentId]: [...list.slice(0, -1), partial],
+        };
       });
+    };
+
+    if (onSendMessage) {
+      Promise.resolve(onSendMessage(agentId, text, onDelta))
+        .then((finalMsg) => {
+          setMessages((p) => {
+            const list = p[agentId] || [];
+            return {
+              ...p,
+              [agentId]: [...list.slice(0, -1), finalMsg],
+            };
+          });
+          setTyping(false);
+        })
+        .catch(() => {
+          setTyping(false);
+        });
     } else {
       setTimeout(
         () => {
+          const mockMsg: ChatMessage = {
+            from: "agent",
+            blocks: [{ type: "text", text: `[${agentId}] Message received.` }],
+          };
           setMessages((p) => ({
             ...p,
-            [active.id]: [
-              ...(p[active.id] || []),
-              { from: "agent", text: `[${active.id}] Message received.` },
-            ],
+            [agentId]: [...(p[agentId] || []).slice(0, -1), mockMsg],
           }));
           setTyping(false);
         },
@@ -89,8 +125,18 @@ export default function AgentChat({
     }
   };
 
+  // Auto-scroll on new messages / streaming updates
+  const msgCount = msgs.length;
+  const lastMsg = msgs[msgCount - 1];
+  const scrollKey = lastMsg?.streaming
+    ? `${msgCount}-${lastMsg.blocks.length}`
+    : `${msgCount}`;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scrollKey intentionally triggers scroll on content changes
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [scrollKey]);
+
+  useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
@@ -230,59 +276,126 @@ export default function AgentChat({
             </div>
           </div>
         )}
-        {msgs.map((m, idx) => (
-          <div
-            key={`${m.from}-${idx}`}
-            style={{
-              display: "flex",
-              flexDirection: m.from === "user" ? "row-reverse" : "row",
-              gap: 8,
-              alignItems: "flex-end",
-            }}
-          >
-            {m.from === "agent" && (
+        {msgs.map((m, idx) => {
+          if (m.from === "user") {
+            // User messages: plain text
+            const text = m.blocks
+              .filter((b) => b.type === "text")
+              .map((b) => (b as { type: "text"; text: string }).text)
+              .join("");
+            return (
+              <div
+                key={`user-${idx}`}
+                style={{
+                  display: "flex",
+                  flexDirection: "row-reverse",
+                  gap: 8,
+                  alignItems: "flex-end",
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: "78%",
+                    padding: "8px 12px",
+                    borderRadius: "8px 8px 2px 8px",
+                    background: C.chatUser,
+                    border: `1px solid ${C.amber}18`,
+                    fontSize: 13,
+                    lineHeight: 1.55,
+                    color: C.text,
+                  }}
+                >
+                  {text}
+                </div>
+              </div>
+            );
+          }
+
+          // Agent messages: render blocks
+          const hasContent = m.blocks.some(
+            (b) => (b.type === "text" && b.text) || b.type === "tool_call",
+          );
+
+          // Skip empty streaming placeholders with no content yet
+          if (!hasContent && m.streaming) {
+            return (
+              <div
+                key={`agent-${idx}`}
+                style={{ display: "flex", gap: 8, alignItems: "flex-end" }}
+              >
+                <LobsterAvatar
+                  color={active.color}
+                  size={22}
+                  style={{ flexShrink: 0 }}
+                />
+                <div
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "8px 8px 8px 2px",
+                    background: C.chatAgent,
+                    border: `1px solid ${active.color}18`,
+                  }}
+                >
+                  <TypingDots color={active.color} />
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div
+              key={`agent-${idx}`}
+              style={{
+                display: "flex",
+                gap: 8,
+                alignItems: "flex-start",
+              }}
+            >
               <LobsterAvatar
                 color={active.color}
                 size={22}
-                style={{ flexShrink: 0 }}
+                style={{ flexShrink: 0, marginTop: 4 }}
               />
-            )}
-            <div
-              style={{
-                maxWidth: "78%",
-                padding: "8px 12px",
-                borderRadius:
-                  m.from === "user" ? "8px 8px 2px 8px" : "8px 8px 8px 2px",
-                background: m.from === "user" ? C.chatUser : C.chatAgent,
-                border: `1px solid ${m.from === "user" ? `${C.amber}18` : `${active.color}18`}`,
-                fontSize: 13,
-                lineHeight: 1.55,
-                color: C.text,
-              }}
-            >
-              {m.text}
+              <div style={{ maxWidth: "85%", minWidth: 0, flex: 1 }}>
+                {m.blocks.map((block, bi) => {
+                  if (block.type === "tool_call") {
+                    return (
+                      <ToolCard
+                        key={block.toolCallId || `tc-${bi}`}
+                        block={block}
+                        agentColor={active.color}
+                      />
+                    );
+                  }
+                  // Text block
+                  if (!block.text) {
+                    return null;
+                  }
+                  return (
+                    <div
+                      key={`text-${bi}`}
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: "8px 8px 8px 2px",
+                        background: C.chatAgent,
+                        border: `1px solid ${active.color}18`,
+                        marginBottom: bi < m.blocks.length - 1 ? 4 : 0,
+                      }}
+                    >
+                      <MarkdownRenderer content={block.text} />
+                    </div>
+                  );
+                })}
+                {/* Inline typing indicator at end of streaming message */}
+                {m.streaming && (
+                  <div style={{ marginTop: 4, paddingLeft: 4 }}>
+                    <TypingDots color={active.color} />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-        {typing && (
-          <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-            <LobsterAvatar
-              color={active.color}
-              size={22}
-              style={{ flexShrink: 0 }}
-            />
-            <div
-              style={{
-                padding: "10px 16px",
-                borderRadius: "8px 8px 8px 2px",
-                background: C.chatAgent,
-                border: `1px solid ${active.color}18`,
-              }}
-            >
-              <TypingDots color={active.color} />
-            </div>
-          </div>
-        )}
+          );
+        })}
         <div ref={endRef} />
       </div>
       <div
