@@ -9,6 +9,7 @@ function AppContent() {
     connectionPhase,
     deviceId,
     connect,
+    retryPairing,
     serverInfo,
     helloPayload,
   } = useGateway();
@@ -45,6 +46,7 @@ function AppContent() {
           serverInfo={serverInfo}
           helloPayload={helloPayload}
           onStartConnect={(url: string, token?: string) => connect(url, token)}
+          onRetryPairing={retryPairing}
           onConnect={() => {
             /* dashboard will show automatically via state */
           }}

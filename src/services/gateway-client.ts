@@ -114,6 +114,11 @@ export default class GatewayClient {
     this.#setState("disconnected");
   }
 
+  retry() {
+    this.#intentionalClose = false;
+    this.#doConnect();
+  }
+
   request(method: string, params?: GatewayPayload) {
     return new Promise<GatewayPayload>((resolve, reject) => {
       if (!this.#ws || this.#ws.readyState !== WebSocket.OPEN) {
@@ -171,20 +176,15 @@ export default class GatewayClient {
       this.#cleanupTick();
       this.#ws = null;
       const wasPairing = this.#state === "pairing";
-      this.#setState("disconnected");
       this.#rejectAllPending("Connection closed");
+      if (wasPairing) {
+        // Stay in pairing state — user will retry manually
+        this.#setState("pairing");
+        return;
+      }
+      this.#setState("disconnected");
       if (!this.#intentionalClose) {
-        if (wasPairing) {
-          // Fixed 3s reconnect during pairing (waiting for operator approval)
-          this.#reconnectTimer = setTimeout(() => {
-            this.#reconnectTimer = null;
-            if (!this.#intentionalClose) {
-              this.#doConnect();
-            }
-          }, 3000);
-        } else {
-          this.#scheduleReconnect();
-        }
+        this.#scheduleReconnect();
       }
     };
   }
@@ -267,6 +267,9 @@ export default class GatewayClient {
       }
       entry.resolve(payload);
     } else {
+      if (entry.method === "connect") {
+        this.#intentionalClose = true;
+      }
       entry.reject(new Error(error?.message || "Request failed"));
     }
   }

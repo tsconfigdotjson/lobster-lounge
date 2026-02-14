@@ -22,6 +22,7 @@ export default function GatewayScreen({
   connectionState,
   connectionError,
   onStartConnect,
+  onRetryPairing,
   serverInfo,
   helloPayload,
   deviceId,
@@ -30,24 +31,30 @@ export default function GatewayScreen({
   connectionState: string;
   connectionError?: string | null;
   onStartConnect?: (url: string, token?: string) => void;
+  onRetryPairing?: () => void;
   serverInfo?: ServerInfo | null;
   helloPayload?: HelloPayload | null;
   deviceId?: string | null;
 }) {
+  const defaultGatewayUrl = (() => {
+    const proto = location.protocol === "https:" ? "wss" : "ws";
+    return `${proto}://${location.host}`;
+  })();
+
   const [phase, setPhase] = useState("select");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(defaultGatewayUrl);
   const [token, setToken] = useState("");
   const [connectStep, setConnectStep] = useState(0);
   const history = loadConnectionHistory();
 
-  // Load saved connection on mount
+  // Load saved connection on mount (overrides default if present)
   useEffect(() => {
     try {
       const saved = JSON.parse(
         localStorage.getItem("openclaw-gateway") ?? "null",
       );
-      if (saved) {
-        setUrl(saved.url || "");
+      if (saved?.url) {
+        setUrl(saved.url);
       }
     } catch {
       /* ignore */
@@ -126,7 +133,7 @@ export default function GatewayScreen({
           id="gateway-url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="ws://127.0.0.1:18789"
+          placeholder={defaultGatewayUrl}
           style={inputStyle}
           onKeyDown={(e) => e.key === "Enter" && startConnect()}
         />
@@ -365,7 +372,7 @@ export default function GatewayScreen({
   if (phase === "error") {
     return (
       <div style={panelStyle as React.CSSProperties}>
-        <PanelHeader icon="\u26A0" title="CONNECTION FAILED" />
+        <PanelHeader icon="⚠️" title="CONNECTION FAILED" />
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div
             style={{
@@ -594,9 +601,31 @@ export default function GatewayScreen({
             }}
           >
             <div style={{ fontSize: 10, color: C.textDim, lineHeight: 1.5 }}>
-              This device needs to be approved by an existing operator. Ask them
-              to check their pairing requests.
+              This device needs to be approved by an existing operator. Run{" "}
+              <code
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  padding: "2px 5px",
+                  borderRadius: 3,
+                  fontSize: 10,
+                  color: C.purple,
+                }}
+              >
+                openclaw devices approve
+              </code>{" "}
+              or ask an operator to check their pairing requests.
             </div>
+            <button
+              type="button"
+              onClick={() => onRetryPairing?.()}
+              style={{
+                ...btnPrimaryStyle(C.purple),
+                width: "100%",
+                marginTop: 12,
+              }}
+            >
+              RETRY CONNECTION
+            </button>
           </div>
         )}
         {phase === "done" && (
