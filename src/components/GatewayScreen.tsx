@@ -103,7 +103,7 @@ export default function GatewayScreen({
   if (phase === "select") {
     return (
       <div style={panelStyle as React.CSSProperties}>
-        <PanelHeader icon="\uD83C\uDF0A" title={t("gateway.loginTitle")} />
+        <PanelHeader icon="🌊" title={t("gateway.loginTitle")} />
         <div
           style={{
             fontSize: 11,
@@ -357,7 +357,7 @@ export default function GatewayScreen({
     return (
       <div style={panelStyle as React.CSSProperties}>
         <PanelHeader
-          icon="\u26A0\uFE0F"
+          icon="⚠️"
           title={t("gateway.connectionFailedTitle")}
         />
         <div style={{ textAlign: "center", marginBottom: 20 }}>
