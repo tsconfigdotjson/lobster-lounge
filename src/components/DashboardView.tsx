@@ -31,6 +31,7 @@ export default function DashboardView() {
     refreshSkills,
     remapAgents,
     allSkills,
+    savedConnection,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [chatState, setChatState] = useState<
@@ -682,6 +683,7 @@ export default function DashboardView() {
               onSendMessage={sendAgentMessage}
               initialActiveId={chatInitialAgentId}
               expanded={chatState === "expanded"}
+              gatewayUrl={savedConnection?.url}
             />
           </div>
         </div>

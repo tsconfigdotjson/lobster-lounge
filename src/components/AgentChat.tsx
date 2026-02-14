@@ -1,4 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  clearMessages,
+  loadMessages,
+  pruneOldMessages,
+  saveMessage,
+} from "../services/message-store";
 import type { ChatAgent, ChatMessage } from "../types";
 import { C } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
@@ -12,6 +18,7 @@ export default function AgentChat({
   onSendMessage,
   initialActiveId,
   expanded,
+  gatewayUrl,
 }: {
   agents?: ChatAgent[];
   onSendMessage?: (
@@ -21,6 +28,7 @@ export default function AgentChat({
   ) => Promise<ChatMessage>;
   initialActiveId?: string | null;
   expanded?: boolean;
+  gatewayUrl?: string;
 }) {
   const [active, setActive] = useState(
     () =>
@@ -33,14 +41,46 @@ export default function AgentChat({
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const msgIdRef = useRef(0);
-  const nextId = useCallback(() => `msg-${++msgIdRef.current}`, []);
+  const msgSeqRef = useRef(0);
+  const nextId = useCallback(
+    () => `msg-${Date.now()}-${++msgSeqRef.current}`,
+    [],
+  );
   const msgs = active ? messages[active.id] || [] : [];
   const sc: Record<string, string> = {
     active: C.green,
     busy: C.amber,
     idle: C.textDim,
   };
+
+  // Load persisted messages when active agent changes
+  useEffect(() => {
+    if (!active || !gatewayUrl) {
+      return;
+    }
+    let stale = false;
+    loadMessages(gatewayUrl, active.id).then((saved) => {
+      if (stale) {
+        return;
+      }
+      if (saved.length > 0) {
+        setMessages((p) => {
+          if (p[active.id]?.length) {
+            return p;
+          }
+          return { ...p, [active.id]: saved };
+        });
+      }
+    });
+    return () => {
+      stale = true;
+    };
+  }, [active, gatewayUrl]);
+
+  // Prune old messages on mount
+  useEffect(() => {
+    pruneOldMessages(200);
+  }, []);
 
   useEffect(() => {
     if (agents.length > 0 && !active) {
@@ -87,6 +127,11 @@ export default function AgentChat({
     }));
     setTyping(true);
 
+    // Persist user message immediately
+    if (gatewayUrl) {
+      saveMessage(gatewayUrl, agentId, userMsg);
+    }
+
     const onDelta = (partial: ChatMessage) => {
       setMessages((p) => {
         const list = p[agentId] || [];
@@ -108,6 +153,10 @@ export default function AgentChat({
               [agentId]: [...list.slice(0, -1), finalMsg],
             };
           });
+          // Persist finalized agent response
+          if (gatewayUrl) {
+            saveMessage(gatewayUrl, agentId, finalMsg);
+          }
           setTyping(false);
         })
         .catch(() => {
@@ -247,6 +296,32 @@ export default function AgentChat({
         >
           {active.status.toUpperCase()}
         </div>
+        {msgs.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              if (gatewayUrl) {
+                clearMessages(gatewayUrl, active.id);
+              }
+              setMessages((p) => ({ ...p, [active.id]: [] }));
+            }}
+            style={{
+              background: "none",
+              border: `1px solid ${C.red}30`,
+              borderRadius: 2,
+              padding: "3px 8px",
+              cursor: "pointer",
+              fontSize: 10,
+              color: C.red,
+              fontFamily: "'Courier New', monospace",
+              letterSpacing: 1,
+              opacity: 0.7,
+            }}
+            title="Clear chat history"
+          >
+            CLEAR
+          </button>
+        )}
       </div>
       <div
         className="thin-scroll"
