@@ -201,11 +201,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
       const color = hqAgent?.color || "#f4a261";
       setActivityLogs((prev) => [
         ...prev.slice(-14),
-        createLogEntry(
-          label,
-          String(agentPayload?.stream || "event"),
-          color,
-        ),
+        createLogEntry(label, String(agentPayload?.stream || "event"), color),
       ]);
     }
     if (event === "presence") {

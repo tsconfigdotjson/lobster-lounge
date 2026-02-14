@@ -108,7 +108,7 @@ export default function DashboardView() {
     if (el) {
       el.scrollTop = el.scrollHeight;
     }
-  }, [activityLogs]);
+  }, []);
 
   const uptimeMs = helloPayload?.snapshot?.uptimeMs;
   const uptimeStr =

@@ -1,5 +1,5 @@
-import { C } from "./constants";
 import type { LogEntry } from "../types";
+import { C } from "./constants";
 
 export default function ActivityLog({
   logs = [],
