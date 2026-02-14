@@ -85,6 +85,7 @@ export default function MarkdownRenderer({ content }: { content: string }) {
   return (
     <>
       <style>{markdownStyles}</style>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized markdown output */}
       <div className="md-content" dangerouslySetInnerHTML={{ __html: html }} />
     </>
   );

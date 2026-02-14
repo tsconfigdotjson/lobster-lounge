@@ -74,6 +74,7 @@ export default function ToolCard({
   const preview = getPreview(block.output);
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: role is conditionally set
     <div
       role={block.output ? "button" : undefined}
       tabIndex={block.output ? 0 : undefined}
