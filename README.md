@@ -15,6 +15,7 @@ Lobster Lounge is a supplemental UI that sits alongside the default OpenClaw Con
 - **Draggable Everything** -- Every overlay panel can be grabbed and repositioned. They remember nothing between refreshes and that's fine.
 - **Device Pairing** -- On first connect, Lounge generates an Ed25519 keypair, derives a device ID, and goes through the full challenge-response handshake. If the device isn't paired yet, it shows a pairing screen and waits for operator approval. Device tokens are stored per-gateway-host in localStorage.
 - **Connection History** -- Recent gateway connections are saved and shown on the login screen for quick reconnect.
+- **Multi-language** -- The entire UI is localized into 16 languages: English, Chinese, Hindi, Indonesian, Portuguese, Russian, Spanish, Japanese, Arabic, Vietnamese, German, Bengali, Urdu, Korean, French, and Norwegian. Switch languages from the dropdown in the gateway login header or dashboard. Language preference is saved to localStorage.
 
 ## Installation
 
