@@ -106,7 +106,9 @@ export function GatewayProvider({ children }) {
       const res = await client.request("skills.status", {});
       const entries = res.skills || res.entries || [];
       return entries
-        .filter((s) => s.eligible !== false)
+        .filter(
+          (s) => !s.blockedByAllowlist && (s.eligible !== false || s.disabled),
+        )
         .map((s) => ({
           id: s.skillKey || s.name,
           name: s.name,

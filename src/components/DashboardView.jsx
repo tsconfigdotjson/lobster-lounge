@@ -28,7 +28,8 @@ export default function DashboardView() {
     allSkills,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState(null);
-  const [chatCollapsed, setChatCollapsed] = useState(false);
+  const [chatCollapsed, setChatCollapsed] = useState(true);
+  const [skillsCollapsed, setSkillsCollapsed] = useState(true);
   const [time, setTime] = useState("08:00");
   const [tick, setTick] = useState(0);
   const [showCreator, setShowCreator] = useState(false);
@@ -269,10 +270,55 @@ export default function DashboardView() {
         </div>
       </DraggablePanel>
 
-      {/* Skills panel — below Pod Roster */}
-      <DraggablePanel title="SKILLS" defaultX={16} defaultY={340}>
-        <SkillsPanel skills={allSkills} onToggle={handleSkillToggle} />
-      </DraggablePanel>
+      {/* Skills panel — bottom-left collapsible */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 16,
+          left: 16,
+          zIndex: 200,
+          width: skillsCollapsed ? "auto" : 320,
+          border: `2px solid ${C.uiBorderAlt}`,
+          boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+          borderRadius: 6,
+          overflow: "hidden",
+          background: C.uiBg,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setSkillsCollapsed((c) => !c)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            width: "100%",
+            padding: "8px 14px",
+            background: "transparent",
+            border: "none",
+            borderBottom: skillsCollapsed
+              ? "none"
+              : "1px solid rgba(255,255,255,0.05)",
+            cursor: "pointer",
+            color: C.textDim,
+            fontFamily: "'Courier New', monospace",
+            fontSize: 11,
+            letterSpacing: 2,
+            textAlign: "left",
+          }}
+        >
+          <span style={{ color: C.amber }}>
+            {skillsCollapsed ? "\u25B6" : "\u25BC"}
+          </span>
+          SKILLS
+          <span style={{ marginLeft: "auto", fontSize: 10, opacity: 0.5 }}>
+            {allSkills.filter((s) => s.enabled).length}/{allSkills.length}
+          </span>
+        </button>
+        {!skillsCollapsed && (
+          <SkillsPanel skills={allSkills} onToggle={handleSkillToggle} />
+        )}
+      </div>
 
       {/* Activity Log overlay — top-right */}
       <DraggablePanel
