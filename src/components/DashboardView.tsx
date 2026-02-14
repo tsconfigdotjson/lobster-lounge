@@ -9,6 +9,7 @@ import {
   Divider,
   DraggablePanel,
   HudItem,
+  LobsterAvatar,
   LobsterHQ,
 } from ".";
 import { C } from "./constants";
@@ -460,21 +461,7 @@ export default function DashboardView() {
             boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
           }}
         >
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 2,
-              background: sel.color,
-              opacity: 0.85,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-            }}
-          >
-            {"\u{1F99E}"}
-          </div>
+          <LobsterAvatar color={sel.color} size={32} />
           <div>
             <div style={{ fontSize: 15, fontWeight: "bold", color: sel.color }}>
               {sel.id}

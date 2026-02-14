@@ -216,9 +216,13 @@ export default function GatewayScreen({
             width: "100%",
             opacity: url.trim() ? 1 : 0.35,
             cursor: url.trim() ? "pointer" : "not-allowed",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
           }}
         >
-          🦞 CONNECT
+          <LobsterAvatar color={C.green} size={16} /> CONNECT
         </button>
 
         {history.length > 0 && (
@@ -299,22 +303,7 @@ export default function GatewayScreen({
                         "rgba(46,204,113,0.04)";
                     }}
                   >
-                    <div
-                      style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 4,
-                        background: `linear-gradient(135deg, ${C.sea0}, ${C.sea2})`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: `1px solid ${C.green}30`,
-                        fontSize: 18,
-                        flexShrink: 0,
-                      }}
-                    >
-                      🦞
-                    </div>
+                    <LobsterAvatar color={C.lob1} size={36} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         style={{
@@ -682,9 +671,16 @@ export default function GatewayScreen({
             <button
               type="button"
               onClick={() => onConnect?.()}
-              style={{ ...btnPrimaryStyle(C.green), width: "100%" }}
+              style={{
+                ...btnPrimaryStyle(C.green),
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
             >
-              🦞 ENTER THE REEF →
+              <LobsterAvatar color={C.lob1} size={16} /> ENTER THE REEF →
             </button>
           </div>
         )}
