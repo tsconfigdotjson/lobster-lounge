@@ -148,8 +148,10 @@ export function GatewayProvider({ children }) {
         setSkills(skillsList);
         setAllSkills(allSkillsList);
         setConnectionPhase("connected");
+        return gwAgents;
       } catch (_err) {
         setConnectionPhase("connected");
+        return [];
       }
     },
     [fetchSkills, fetchAllSkills],
@@ -162,7 +164,7 @@ export function GatewayProvider({ children }) {
         throw new Error("Not connected");
       }
       await client.request("agents.create", { name, workspace, emoji });
-      await syncAgents(client);
+      return syncAgents(client);
     },
     [syncAgents],
   );
@@ -417,6 +419,15 @@ export function GatewayProvider({ children }) {
     return unsub;
   }, []);
 
+  const remapAgents = useCallback(
+    (gwAgents) => {
+      const src = gwAgents || rawAgents;
+      setAgents(mapToHqAgents(src));
+      setChatAgents(mapToChatAgents(src));
+    },
+    [rawAgents],
+  );
+
   const value = {
     connectionState,
     connectionError,
@@ -436,6 +447,7 @@ export function GatewayProvider({ children }) {
     updateAgent,
     updateSkill,
     refreshSkills,
+    remapAgents,
     skills,
     allSkills,
     client: clientRef.current,

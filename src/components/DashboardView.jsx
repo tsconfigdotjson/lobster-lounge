@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useGateway } from "../context/GatewayContext";
+import { setAgentColor } from "../services/data-mappers";
 import {
   ActivityLog,
   Divider,
@@ -25,6 +26,7 @@ export default function DashboardView() {
     updateAgent,
     updateSkill,
     refreshSkills,
+    remapAgents,
     allSkills,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState(null);
@@ -64,20 +66,32 @@ export default function DashboardView() {
 
   const sel = agents.find((a) => a.id === selectedAgent);
 
-  const handleCreate = async ({ name }) => {
+  const handleCreate = async ({ name, color }) => {
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
-    await createAgent({
+    const gwAgents = await createAgent({
       name,
       workspace: `agents/${slug}`,
       emoji: "\uD83E\uDD9E",
     });
+    if (color && gwAgents) {
+      const created = gwAgents.find(
+        (a) => (a.identity?.name || a.name) === name,
+      );
+      if (created) {
+        setAgentColor(created.id, color);
+        remapAgents(gwAgents);
+      }
+    }
     setShowCreator(false);
   };
 
   const handleUpdate = async (data) => {
+    if (data._gatewayId && data.color) {
+      setAgentColor(data._gatewayId, data.color);
+    }
     await updateAgent({ agentId: data._gatewayId, name: data.name });
     setEditingAgent(null);
   };
