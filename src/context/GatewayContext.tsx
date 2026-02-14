@@ -480,27 +480,11 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
           return nb;
         };
 
-        // Debounced delta firing (80ms)
-        let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-        const fireDelta = (force = false) => {
+        const fireDelta = () => {
           if (!onDelta) {
             return;
           }
-          if (force) {
-            if (debounceTimer) {
-              clearTimeout(debounceTimer);
-              debounceTimer = null;
-            }
-            onDelta({ ...msg, blocks: msg.blocks.map((b) => ({ ...b })) });
-            return;
-          }
-          if (debounceTimer) {
-            return;
-          }
-          debounceTimer = setTimeout(() => {
-            debounceTimer = null;
-            onDelta({ ...msg, blocks: msg.blocks.map((b) => ({ ...b })) });
-          }, 80);
+          onDelta({ ...msg, blocks: msg.blocks.map((b) => ({ ...b })) });
         };
 
         const finish = (finalMsg: ChatMessage) => {
@@ -509,10 +493,6 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
           }
           resolved = true;
           clearTimeout(timeout);
-          if (debounceTimer) {
-            clearTimeout(debounceTimer);
-            debounceTimer = null;
-          }
           unsubChat?.();
           unsubAgent?.();
           finalMsg.streaming = false;
@@ -532,10 +512,6 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
           }
           resolved = true;
           clearTimeout(timeout);
-          if (debounceTimer) {
-            clearTimeout(debounceTimer);
-            debounceTimer = null;
-          }
           unsubChat?.();
           unsubAgent?.();
           reject(err);
@@ -621,7 +597,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             if (msg.blocks[msg.blocks.length - 1]?.type !== "text") {
               msg.blocks.push({ type: "text", text: "" });
             }
-            fireDelta(true);
+            fireDelta();
           } else if (phase === "update") {
             const block = msg.blocks.find(
               (b) => b.type === "tool_call" && b.toolCallId === toolCallId,
@@ -641,7 +617,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
                 formatToolOutput(data.result) ?? block.output;
               block.phase = "result";
             }
-            fireDelta(true);
+            fireDelta();
           }
         });
 
