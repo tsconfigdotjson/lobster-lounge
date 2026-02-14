@@ -29,6 +29,7 @@ const POSITIONS = [
 ];
 
 const AGENT_COLORS_KEY = "openclaw-agent-colors";
+const AGENT_POSITIONS_KEY = "openclaw-agent-positions";
 
 function loadAgentColors() {
   try {
@@ -48,21 +49,40 @@ export function setAgentColor(agentId, color) {
   localStorage.setItem(AGENT_COLORS_KEY, JSON.stringify(colors));
 }
 
+function loadAgentPositions() {
+  try {
+    return JSON.parse(localStorage.getItem(AGENT_POSITIONS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+export function getAgentPosition(agentId) {
+  return loadAgentPositions()[agentId] || null;
+}
+
+export function setAgentPosition(agentId, x, y) {
+  const positions = loadAgentPositions();
+  positions[agentId] = { x, y };
+  localStorage.setItem(AGENT_POSITIONS_KEY, JSON.stringify(positions));
+}
+
 export function mapToHqAgents(gatewayAgents) {
   if (!gatewayAgents) {
     return [];
   }
   return gatewayAgents.map((agent, i) => {
-    const pos = POSITIONS[i % POSITIONS.length];
+    const defaultPos = POSITIONS[i % POSITIONS.length];
+    const savedPos = getAgentPosition(agent.id);
     const color = getAgentColor(agent.id) || PALETTE[i % PALETTE.length];
     const name = agent.identity?.name || agent.name || agent.id;
     return {
       id: name.toUpperCase().slice(0, 8),
       role: agent.identity?.theme || "Agent",
       color,
-      x: pos.x,
-      y: pos.y,
-      dir: pos.dir,
+      x: savedPos ? savedPos.x : defaultPos.x,
+      y: savedPos ? savedPos.y : defaultPos.y,
+      dir: defaultPos.dir,
       _gatewayId: agent.id,
     };
   });

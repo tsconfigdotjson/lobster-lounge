@@ -339,7 +339,7 @@ export default function GatewayScreen({
                     <div
                       style={{ fontSize: 14, color: C.amber, flexShrink: 0 }}
                     >
-                      \u2192
+                      →
                     </div>
                   </button>
                 );
@@ -563,7 +563,7 @@ export default function GatewayScreen({
                 </div>
                 {isDone && (
                   <span style={{ fontSize: 9, color: C.green, flexShrink: 0 }}>
-                    \u2713
+                    ✓
                   </span>
                 )}
                 {isActive && !isPairingStep && <Spinner color={C.amber} />}
@@ -644,7 +644,7 @@ export default function GatewayScreen({
               onClick={() => onConnect?.()}
               style={{ ...btnPrimaryStyle(C.green), width: "100%" }}
             >
-              🦞 ENTER THE REEF \u2192
+              🦞 ENTER THE REEF →
             </button>
           </div>
         )}

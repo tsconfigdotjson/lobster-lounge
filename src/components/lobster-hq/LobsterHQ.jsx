@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { setAgentPosition } from "../../services/data-mappers";
 import { C, COLS, MAP, ROWS, TILE } from "./constants";
 import { drawPixelText } from "./helpers";
 import {
@@ -53,7 +54,9 @@ export default function LobsterHQ({
   // Track mouse position for tile highlighting
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const onMouseMove = (e) => {
       const rect = canvas.getBoundingClientRect();
       const scaleX = (COLS * TILE) / rect.width;
@@ -131,7 +134,13 @@ export default function LobsterHQ({
           }
 
           // Highlight hovered walkable tile when an agent is selected
-          if (sel && hover && hover.x === x && hover.y === y && isWalkable(x, y)) {
+          if (
+            sel &&
+            hover &&
+            hover.x === x &&
+            hover.y === y &&
+            isWalkable(x, y)
+          ) {
             const pulse = Math.sin(f * 0.15) * 0.15 + 0.35;
             ctx.fillStyle = `rgba(244, 162, 97, ${pulse})`;
             ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
@@ -162,16 +171,18 @@ export default function LobsterHQ({
           movementRef.current[a.id] = m;
         }
 
-        // Lerp toward target
+        // Move toward target — one axis at a time (no diagonals)
         const dx = m.tx - m.cx;
         const dy = m.ty - m.cy;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > 0.05) {
-          m.cx += (dx / dist) * MOVE_SPEED;
-          m.cy += (dy / dist) * MOVE_SPEED;
-        } else {
+        if (Math.abs(dx) > 0.05) {
+          m.cx += Math.sign(dx) * Math.min(MOVE_SPEED, Math.abs(dx));
+        } else if (Math.abs(dy) > 0.05) {
+          m.cx = m.tx;
+          m.cy += Math.sign(dy) * Math.min(MOVE_SPEED, Math.abs(dy));
+        } else if (m.cx !== m.tx || m.cy !== m.ty) {
           m.cx = m.tx;
           m.cy = m.ty;
+          setAgentPosition(a._gatewayId, m.tx, m.ty);
         }
 
         drawAgents.push({ ...a, x: m.cx, y: m.cy });
