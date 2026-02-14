@@ -71,9 +71,15 @@ const loungeRoot = findLoungeRoot();
 const distDir = join(loungeRoot, "dist");
 
 if (!existsSync(distDir) || readdirSync(distDir).length === 0) {
-  // Ensure platform-specific native deps (e.g. rollup) are installed
+  // Delete macOS-generated lock file so npm resolves correct platform binaries
+  const lockFile = join(loungeRoot, "package-lock.json");
+  if (existsSync(lockFile)) {
+    console.log("Removing package-lock.json for fresh platform resolve...");
+    rmSync(lockFile);
+  }
+
   console.log("Installing dependencies...");
-  const installResult = spawnSync("npm", ["install", "--prefer-offline"], {
+  const installResult = spawnSync("npm", ["install"], {
     cwd: loungeRoot,
     stdio: "inherit",
     shell: true,
