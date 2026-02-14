@@ -1,4 +1,4 @@
-export default function Spinner({ color }) {
+export default function Spinner({ color }: { color: string }) {
   return (
     <div
       style={{

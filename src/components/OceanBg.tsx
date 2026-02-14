@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 export default function OceanBg() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLCanvasElement>(null);
   const bubblesRef = useRef(
     Array.from({ length: 20 }, () => ({
       x: Math.random() * 300,
@@ -12,7 +12,7 @@ export default function OceanBg() {
     })),
   );
   useEffect(() => {
-    let raf,
+    let raf: number | undefined,
       fr = 0;
     const render = () => {
       const cv = ref.current;
@@ -20,6 +20,9 @@ export default function OceanBg() {
         return;
       }
       const ctx = cv.getContext("2d");
+      if (!ctx) {
+        return;
+      }
       fr++;
       for (let y = 0; y < 400; y++) {
         const t = y / 400;
@@ -47,7 +50,11 @@ export default function OceanBg() {
       raf = requestAnimationFrame(render);
     };
     render();
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      if (raf !== undefined) {
+        cancelAnimationFrame(raf);
+      }
+    };
   }, []);
   return (
     <canvas

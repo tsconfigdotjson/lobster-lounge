@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { loadConnectionHistory } from "../context/GatewayContext";
 import { getDeviceToken } from "../services/device-identity";
+import type { HelloPayload, ServerInfo } from "../types";
 import { C, CONNECTION_STEPS } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
 import PanelHeader from "./PanelHeader";
 import Spinner from "./Spinner";
 import { btnPrimaryStyle, inputStyle, labelStyle, panelStyle } from "./styles";
 
-const STATE_TO_STEP = {
+const STATE_TO_STEP: Record<string, number> = {
   connecting: 0,
   challenged: 1,
   handshaking: 2,
@@ -24,6 +25,14 @@ export default function GatewayScreen({
   serverInfo,
   helloPayload,
   deviceId,
+}: {
+  onConnect?: () => void;
+  connectionState: string;
+  connectionError?: string | null;
+  onStartConnect?: (url: string, token?: string) => void;
+  serverInfo?: ServerInfo | null;
+  helloPayload?: HelloPayload | null;
+  deviceId?: string | null;
 }) {
   const [phase, setPhase] = useState("select");
   const [url, setUrl] = useState("");
@@ -34,7 +43,9 @@ export default function GatewayScreen({
   // Load saved connection on mount
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem("openclaw-gateway"));
+      const saved = JSON.parse(
+        localStorage.getItem("openclaw-gateway") ?? "null",
+      );
       if (saved) {
         setUrl(saved.url || "");
       }
@@ -73,7 +84,7 @@ export default function GatewayScreen({
     onStartConnect?.(url.trim(), token || undefined);
   };
 
-  const fillFromHistory = (entry) => {
+  const fillFromHistory = (entry: { url: string }) => {
     setUrl(entry.url);
   };
 
@@ -94,7 +105,7 @@ export default function GatewayScreen({
 
   if (phase === "select") {
     return (
-      <div style={panelStyle}>
+      <div style={panelStyle as React.CSSProperties}>
         <PanelHeader icon="🌊" title="GATEWAY LOGIN" />
         <div
           style={{
@@ -353,7 +364,7 @@ export default function GatewayScreen({
 
   if (phase === "error") {
     return (
-      <div style={panelStyle}>
+      <div style={panelStyle as React.CSSProperties}>
         <PanelHeader icon="\u26A0" title="CONNECTION FAILED" />
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div
@@ -400,7 +411,7 @@ export default function GatewayScreen({
     }
 
     return (
-      <div style={panelStyle}>
+      <div style={panelStyle as React.CSSProperties}>
         <PanelHeader
           icon={phase === "done" ? "\u2713" : "\u27F3"}
           title={phase === "done" ? "CONNECTED" : "CONNECTING..."}
@@ -660,7 +671,7 @@ export default function GatewayScreen({
   return null;
 }
 
-function formatUptime(helloPayload) {
+function formatUptime(helloPayload: HelloPayload | null | undefined) {
   const ms = helloPayload?.snapshot?.uptimeMs;
   if (ms == null) {
     return "\u2014";

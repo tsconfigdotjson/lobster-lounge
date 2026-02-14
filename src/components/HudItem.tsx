@@ -6,6 +6,12 @@ export default function HudItem({
   color,
   pulse,
   pulseRate = "2s",
+}: {
+  label: string;
+  value: string;
+  color: string;
+  pulse?: boolean;
+  pulseRate?: string;
 }) {
   return (
     <div style={{ textAlign: "center" }}>

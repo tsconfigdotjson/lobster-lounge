@@ -1,6 +1,7 @@
+import type React from "react";
 import { C } from "./constants";
 
-export const panelStyle = {
+export const panelStyle: React.CSSProperties = {
   background: C.uiBg,
   border: `2px solid ${C.uiBorder}`,
   borderRadius: 6,
@@ -20,7 +21,7 @@ export const labelStyle = {
   fontFamily: "'Courier New', monospace",
 };
 
-export const inputStyle = {
+export const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "10px 12px",
   background: C.inputBg,
@@ -33,7 +34,7 @@ export const inputStyle = {
   boxSizing: "border-box",
 };
 
-export const counterStyle = {
+export const counterStyle: React.CSSProperties = {
   fontSize: 9,
   color: C.textDim,
   marginTop: 2,
@@ -41,7 +42,7 @@ export const counterStyle = {
   textAlign: "right",
 };
 
-export function btnPrimaryStyle(c) {
+export function btnPrimaryStyle(c: string): React.CSSProperties {
   return {
     padding: "11px 20px",
     background: `${c}18`,
@@ -56,7 +57,7 @@ export function btnPrimaryStyle(c) {
   };
 }
 
-export const btnSecondaryStyle = {
+export const btnSecondaryStyle: React.CSSProperties = {
   padding: "11px 20px",
   background: "transparent",
   border: `1px solid ${C.textDim}`,

@@ -1,17 +1,28 @@
 import { useEffect, useRef } from "react";
 import { shadeColor } from "./helpers";
 
-export default function LobsterAvatar({ color, size = 48, style: extra }) {
-  const ref = useRef(null);
+export default function LobsterAvatar({
+  color,
+  size = 48,
+  style: extra,
+}: {
+  color: string;
+  size?: number;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
   const f = useRef(Math.random() * 100);
   useEffect(() => {
-    let raf;
+    let raf: number | undefined;
     const draw = () => {
       const cv = ref.current;
       if (!cv) {
         return;
       }
       const ctx = cv.getContext("2d");
+      if (!ctx) {
+        return;
+      }
       const fr = f.current++;
       ctx.clearRect(0, 0, 16, 16);
       const bob = Math.sin(fr * 0.08) > 0 ? -1 : 0;
@@ -58,7 +69,11 @@ export default function LobsterAvatar({ color, size = 48, style: extra }) {
       raf = requestAnimationFrame(draw);
     };
     draw();
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      if (raf !== undefined) {
+        cancelAnimationFrame(raf);
+      }
+    };
   }, [color]);
   return (
     <canvas

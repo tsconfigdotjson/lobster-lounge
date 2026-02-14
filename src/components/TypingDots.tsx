@@ -1,4 +1,4 @@
-export default function TypingDots({ color }) {
+export default function TypingDots({ color }: { color: string }) {
   return (
     <div style={{ display: "flex", gap: 4, alignItems: "center", height: 12 }}>
       {[0, 1, 2].map((i) => (

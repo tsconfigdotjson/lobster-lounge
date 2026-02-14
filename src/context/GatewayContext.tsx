@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
 import {
   createLogEntry,
@@ -13,20 +14,40 @@ import {
 } from "../services/data-mappers";
 import { getOrCreateIdentity } from "../services/device-identity";
 import GatewayClient from "../services/gateway-client";
+import type {
+  AgentAckPayload,
+  AgentEventPayload,
+  ChatAgent,
+  ChatEventPayload,
+  GatewayAgent,
+  GatewayPayload,
+  GatewaySkillEntry,
+  HelloPayload,
+  HqAgent,
+  LogEntry,
+  ServerInfo,
+  Skill,
+  SkillWithStatus,
+} from "../types";
 
 const STORAGE_KEY = "openclaw-gateway";
 const HISTORY_KEY = "openclaw-gateway-history";
 const MAX_HISTORY = 5;
 
+interface HistoryEntry {
+  url: string;
+  ts?: number;
+}
+
 function loadSavedConnection() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null;
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null") || null;
   } catch {
     return null;
   }
 }
 
-function saveConnection(url) {
+function saveConnection(url: string) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ url }));
   // also add to history
   let history = loadConnectionHistory();
@@ -38,33 +59,76 @@ function saveConnection(url) {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
 }
 
-export function loadConnectionHistory() {
+export function loadConnectionHistory(): HistoryEntry[] {
   try {
-    return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]") || [];
   } catch {
     return [];
   }
 }
 
-const GatewayContext = createContext(null);
+interface GatewayContextValue {
+  connectionState: string;
+  connectionError: string | null;
+  connectionPhase: string;
+  pairingState: string | null;
+  deviceId: string | null;
+  connect: (url: string, gatewayToken?: string) => void;
+  disconnect: () => void;
+  agents: HqAgent[];
+  rawAgents: GatewayAgent[];
+  chatAgents: ChatAgent[];
+  activityLogs: LogEntry[];
+  serverInfo: ServerInfo | null;
+  features: Record<string, unknown> | null;
+  sendAgentMessage: (agentDisplayId: string, text: string) => Promise<string>;
+  createAgent: (params: {
+    name: string;
+    workspace: string;
+    emoji: string;
+  }) => Promise<GatewayAgent[]>;
+  updateAgent: (params: {
+    agentId: string;
+    name?: string;
+    workspace?: string;
+    model?: string;
+    avatar?: string;
+  }) => Promise<void>;
+  updateSkill: (params: {
+    skillKey: string;
+    enabled: boolean;
+  }) => Promise<void>;
+  refreshSkills: () => Promise<void>;
+  remapAgents: (gwAgents?: GatewayAgent[]) => void;
+  skills: Skill[];
+  allSkills: SkillWithStatus[];
+  client: GatewayClient | null;
+  helloPayload: HelloPayload | null;
+  savedConnection: { url: string } | null;
+  connectionHistory: HistoryEntry[];
+}
 
-export function GatewayProvider({ children }) {
+const GatewayContext = createContext<GatewayContextValue | null>(null);
+
+export function GatewayProvider({ children }: { children: ReactNode }) {
   const [connectionState, setConnectionState] = useState("disconnected");
-  const [connectionError, setConnectionError] = useState(null);
-  const [agents, setAgents] = useState([]);
-  const [rawAgents, setRawAgents] = useState([]);
-  const [chatAgents, setChatAgents] = useState([]);
-  const [activityLogs, setActivityLogs] = useState([]);
-  const [serverInfo, setServerInfo] = useState(null);
-  const [features, setFeatures] = useState(null);
-  const [helloPayload, setHelloPayload] = useState(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [agents, setAgents] = useState<HqAgent[]>([]);
+  const [rawAgents, setRawAgents] = useState<GatewayAgent[]>([]);
+  const [chatAgents, setChatAgents] = useState<ChatAgent[]>([]);
+  const [activityLogs, setActivityLogs] = useState<LogEntry[]>([]);
+  const [serverInfo, setServerInfo] = useState<ServerInfo | null>(null);
+  const [features, setFeatures] = useState<Record<string, unknown> | null>(
+    null,
+  );
+  const [helloPayload, setHelloPayload] = useState<HelloPayload | null>(null);
   const [connectionPhase, setConnectionPhase] = useState("disconnected");
-  const [pairingState, setPairingState] = useState(null);
-  const [deviceId, setDeviceId] = useState(null);
-  const [skills, setSkills] = useState([]);
-  const [allSkills, setAllSkills] = useState([]);
-  const clientRef = useRef(null);
-  const unsubsRef = useRef([]);
+  const [pairingState, setPairingState] = useState<string | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [allSkills, setAllSkills] = useState<SkillWithStatus[]>([]);
+  const clientRef = useRef<GatewayClient | null>(null);
+  const unsubsRef = useRef<Array<() => void>>([]);
 
   // Initialize device ID on mount
   useEffect(() => {
@@ -82,56 +146,67 @@ export function GatewayProvider({ children }) {
     }
   }, []);
 
-  const fetchSkills = useCallback(async (client, agentId) => {
-    try {
-      const params = agentId ? { agentId } : {};
-      const res = await client.request("skills.status", params);
-      const entries = res.skills || res.entries || [];
-      return entries
-        .filter((s) => s.eligible !== false && !s.disabled)
-        .map((s) => ({
-          id: s.skillKey || s.name,
-          name: s.name,
-          icon: s.emoji || "\u2699\uFE0F",
-          desc: s.description || "",
-          cat: s.source || "skill",
-        }));
-    } catch (_err) {
-      return [];
-    }
-  }, []);
+  const fetchSkills = useCallback(
+    async (client: GatewayClient, agentId?: string): Promise<Skill[]> => {
+      try {
+        const params = agentId ? { agentId } : {};
+        const res = await client.request("skills.status", params);
+        const entries = (res.skills ||
+          res.entries ||
+          []) as GatewaySkillEntry[];
+        return entries
+          .filter((s: GatewaySkillEntry) => s.eligible !== false && !s.disabled)
+          .map((s: GatewaySkillEntry) => ({
+            id: s.skillKey || s.name,
+            name: s.name,
+            icon: s.emoji || "\u2699\uFE0F",
+            desc: s.description || "",
+            cat: s.source || "skill",
+          }));
+      } catch (_err) {
+        return [];
+      }
+    },
+    [],
+  );
 
-  const fetchAllSkills = useCallback(async (client) => {
-    try {
-      const res = await client.request("skills.status", {});
-      const entries = res.skills || res.entries || [];
-      return entries
-        .filter(
-          (s) => !s.blockedByAllowlist && (s.eligible !== false || s.disabled),
-        )
-        .map((s) => ({
-          id: s.skillKey || s.name,
-          name: s.name,
-          icon: s.emoji || "\u2699\uFE0F",
-          desc: s.description || "",
-          cat: s.source || "skill",
-          enabled: !s.disabled,
-        }));
-    } catch (_err) {
-      return [];
-    }
-  }, []);
+  const fetchAllSkills = useCallback(
+    async (client: GatewayClient): Promise<SkillWithStatus[]> => {
+      try {
+        const res = await client.request("skills.status", {});
+        const entries = (res.skills ||
+          res.entries ||
+          []) as GatewaySkillEntry[];
+        return entries
+          .filter(
+            (s: GatewaySkillEntry) =>
+              !s.blockedByAllowlist && (s.eligible !== false || s.disabled),
+          )
+          .map((s: GatewaySkillEntry) => ({
+            id: s.skillKey || s.name,
+            name: s.name,
+            icon: s.emoji || "\u2699\uFE0F",
+            desc: s.description || "",
+            cat: s.source || "skill",
+            enabled: !s.disabled,
+          }));
+      } catch (_err) {
+        return [];
+      }
+    },
+    [],
+  );
 
   const syncAgents = useCallback(
-    async (client) => {
+    async (client: GatewayClient): Promise<GatewayAgent[]> => {
       setConnectionPhase("syncing");
       try {
         const res = await client.request("agents.list");
-        const gwAgents = res.agents || [];
+        const gwAgents = (res.agents || []) as GatewayAgent[];
         setRawAgents(gwAgents);
         setAgents(mapToHqAgents(gwAgents));
         setChatAgents(mapToChatAgents(gwAgents));
-        gwAgents.forEach((a) => {
+        gwAgents.forEach((a: GatewayAgent) => {
           const name = (a.identity?.name || a.name || a.id)
             .toUpperCase()
             .slice(0, 8);
@@ -158,7 +233,15 @@ export function GatewayProvider({ children }) {
   );
 
   const createAgent = useCallback(
-    async ({ name, workspace, emoji }) => {
+    async ({
+      name,
+      workspace,
+      emoji,
+    }: {
+      name: string;
+      workspace: string;
+      emoji: string;
+    }) => {
       const client = clientRef.current;
       if (!client?.connected) {
         throw new Error("Not connected");
@@ -170,12 +253,24 @@ export function GatewayProvider({ children }) {
   );
 
   const updateAgent = useCallback(
-    async ({ agentId, name, workspace, model, avatar }) => {
+    async ({
+      agentId,
+      name,
+      workspace,
+      model,
+      avatar,
+    }: {
+      agentId: string;
+      name?: string;
+      workspace?: string;
+      model?: string;
+      avatar?: string;
+    }) => {
       const client = clientRef.current;
       if (!client?.connected) {
         throw new Error("Not connected");
       }
-      const params = { agentId };
+      const params: Record<string, unknown> = { agentId };
       if (name !== undefined) {
         params.name = name;
       }
@@ -194,13 +289,16 @@ export function GatewayProvider({ children }) {
     [syncAgents],
   );
 
-  const updateSkill = useCallback(async ({ skillKey, enabled }) => {
-    const client = clientRef.current;
-    if (!client?.connected) {
-      throw new Error("Not connected");
-    }
-    await client.request("skills.update", { skillKey, enabled });
-  }, []);
+  const updateSkill = useCallback(
+    async ({ skillKey, enabled }: { skillKey: string; enabled: boolean }) => {
+      const client = clientRef.current;
+      if (!client?.connected) {
+        throw new Error("Not connected");
+      }
+      await client.request("skills.update", { skillKey, enabled });
+    },
+    [],
+  );
 
   const refreshSkills = useCallback(async () => {
     const client = clientRef.current;
@@ -216,7 +314,7 @@ export function GatewayProvider({ children }) {
   }, [fetchSkills, fetchAllSkills]);
 
   const connect = useCallback(
-    (url, gatewayToken) => {
+    (url: string, gatewayToken?: string) => {
       cleanup();
       setConnectionError(null);
       setAgents([]);
@@ -229,7 +327,7 @@ export function GatewayProvider({ children }) {
       setPairingState(null);
 
       const client = new GatewayClient({
-        onStateChange: (state) => {
+        onStateChange: (state: string) => {
           setConnectionState(state);
           if (state === "pairing") {
             setConnectionPhase("pairing");
@@ -237,11 +335,11 @@ export function GatewayProvider({ children }) {
           }
           if (state === "connected") {
             setPairingState(null);
-            const hello = client.helloPayload;
+            const hello = client.helloPayload as HelloPayload | null;
             if (hello) {
               setHelloPayload(hello);
-              setServerInfo(hello.server);
-              setFeatures(hello.features);
+              setServerInfo(hello.server ?? null);
+              setFeatures(hello.features ?? null);
             }
             saveConnection(url);
             syncAgents(client);
@@ -250,14 +348,15 @@ export function GatewayProvider({ children }) {
             setConnectionPhase("disconnected");
           }
         },
-        onEvent: (event, payload) => {
+        onEvent: (event: string, payload: GatewayPayload) => {
           if (event === "agent") {
-            const label = payload?.data?.agentId || "AGENT";
+            const agentPayload = payload as AgentEventPayload;
+            const label = agentPayload?.data?.agentId || "AGENT";
             setActivityLogs((prev) => [
               ...prev.slice(-50),
               createLogEntry(
                 label.toUpperCase().slice(0, 8),
-                payload?.stream || "event",
+                String(agentPayload?.stream || "event"),
                 "#f4a261",
               ),
             ]);
@@ -302,23 +401,25 @@ export function GatewayProvider({ children }) {
   }, [cleanup]);
 
   const sendAgentMessage = useCallback(
-    (agentDisplayId, text) => {
+    (agentDisplayId: string, text: string) => {
       const client = clientRef.current;
       if (!client?.connected) {
         return Promise.reject(new Error("Not connected"));
       }
 
       // find gateway ID from chat agents
-      const chatAgent = chatAgents.find((a) => a.id === agentDisplayId);
+      const chatAgent = chatAgents.find(
+        (a: ChatAgent) => a.id === agentDisplayId,
+      );
       const agentId = chatAgent?._gatewayId || undefined;
 
-      return new Promise((resolve, reject) => {
+      return new Promise<string>((resolve, reject) => {
         const idempotencyKey = crypto.randomUUID();
         let accumulated = "";
         let resolved = false;
-        let runId = null;
+        let runId: string | null = null;
 
-        const finish = (text) => {
+        const finish = (text: string) => {
           if (resolved) {
             return;
           }
@@ -328,7 +429,7 @@ export function GatewayProvider({ children }) {
           resolve(text);
         };
 
-        const fail = (err) => {
+        const fail = (err: Error) => {
           if (resolved) {
             return;
           }
@@ -346,7 +447,8 @@ export function GatewayProvider({ children }) {
         // Subscribe to chat events BEFORE sending the request,
         // per the ack-with-final streaming pattern (protocol §10).
         // Events may arrive before the ack resolves.
-        const unsub = client.on("chat", (payload) => {
+        const unsub = client.on("chat", (rawPayload: GatewayPayload) => {
+          const payload = rawPayload as ChatEventPayload;
           if (runId && payload.runId !== runId) {
             return;
           }
@@ -382,8 +484,9 @@ export function GatewayProvider({ children }) {
             agentId,
             idempotencyKey,
           })
-          .then((ack) => {
-            runId = ack?.runId;
+          .then((rawAck: GatewayPayload) => {
+            const ack = rawAck as AgentAckPayload;
+            runId = ack?.runId ?? null;
 
             // If the server returned the complete result inline (status "ok"
             // with result payload), resolve immediately — no streaming follows.
@@ -391,7 +494,7 @@ export function GatewayProvider({ children }) {
               const payloads = ack.result.payloads || [];
               const finalText =
                 payloads
-                  .map((p) => p.text)
+                  .map((p: { text?: string }) => p.text)
                   .filter(Boolean)
                   .join("\n") || "[No response]";
               finish(finalText);
@@ -399,8 +502,8 @@ export function GatewayProvider({ children }) {
             // Otherwise status is "accepted" (ack-with-final) — chat events
             // will stream in via the listener we set up above.
           })
-          .catch((err) => {
-            fail(err);
+          .catch((err: unknown) => {
+            fail(err instanceof Error ? err : new Error(String(err)));
           });
       });
     },
@@ -413,14 +516,16 @@ export function GatewayProvider({ children }) {
     if (!client) {
       return;
     }
-    const unsub = client.on("error", (payload) => {
-      setConnectionError(payload?.message || "Connection error");
+    const unsub = client.on("error", (payload: GatewayPayload) => {
+      setConnectionError(String(payload?.message || "Connection error"));
     });
-    return unsub;
+    return () => {
+      unsub();
+    };
   }, []);
 
   const remapAgents = useCallback(
-    (gwAgents) => {
+    (gwAgents?: GatewayAgent[]) => {
       const src = gwAgents || rawAgents;
       setAgents(mapToHqAgents(src));
       setChatAgents(mapToChatAgents(src));

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { setAgentPosition } from "../services/data-mappers";
+import type { HqAgent } from "../types";
 import { C, COLS, MAP, ROWS, TILE } from "./constants";
 import { drawPixelText } from "./helpers";
 import {
@@ -29,7 +30,7 @@ for (let y = 0; y < ROWS; y++) {
   }
 }
 
-function isWalkable(x, y) {
+function isWalkable(x: number, y: number) {
   return WALKABLE_SET.has(`${x},${y}`);
 }
 
@@ -39,14 +40,20 @@ export default function LobsterHQ({
   agents = [],
   onSelectAgent,
   selectedAgent,
+}: {
+  agents?: HqAgent[];
+  onSelectAgent?: (id: string | null) => void;
+  selectedAgent?: string | null;
 }) {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef(0);
   const rafRef = useRef(0);
   const selectedAgentRef = useRef(selectedAgent);
   const agentsRef = useRef(agents);
-  const movementRef = useRef({}); // keyed by agent id
-  const hoverTileRef = useRef(null); // {x, y} of tile under cursor
+  const movementRef = useRef<
+    Record<string, { cx: number; cy: number; tx: number; ty: number }>
+  >({}); // keyed by agent id
+  const hoverTileRef = useRef<{ x: number; y: number } | null>(null); // {x, y} of tile under cursor
 
   selectedAgentRef.current = selectedAgent;
   agentsRef.current = agents;
@@ -57,7 +64,7 @@ export default function LobsterHQ({
     if (!canvas) {
       return;
     }
-    const onMouseMove = (e) => {
+    const onMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const scaleX = (COLS * TILE) / rect.width;
       const scaleY = (ROWS * TILE) / rect.height;
@@ -90,6 +97,10 @@ export default function LobsterHQ({
         return;
       }
       const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        rafRef.current = requestAnimationFrame(render);
+        return;
+      }
       const f = frameRef.current++;
 
       ctx.clearRect(0, 0, COLS * TILE, ROWS * TILE);
@@ -210,8 +221,12 @@ export default function LobsterHQ({
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  const handleCanvasClick = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+    const rect = canvas.getBoundingClientRect();
     const scaleX = (COLS * TILE) / rect.width;
     const scaleY = (ROWS * TILE) / rect.height;
     const mx = (e.clientX - rect.left) * scaleX;

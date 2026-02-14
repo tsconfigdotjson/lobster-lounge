@@ -1,3 +1,5 @@
+import type { ChatAgent, GatewayAgent, HqAgent, LogEntry } from "../types";
+
 const PALETTE = [
   "#e74c3c",
   "#ff6b8a",
@@ -31,43 +33,43 @@ const POSITIONS = [
 const AGENT_COLORS_KEY = "openclaw-agent-colors";
 const AGENT_POSITIONS_KEY = "openclaw-agent-positions";
 
-function loadAgentColors() {
+function loadAgentColors(): Record<string, string> {
   try {
-    return JSON.parse(localStorage.getItem(AGENT_COLORS_KEY)) || {};
+    return JSON.parse(localStorage.getItem(AGENT_COLORS_KEY) ?? "{}") || {};
   } catch {
     return {};
   }
 }
 
-export function getAgentColor(agentId) {
+export function getAgentColor(agentId: string) {
   return loadAgentColors()[agentId] || null;
 }
 
-export function setAgentColor(agentId, color) {
+export function setAgentColor(agentId: string, color: string) {
   const colors = loadAgentColors();
   colors[agentId] = color;
   localStorage.setItem(AGENT_COLORS_KEY, JSON.stringify(colors));
 }
 
-function loadAgentPositions() {
+function loadAgentPositions(): Record<string, { x: number; y: number }> {
   try {
-    return JSON.parse(localStorage.getItem(AGENT_POSITIONS_KEY)) || {};
+    return JSON.parse(localStorage.getItem(AGENT_POSITIONS_KEY) ?? "{}") || {};
   } catch {
     return {};
   }
 }
 
-export function getAgentPosition(agentId) {
+export function getAgentPosition(agentId: string) {
   return loadAgentPositions()[agentId] || null;
 }
 
-export function setAgentPosition(agentId, x, y) {
+export function setAgentPosition(agentId: string, x: number, y: number) {
   const positions = loadAgentPositions();
   positions[agentId] = { x, y };
   localStorage.setItem(AGENT_POSITIONS_KEY, JSON.stringify(positions));
 }
 
-export function mapToHqAgents(gatewayAgents) {
+export function mapToHqAgents(gatewayAgents: GatewayAgent[]): HqAgent[] {
   if (!gatewayAgents) {
     return [];
   }
@@ -88,7 +90,7 @@ export function mapToHqAgents(gatewayAgents) {
   });
 }
 
-export function mapToChatAgents(gatewayAgents) {
+export function mapToChatAgents(gatewayAgents: GatewayAgent[]): ChatAgent[] {
   if (!gatewayAgents) {
     return [];
   }
@@ -99,12 +101,16 @@ export function mapToChatAgents(gatewayAgents) {
       id: name.toUpperCase().slice(0, 8),
       role: agent.identity?.theme || "Agent",
       color,
-      status: "active",
+      status: "active" as const,
       _gatewayId: agent.id,
     };
   });
 }
 
-export function createLogEntry(agent, action, color) {
+export function createLogEntry(
+  agent: string,
+  action: string,
+  color: string,
+): LogEntry {
   return { agent, action, color, t: 0 };
 }

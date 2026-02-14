@@ -1,7 +1,13 @@
+import type { HqAgent } from "../types";
 import { BUBBLES, C, COLS, MAP, ROWS, TILE } from "./constants";
 import { drawPixelText, shadeColor } from "./helpers";
 
-export function drawOcean(ctx, x, y, frame) {
+export function drawOcean(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  frame: number,
+) {
   const hash = (x * 7 + y * 13) % 5;
   ctx.fillStyle = hash < 2 ? C.sea0 : hash < 4 ? C.sea1 : C.sea2;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
@@ -24,7 +30,12 @@ export function drawOcean(ctx, x, y, frame) {
   }
 }
 
-export function drawDeep(ctx, x, y, frame) {
+export function drawDeep(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  frame: number,
+) {
   const hash = (x * 3 + y * 11) % 3;
   ctx.fillStyle = hash === 0 ? C.deep0 : hash === 1 ? C.deep1 : C.deep2;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
@@ -36,7 +47,7 @@ export function drawDeep(ctx, x, y, frame) {
   }
 }
 
-export function drawSand(ctx, x, y) {
+export function drawSand(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillStyle = C.sand1;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
   // Sand texture
@@ -58,7 +69,11 @@ export function drawSand(ctx, x, y) {
   }
 }
 
-export function drawLodgeWall(ctx, x, y) {
+export function drawLodgeWall(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+) {
   ctx.fillStyle = C.lodge1;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
   // Wood plank lines
@@ -77,7 +92,11 @@ export function drawLodgeWall(ctx, x, y) {
   ctx.fillRect(x * TILE + TILE - 1, y * TILE, 1, TILE);
 }
 
-export function drawShellRoof(ctx, x, y) {
+export function drawShellRoof(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+) {
   // Shell-like curved roof in lobster red
   ctx.fillStyle = C.lob0;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
@@ -96,7 +115,7 @@ export function drawShellRoof(ctx, x, y) {
   ctx.fillRect(x * TILE, y * TILE + TILE - 2, TILE, 2);
 }
 
-export function drawDoor(ctx, x, y) {
+export function drawDoor(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillStyle = C.lodge1;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
   // Arched doorway
@@ -116,7 +135,11 @@ export function drawDoor(ctx, x, y) {
   ctx.fillRect(x * TILE + 11, y * TILE + 9, 1, 1);
 }
 
-export function drawPorthole(ctx, x, y) {
+export function drawPorthole(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+) {
   ctx.fillStyle = C.lodge1;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
   // Wood plank bg
@@ -140,7 +163,12 @@ export function drawPorthole(ctx, x, y) {
   ctx.fillRect(x * TILE + 5, y * TILE + 4, 2, 3);
 }
 
-export function drawCoral(ctx, x, y, frame) {
+export function drawCoral(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  frame: number,
+) {
   drawOcean(ctx, x, y, frame);
   const variant = (x * 7 + y * 3) % 3;
   const colors = [
@@ -164,7 +192,12 @@ export function drawCoral(ctx, x, y, frame) {
   ctx.fillRect(x * TILE + 8, y * TILE + 12, 2, 2);
 }
 
-export function drawKelp(ctx, x, y, frame) {
+export function drawKelp(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  frame: number,
+) {
   drawOcean(ctx, x, y, frame);
   // Kelp strands swaying
   const sway1 = Math.sin(frame * 0.06 + y) * 2;
@@ -187,7 +220,12 @@ export function drawKelp(ctx, x, y, frame) {
   ctx.fillRect(x * TILE + 9 + Math.round(sway2), y * TILE + 5, 3, 2);
 }
 
-export function drawShellDeco(ctx, x, y, frame) {
+export function drawShellDeco(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  frame: number,
+) {
   // Background depends on whether it's on sand or ocean
   const onSand = MAP[y]?.[x - 1] === 1 || MAP[y]?.[x + 1] === 1;
   if (onSand) {
@@ -221,7 +259,7 @@ export function drawShellDeco(ctx, x, y, frame) {
   }
 }
 
-export function drawBubbles(ctx, frame) {
+export function drawBubbles(ctx: CanvasRenderingContext2D, frame: number) {
   BUBBLES.forEach((b) => {
     b.y -= b.speed;
     b.x += Math.sin(frame * 0.03 + b.wobble) * 0.3;
@@ -236,7 +274,11 @@ export function drawBubbles(ctx, frame) {
   });
 }
 
-export function drawLobsterAgent(ctx, agent, frame) {
+export function drawLobsterAgent(
+  ctx: CanvasRenderingContext2D,
+  agent: HqAgent,
+  frame: number,
+) {
   const px = agent.x * TILE;
   const py = agent.y * TILE;
   const bob = Math.sin(frame * 0.08 + agent.x * 1.5) > 0 ? -1 : 0;
@@ -330,7 +372,11 @@ export function drawLobsterAgent(ctx, agent, frame) {
   );
 }
 
-export function drawSignpost(ctx, x, y) {
+export function drawSignpost(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+) {
   ctx.fillStyle = C.lodge0;
   ctx.fillRect(x + 7, y + 6, 2, 10);
   ctx.fillStyle = C.shellD;

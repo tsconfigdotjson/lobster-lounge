@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { ChatAgent } from "../types";
 import { C } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
 import { btnPrimaryStyle, inputStyle, panelStyle } from "./styles";
@@ -8,6 +9,10 @@ export default function AgentChat({
   agents = [],
   onSendMessage,
   initialActiveId,
+}: {
+  agents?: ChatAgent[];
+  onSendMessage?: (agentId: string, text: string) => Promise<string>;
+  initialActiveId?: string | null;
 }) {
   const [active, setActive] = useState(
     () =>
@@ -15,13 +20,19 @@ export default function AgentChat({
       agents[0] ||
       null,
   );
-  const [messages, setMessages] = useState({});
+  const [messages, setMessages] = useState<
+    Record<string, { from: string; text: string }[]>
+  >({});
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
-  const endRef = useRef(null);
-  const inputRef = useRef(null);
+  const endRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const msgs = active ? messages[active.id] || [] : [];
-  const sc = { active: C.green, busy: C.amber, idle: C.textDim };
+  const sc: Record<string, string> = {
+    active: C.green,
+    busy: C.amber,
+    idle: C.textDim,
+  };
 
   useEffect(() => {
     if (agents.length > 0 && !active) {
@@ -90,7 +101,7 @@ export default function AgentChat({
   return (
     <div
       style={{
-        ...panelStyle,
+        ...(panelStyle as React.CSSProperties),
         padding: 0,
         width: "100%",
         display: "flex",
@@ -155,7 +166,7 @@ export default function AgentChat({
           flexShrink: 0,
         }}
       >
-        <LobsterAvatar color={active.color} size={32} />
+        <LobsterAvatar color={active.color} size={32} style={{}} />
         <div style={{ flex: 1 }}>
           <div
             style={{ fontSize: 15, fontWeight: "bold", color: active.color }}

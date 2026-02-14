@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useGateway } from "../context/GatewayContext";
 import { setAgentColor } from "../services/data-mappers";
+import type { EditAgentData } from "../types";
 import {
   ActivityLog,
   AgentChat,
@@ -30,9 +31,11 @@ export default function DashboardView() {
     remapAgents,
     allSkills,
   } = useGateway();
-  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [chatCollapsed, setChatCollapsed] = useState(true);
-  const [chatInitialAgentId, setChatInitialAgentId] = useState(null);
+  const [chatInitialAgentId, setChatInitialAgentId] = useState<string | null>(
+    null,
+  );
   const [skillsCollapsed, setSkillsCollapsed] = useState(true);
   const [time, setTime] = useState(() => {
     const now = new Date();
@@ -41,26 +44,26 @@ export default function DashboardView() {
   const [tick, setTick] = useState(0);
   const [currentStrength, setCurrentStrength] = useState("STRONG");
   const [showCreator, setShowCreator] = useState(false);
-  const [editingAgent, setEditingAgent] = useState(null);
-  const chatRef = useRef(null);
-  const skillsRef = useRef(null);
+  const [editingAgent, setEditingAgent] = useState<EditAgentData | null>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
+  const skillsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatCollapsed && skillsCollapsed) {
       return;
     }
-    const handleClickOutside = (e) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         !chatCollapsed &&
         chatRef.current &&
-        !chatRef.current.contains(e.target)
+        !chatRef.current.contains(e.target as Node)
       ) {
         setChatCollapsed(true);
       }
       if (
         !skillsCollapsed &&
         skillsRef.current &&
-        !skillsRef.current.contains(e.target)
+        !skillsRef.current.contains(e.target as Node)
       ) {
         setSkillsCollapsed(true);
       }
@@ -108,7 +111,13 @@ export default function DashboardView() {
 
   const sel = agents.find((a) => a.id === selectedAgent);
 
-  const handleCreate = async ({ name, color }) => {
+  const handleCreate = async ({
+    name,
+    color,
+  }: {
+    name: string;
+    color: string;
+  }) => {
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
@@ -130,7 +139,7 @@ export default function DashboardView() {
     setShowCreator(false);
   };
 
-  const handleUpdate = async (data) => {
+  const handleUpdate = async (data: EditAgentData) => {
     if (data._gatewayId && data.color) {
       setAgentColor(data._gatewayId, data.color);
     }
@@ -149,7 +158,7 @@ export default function DashboardView() {
     });
   };
 
-  const handleSkillToggle = async (skillKey, enabled) => {
+  const handleSkillToggle = async (skillKey: string, enabled: boolean) => {
     await updateSkill({ skillKey, enabled });
     await refreshSkills();
   };

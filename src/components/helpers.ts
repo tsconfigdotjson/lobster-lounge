@@ -1,6 +1,6 @@
 import { FONT } from "./constants";
 
-export function shadeColor(hex, amt) {
+export function shadeColor(hex: string, amt: number) {
   if (hex.startsWith("rgb")) {
     return hex;
   }
@@ -10,13 +10,19 @@ export function shadeColor(hex, amt) {
   return `rgb(${Math.max(0, Math.min(255, r))},${Math.max(0, Math.min(255, g))},${Math.max(0, Math.min(255, b))})`;
 }
 
-export function drawPixelText(ctx, text, x, y, scale = 1) {
+export function drawPixelText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  scale = 1,
+) {
   const chars = text.toUpperCase().split("");
   let cx = x;
   chars.forEach((ch) => {
-    const glyph = FONT[ch];
+    const glyph = (FONT as Record<string, number[]>)[ch];
     if (glyph) {
-      glyph.forEach((row, ry) => {
+      glyph.forEach((row: number, ry: number) => {
         for (let rx = 0; rx < 3; rx++) {
           if (row & (1 << (2 - rx))) {
             ctx.fillRect(cx + rx * scale, y + ry * scale, scale, scale);

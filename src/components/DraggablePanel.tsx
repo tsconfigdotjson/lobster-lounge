@@ -8,10 +8,17 @@ export default function DraggablePanel({
   centered = false,
   title,
   style,
+}: {
+  children?: React.ReactNode;
+  defaultX?: number;
+  defaultY?: number;
+  centered?: boolean;
+  title?: string;
+  style?: React.CSSProperties;
 }) {
   const [pos, setPos] = useState({ x: defaultX, y: defaultY });
   const [ready, setReady] = useState(!centered);
-  const dragRef = useRef(null);
+  const dragRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (centered && dragRef.current && !ready) {
@@ -25,14 +32,14 @@ export default function DraggablePanel({
   }, [centered, ready]);
 
   const onPointerDown = useCallback(
-    (e) => {
-      if (e.target.closest("button, input, textarea, select")) {
+    (e: React.PointerEvent) => {
+      if ((e.target as Element).closest("button, input, textarea, select")) {
         return;
       }
       e.preventDefault();
       const startX = e.clientX - pos.x;
       const startY = e.clientY - pos.y;
-      const onMove = (ev) =>
+      const onMove = (ev: PointerEvent) =>
         setPos({ x: ev.clientX - startX, y: ev.clientY - startY });
       const onUp = () => {
         window.removeEventListener("pointermove", onMove);

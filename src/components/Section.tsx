@@ -1,6 +1,14 @@
 import { C } from "./constants";
 
-export default function Section({ label, desc, children }) {
+export default function Section({
+  label,
+  desc,
+  children,
+}: {
+  label: string;
+  desc: string;
+  children?: React.ReactNode;
+}) {
   return (
     <div
       style={{

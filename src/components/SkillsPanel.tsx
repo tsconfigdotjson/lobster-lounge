@@ -1,7 +1,14 @@
 import { useState } from "react";
+import type { SkillWithStatus } from "../types";
 import { C } from "./constants";
 
-export default function SkillsPanel({ skills = [], onToggle }) {
+export default function SkillsPanel({
+  skills = [],
+  onToggle,
+}: {
+  skills?: SkillWithStatus[];
+  onToggle?: (skillId: string, enabled: boolean) => void;
+}) {
   const [filter, setFilter] = useState("");
 
   const filtered = filter.trim()

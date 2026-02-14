@@ -1,6 +1,12 @@
 import { C } from "./constants";
 
-export default function PanelHeader({ icon, title }) {
+export default function PanelHeader({
+  icon,
+  title,
+}: {
+  icon: string;
+  title: string;
+}) {
   return (
     <div
       style={{

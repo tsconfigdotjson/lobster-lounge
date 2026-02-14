@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { EditAgentData } from "../types";
 import { C } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
 import PanelHeader from "./PanelHeader";
@@ -24,8 +25,20 @@ function PropertySheet({
   deployError,
   setDeploying,
   setDeployError,
+}: {
+  name: string;
+  setName: (v: string) => void;
+  color: string;
+  setColor: (v: string) => void;
+  editAgent: EditAgentData;
+  onUpdate?: (data: EditAgentData) => Promise<void>;
+  onCancel?: () => void;
+  deploying: boolean;
+  deployError: string | null;
+  setDeploying: (v: boolean) => void;
+  setDeployError: (v: string | null) => void;
 }) {
-  const [editingField, setEditingField] = useState(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
   const colors = [
     "#e74c3c",
     "#ff6b8a",
@@ -37,7 +50,7 @@ function PropertySheet({
     "#e67e22",
   ];
 
-  const pencilBtn = (field) => (
+  const pencilBtn = (field: string) => (
     <button
       type="button"
       onClick={() => setEditingField(editingField === field ? null : field)}
@@ -71,8 +84,8 @@ function PropertySheet({
     setDeployError(null);
     try {
       await onUpdate?.({ ...editAgent, name, color });
-    } catch (err) {
-      setDeployError(err?.message || "Update failed");
+    } catch (err: unknown) {
+      setDeployError(err instanceof Error ? err.message : "Update failed");
     } finally {
       setDeploying(false);
     }
@@ -225,13 +238,18 @@ export default function AgentCreator({
   editAgent,
   onUpdate,
   onCancel,
+}: {
+  onDeploy?: (data: { name: string; color: string }) => Promise<void>;
+  editAgent?: EditAgentData;
+  onUpdate?: (data: EditAgentData) => Promise<void>;
+  onCancel?: () => void;
 }) {
   const isEdit = !!editAgent;
   const [name, setName] = useState(editAgent?.name || "");
   const [color, setColor] = useState(editAgent?.color || "#e74c3c");
   const [phase, setPhase] = useState("edit");
   const [deploying, setDeploying] = useState(false);
-  const [deployError, setDeployError] = useState(null);
+  const [deployError, setDeployError] = useState<string | null>(null);
   const colors = [
     "#e74c3c",
     "#ff6b8a",
@@ -340,8 +358,8 @@ export default function AgentCreator({
     try {
       await onDeploy?.({ name, color });
       setPhase("deployed");
-    } catch (err) {
-      setDeployError(err?.message || "Deploy failed");
+    } catch (err: unknown) {
+      setDeployError(err instanceof Error ? err.message : "Deploy failed");
     } finally {
       setDeploying(false);
     }

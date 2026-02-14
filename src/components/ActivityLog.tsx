@@ -1,6 +1,12 @@
 import { C } from "./constants";
 
-export default function ActivityLog({ logs = [], tick }) {
+export default function ActivityLog({
+  logs = [],
+  tick,
+}: {
+  logs?: { agent: string; action: string; color: string; t: number }[];
+  tick: number;
+}) {
   const visible = logs.filter((l) => tick % 24 >= l.t).slice(-7);
 
   return (

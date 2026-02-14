@@ -1,3 +1,4 @@
+import type { GatewayFrame, GatewayPayload, HelloPayload } from "../types";
 import {
   getDeviceToken,
   getOrCreateIdentity,
@@ -5,36 +6,52 @@ import {
   signConnectPayload,
 } from "./device-identity";
 
-const _STATES = [
-  "disconnected",
-  "connecting",
-  "challenged",
-  "handshaking",
-  "pairing",
-  "connected",
-];
+type GatewayState =
+  | "disconnected"
+  | "connecting"
+  | "challenged"
+  | "handshaking"
+  | "pairing"
+  | "connected";
+
+type EventCallback = (payload: GatewayPayload, frame?: GatewayFrame) => void;
+
+interface PendingEntry {
+  resolve: (value: GatewayPayload) => void;
+  reject: (reason: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
+  method: string;
+}
+
+interface Identity {
+  deviceId: string;
+  publicKeyB64: string;
+  privateKey: CryptoKey;
+}
 
 export default class GatewayClient {
-  #ws = null;
-  #state = "disconnected";
+  #ws: WebSocket | null = null;
+  #state: GatewayState = "disconnected";
   #url = "";
   #nextId = 1;
-  #pending = new Map();
-  #listeners = new Map();
-  #onEvent = null;
-  #onStateChange = null;
-  #helloPayload = null;
-  #tickTimer = null;
+  #pending = new Map<string, PendingEntry>();
+  #listeners = new Map<string, Set<EventCallback>>();
+  #onEvent:
+    | ((event: string, payload: GatewayPayload, frame: GatewayFrame) => void)
+    | null = null;
+  #onStateChange: ((state: GatewayState) => void) | null = null;
+  #helloPayload: HelloPayload | null = null;
+  #tickTimer: ReturnType<typeof setInterval> | null = null;
   #tickIntervalMs = 30000;
   #lastTick = 0;
-  #reconnectTimer = null;
+  #reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   #reconnectDelay = 1000;
   #intentionalClose = false;
-  #nonce = null;
-  #identity = null;
-  #storedDeviceToken = null;
+  #nonce: string | null = null;
+  #identity: Identity | null = null;
+  #storedDeviceToken: string | null = null;
   #gatewayToken = "";
-  #gatewayHost = null;
+  #gatewayHost: string | null = null;
 
   get state() {
     return this.#state;
@@ -49,12 +66,22 @@ export default class GatewayClient {
     return this.#helloPayload;
   }
 
-  constructor({ onEvent, onStateChange } = {}) {
+  constructor({
+    onEvent,
+    onStateChange,
+  }: {
+    onEvent?: (
+      event: string,
+      payload: GatewayPayload,
+      frame: GatewayFrame,
+    ) => void;
+    onStateChange?: (state: GatewayState) => void;
+  } = {}) {
     this.#onEvent = onEvent || null;
     this.#onStateChange = onStateChange || null;
   }
 
-  async connect(url, gatewayToken) {
+  async connect(url: string, gatewayToken?: string) {
     this.#intentionalClose = false;
     this.#url = url;
     this.#gatewayToken = gatewayToken || "";
@@ -74,7 +101,9 @@ export default class GatewayClient {
 
   disconnect() {
     this.#intentionalClose = true;
-    clearTimeout(this.#reconnectTimer);
+    if (this.#reconnectTimer != null) {
+      clearTimeout(this.#reconnectTimer);
+    }
     this.#reconnectTimer = null;
     this.#cleanupTick();
     if (this.#ws) {
@@ -85,8 +114,8 @@ export default class GatewayClient {
     this.#setState("disconnected");
   }
 
-  request(method, params) {
-    return new Promise((resolve, reject) => {
+  request(method: string, params?: GatewayPayload) {
+    return new Promise<GatewayPayload>((resolve, reject) => {
       if (!this.#ws || this.#ws.readyState !== WebSocket.OPEN) {
         return reject(new Error("Not connected"));
       }
@@ -100,11 +129,11 @@ export default class GatewayClient {
     });
   }
 
-  on(eventName, callback) {
+  on(eventName: string, callback: EventCallback) {
     if (!this.#listeners.has(eventName)) {
       this.#listeners.set(eventName, new Set());
     }
-    this.#listeners.get(eventName).add(callback);
+    this.#listeners.get(eventName)?.add(callback);
     return () => this.#listeners.get(eventName)?.delete(callback);
   }
 
@@ -125,9 +154,9 @@ export default class GatewayClient {
     };
 
     this.#ws.onmessage = (evt) => {
-      let frame;
+      let frame: GatewayFrame;
       try {
-        frame = JSON.parse(evt.data);
+        frame = JSON.parse(evt.data) as GatewayFrame;
       } catch {
         return;
       }
@@ -138,7 +167,7 @@ export default class GatewayClient {
       // onclose will fire after this
     };
 
-    this.#ws.onclose = (_evt) => {
+    this.#ws.onclose = () => {
       this.#cleanupTick();
       this.#ws = null;
       const wasPairing = this.#state === "pairing";
@@ -160,7 +189,7 @@ export default class GatewayClient {
     };
   }
 
-  #handleFrame(frame) {
+  #handleFrame(frame: GatewayFrame) {
     if (frame.type === "event") {
       this.#handleEvent(frame);
     } else if (frame.type === "res") {
@@ -168,11 +197,12 @@ export default class GatewayClient {
     }
   }
 
-  #handleEvent(frame) {
-    const { event, payload } = frame;
+  #handleEvent(frame: GatewayFrame) {
+    const event = frame.event as string;
+    const payload = (frame.payload ?? {}) as GatewayPayload;
 
     if (event === "connect.challenge") {
-      this.#nonce = payload?.nonce;
+      this.#nonce = (payload?.nonce as string) ?? null;
       this.#setState("challenged");
       this.#sendHandshake();
       return;
@@ -195,8 +225,10 @@ export default class GatewayClient {
     }
   }
 
-  #handleResponse(frame) {
-    const { id, ok, payload, error } = frame;
+  #handleResponse(frame: GatewayFrame) {
+    const { ok, error } = frame;
+    const id = frame.id ?? "";
+    const payload = (frame.payload ?? {}) as HelloPayload;
     const entry = this.#pending.get(id);
     if (!entry) {
       return;
@@ -222,12 +254,13 @@ export default class GatewayClient {
       // hello-ok handshake response
       if (payload?.type === "hello-ok") {
         // Store device token if present
-        if (payload?.auth?.deviceToken) {
-          setDeviceToken(this.#gatewayHost, payload.auth.deviceToken);
-          this.#storedDeviceToken = payload.auth.deviceToken;
+        const deviceToken = payload?.auth?.deviceToken;
+        if (deviceToken && this.#gatewayHost) {
+          setDeviceToken(this.#gatewayHost, String(deviceToken));
+          this.#storedDeviceToken = String(deviceToken);
         }
         this.#helloPayload = payload;
-        this.#tickIntervalMs = payload.policy?.tickIntervalMs || 30000;
+        this.#tickIntervalMs = payload.policy?.tickIntervalMs ?? 30000;
         this.#startTick();
         this.#reconnectDelay = 1000;
         this.#setState("connected");
@@ -241,7 +274,11 @@ export default class GatewayClient {
   async #sendHandshake() {
     this.#setState("handshaking");
     const id = String(this.#nextId++);
-    const params = {
+    const identity = this.#identity;
+    if (!identity) {
+      return;
+    }
+    const params: Record<string, unknown> = {
       minProtocol: 3,
       maxProtocol: 3,
       client: {
@@ -256,16 +293,16 @@ export default class GatewayClient {
     // Device identity — prefer stored device token, fall back to gateway token
     const authToken = this.#storedDeviceToken || this.#gatewayToken || "";
     const { signature, signedAt } = await signConnectPayload(
-      this.#identity.privateKey,
+      identity.privateKey,
       {
-        deviceId: this.#identity.deviceId,
+        deviceId: identity.deviceId,
         nonce: this.#nonce,
         token: authToken,
       },
     );
     params.device = {
-      id: this.#identity.deviceId,
-      publicKey: this.#identity.publicKeyB64,
+      id: identity.deviceId,
+      publicKey: identity.publicKeyB64,
       signature,
       signedAt,
       nonce: this.#nonce,
@@ -282,17 +319,17 @@ export default class GatewayClient {
     }, 10000);
 
     this.#pending.set(id, {
-      resolve: (_payload) => {
+      resolve: (_payload: GatewayPayload) => {
         /* handled in #handleResponse */
       },
-      reject: (err) => {
-        this.#onEvent?.("error", { message: err.message });
+      reject: (err: Error) => {
+        this.#onEvent?.("error", { message: err.message }, { type: "error" });
       },
       timer,
       method: "connect",
     });
 
-    this.#ws.send(
+    this.#ws?.send(
       JSON.stringify({ type: "req", id, method: "connect", params }),
     );
   }
@@ -330,7 +367,7 @@ export default class GatewayClient {
     this.#reconnectDelay = Math.min(this.#reconnectDelay * 2, 30000);
   }
 
-  #setState(s) {
+  #setState(s: GatewayState) {
     if (this.#state === s) {
       return;
     }
@@ -338,7 +375,7 @@ export default class GatewayClient {
     this.#onStateChange?.(s);
   }
 
-  #rejectAllPending(reason) {
+  #rejectAllPending(reason: string) {
     for (const [_id, entry] of this.#pending) {
       clearTimeout(entry.timer);
       entry.reject(new Error(reason));
