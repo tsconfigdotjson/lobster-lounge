@@ -3,6 +3,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { loadConnectionHistory } from "../context/GatewayContext";
 import { getDeviceToken } from "../services/device-identity";
 import { C, CONNECTION_STEPS } from "./constants";
+import LanguageDropdown from "./LanguageDropdown";
 import LobsterAvatar from "./LobsterAvatar";
 import PanelHeader from "./PanelHeader";
 import Spinner from "./Spinner";
@@ -102,7 +103,12 @@ export default function GatewayScreen({
 
   if (phase === "select") {
     return (
-      <div style={panelStyle as React.CSSProperties}>
+      <div
+        style={{ ...(panelStyle as React.CSSProperties), overflow: "visible" }}
+      >
+        <div style={{ position: "absolute", top: 12, right: 12, zIndex: 300 }}>
+          <LanguageDropdown />
+        </div>
         <PanelHeader icon="🌊" title={t("gateway.loginTitle")} />
         <div
           style={{
@@ -356,10 +362,7 @@ export default function GatewayScreen({
   if (phase === "error") {
     return (
       <div style={panelStyle as React.CSSProperties}>
-        <PanelHeader
-          icon="⚠️"
-          title={t("gateway.connectionFailedTitle")}
-        />
+        <PanelHeader icon="⚠️" title={t("gateway.connectionFailedTitle")} />
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div
             style={{

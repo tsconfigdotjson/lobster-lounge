@@ -14,6 +14,7 @@ import {
   LobsterHQ,
 } from ".";
 import { C } from "./constants";
+import LanguageDropdown from "./LanguageDropdown";
 import SkillsPanel from "./SkillsPanel";
 import { btnSecondaryStyle } from "./styles";
 
@@ -229,6 +230,7 @@ export default function DashboardView() {
           {uptimeStr ? ` \u00b7 up ${uptimeStr}` : ""}
         </span>
         <div style={{ flex: 1 }} />
+        <LanguageDropdown />
         <button
           type="button"
           onClick={() => {
