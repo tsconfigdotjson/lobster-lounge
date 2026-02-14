@@ -1,8 +1,15 @@
 {
-  "name": "vite-scaffold",
+  "name": "lobster-lodge",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "bin": {
+    "lobster-lodge": "./bin/install.mjs"
+  },
+  "files": [
+    "bin/",
+    "dist/"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
