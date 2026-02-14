@@ -59,7 +59,6 @@ export function mapToHqAgents(gatewayAgents) {
     return {
       id: name.toUpperCase().slice(0, 8),
       role: agent.identity?.theme || "Agent",
-      task: `Active - ${agent.id}`,
       color,
       x: pos.x,
       y: pos.y,

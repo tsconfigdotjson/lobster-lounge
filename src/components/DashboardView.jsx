@@ -450,7 +450,7 @@ export default function DashboardView() {
               {sel.id}
             </div>
             <div style={{ fontSize: 12, color: C.textDim }}>
-              {sel.role} — {sel.task}
+              {sel.role}
             </div>
           </div>
           <div
