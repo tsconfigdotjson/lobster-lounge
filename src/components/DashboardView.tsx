@@ -32,7 +32,9 @@ export default function DashboardView() {
     allSkills,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
-  const [chatCollapsed, setChatCollapsed] = useState(true);
+  const [chatState, setChatState] = useState<
+    "collapsed" | "normal" | "expanded"
+  >("collapsed");
   const [chatInitialAgentId, setChatInitialAgentId] = useState<string | null>(
     null,
   );
@@ -49,16 +51,16 @@ export default function DashboardView() {
   const skillsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (chatCollapsed && skillsCollapsed) {
+    if (chatState === "collapsed" && skillsCollapsed) {
       return;
     }
     const handleClickOutside = (e: MouseEvent) => {
       if (
-        !chatCollapsed &&
+        chatState !== "collapsed" &&
         chatRef.current &&
         !chatRef.current.contains(e.target as Node)
       ) {
-        setChatCollapsed(true);
+        setChatState("collapsed");
       }
       if (
         !skillsCollapsed &&
@@ -70,7 +72,7 @@ export default function DashboardView() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [chatCollapsed, skillsCollapsed]);
+  }, [chatState, skillsCollapsed]);
 
   useEffect(() => {
     const CURRENT_OPTIONS = ["STRONG", "MEDIUM", "WEAK"];
@@ -533,7 +535,17 @@ export default function DashboardView() {
             bottom: 16,
             right: 16,
             zIndex: 200,
-            width: chatCollapsed ? "auto" : 420,
+            width:
+              chatState === "collapsed"
+                ? "auto"
+                : chatState === "expanded"
+                  ? "max(50vw, 420px)"
+                  : 420,
+            maxWidth:
+              chatState === "expanded" ? "calc(100vw - 32px)" : undefined,
+            height: chatState === "expanded" ? "calc(100vh - 68px)" : undefined,
+            display: chatState === "expanded" ? "flex" : undefined,
+            flexDirection: chatState === "expanded" ? "column" : undefined,
             border: `2px solid ${C.uiBorder}`,
             boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
             borderRadius: 6,
@@ -541,47 +553,130 @@ export default function DashboardView() {
             background: C.uiBg,
           }}
         >
-          <button
-            type="button"
-            onClick={() => {
-              if (chatCollapsed) {
-                setChatInitialAgentId(selectedAgent);
-                setSelectedAgent(null);
-              }
-              setChatCollapsed((c) => !c);
-            }}
+          <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 8,
               width: "100%",
-              padding: "8px 14px",
-              background: "transparent",
-              border: "none",
-              borderBottom: chatCollapsed
-                ? "none"
-                : "1px solid rgba(255,255,255,0.05)",
-              cursor: "pointer",
-              color: C.textDim,
-              fontFamily: "'Courier New', monospace",
-              fontSize: 11,
-              letterSpacing: 2,
-              textAlign: "left",
+              borderBottom:
+                chatState === "collapsed"
+                  ? "none"
+                  : "1px solid rgba(255,255,255,0.05)",
             }}
           >
-            <span style={{ color: C.amber }}>
-              {chatCollapsed ? "\u25B6" : "\u25BC"}
-            </span>
-            AGENT CHAT
-            <span style={{ marginLeft: "auto", fontSize: 10, opacity: 0.5 }}>
-              {chatAgents.length}
-            </span>
-          </button>
-          <div style={{ display: chatCollapsed ? "none" : "contents" }}>
+            {chatState !== "collapsed" && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setChatState(
+                    chatState === "expanded" ? "normal" : "expanded",
+                  );
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "8px 10px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: C.amber,
+                  flexShrink: 0,
+                }}
+                title={chatState === "expanded" ? "Contract" : "Expand"}
+              >
+                {chatState === "expanded" ? (
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <title>Contract</title>
+                    <path d="m14 10 7-7" />
+                    <path d="M20 10h-6V4" />
+                    <path d="m3 21 7-7" />
+                    <path d="M4 14h6v6" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <title>Expand</title>
+                    <path d="M15 3h6v6" />
+                    <path d="m21 3-7 7" />
+                    <path d="m3 21 7-7" />
+                    <path d="M9 21H3v-6" />
+                  </svg>
+                )}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                if (chatState === "collapsed") {
+                  setChatInitialAgentId(selectedAgent);
+                  setSelectedAgent(null);
+                  setChatState("normal");
+                } else {
+                  setChatState("collapsed");
+                }
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flex: 1,
+                padding:
+                  chatState !== "collapsed" ? "8px 14px 8px 0" : "8px 14px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: C.textDim,
+                fontFamily: "'Courier New', monospace",
+                fontSize: 11,
+                letterSpacing: 2,
+                textAlign: "left",
+              }}
+            >
+              <span style={{ color: C.amber }}>
+                {chatState === "collapsed" ? "\u25B6" : "\u25BC"}
+              </span>
+              AGENT CHAT
+              <span style={{ marginLeft: "auto", fontSize: 10, opacity: 0.5 }}>
+                {chatAgents.length}
+              </span>
+            </button>
+          </div>
+          <div
+            style={{
+              display:
+                chatState === "collapsed"
+                  ? "none"
+                  : chatState === "expanded"
+                    ? "flex"
+                    : "contents",
+              flex: chatState === "expanded" ? 1 : undefined,
+              minHeight: 0,
+            }}
+          >
             <AgentChat
               agents={chatAgents}
               onSendMessage={sendAgentMessage}
               initialActiveId={chatInitialAgentId}
+              expanded={chatState === "expanded"}
             />
           </div>
         </div>
@@ -592,11 +687,6 @@ export default function DashboardView() {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.3; }
         }
-        .thin-scroll::-webkit-scrollbar { width: 4px; }
-        .thin-scroll::-webkit-scrollbar-track { background: transparent; }
-        .thin-scroll::-webkit-scrollbar-thumb { background: rgba(244, 162, 97, 0.25); border-radius: 2px; }
-        .thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(244, 162, 97, 0.45); }
-        .thin-scroll { scrollbar-width: thin; scrollbar-color: rgba(244, 162, 97, 0.25) transparent; }
       `}</style>
     </div>
   );

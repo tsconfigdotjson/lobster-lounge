@@ -287,6 +287,7 @@ export default class GatewayClient {
         platform: "web",
         mode: "ui",
       },
+      caps: ["tool-events"],
       role: "operator",
       scopes: ["operator.read", "operator.write", "operator.admin"],
     };

@@ -19,6 +19,8 @@ import type {
   AgentEventPayload,
   ChatAgent,
   ChatEventPayload,
+  ChatMessage,
+  ContentBlock,
   GatewayAgent,
   GatewayPayload,
   GatewaySkillEntry,
@@ -29,6 +31,30 @@ import type {
   Skill,
   SkillWithStatus,
 } from "../types";
+
+/** Wire format: { content: [{ type: "text", text: "..." }] } */
+function extractToolText(value: unknown): string | null {
+  if (value == null) {
+    return null;
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  const rec = value as Record<string, unknown>;
+  const content = rec?.content;
+  if (Array.isArray(content)) {
+    return (
+      content
+        .filter(
+          (c): c is { text: string } =>
+            typeof (c as Record<string, unknown>)?.text === "string",
+        )
+        .map((c) => c.text)
+        .join("\n") || null
+    );
+  }
+  return null;
+}
 
 const STORAGE_KEY = "openclaw-gateway";
 const HISTORY_KEY = "openclaw-gateway-history";
@@ -81,7 +107,11 @@ interface GatewayContextValue {
   activityLogs: LogEntry[];
   serverInfo: ServerInfo | null;
   features: Record<string, unknown> | null;
-  sendAgentMessage: (agentDisplayId: string, text: string) => Promise<string>;
+  sendAgentMessage: (
+    agentDisplayId: string,
+    text: string,
+    onDelta?: (partial: ChatMessage) => void,
+  ) => Promise<ChatMessage>;
   createAgent: (params: {
     name: string;
     workspace: string;
@@ -401,7 +431,11 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
   }, [cleanup]);
 
   const sendAgentMessage = useCallback(
-    (agentDisplayId: string, text: string) => {
+    (
+      agentDisplayId: string,
+      text: string,
+      onDelta?: (partial: ChatMessage) => void,
+    ) => {
       const client = clientRef.current;
       if (!client?.connected) {
         return Promise.reject(new Error("Not connected"));
@@ -413,20 +447,55 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
       );
       const agentId = chatAgent?._gatewayId || undefined;
 
-      return new Promise<string>((resolve, reject) => {
+      return new Promise<ChatMessage>((resolve, reject) => {
         const idempotencyKey = crypto.randomUUID();
-        let accumulated = "";
         let resolved = false;
         let runId: string | null = null;
 
-        const finish = (text: string) => {
+        // Build mutable ChatMessage for streaming
+        const msg: ChatMessage = {
+          id: crypto.randomUUID(),
+          from: "agent",
+          blocks: [{ type: "text", text: "" }],
+          streaming: true,
+        };
+
+        // Current text block pointer — always the last text block
+        const currentTextBlock = () => {
+          const last = msg.blocks[msg.blocks.length - 1];
+          if (last?.type === "text") {
+            return last;
+          }
+          // Shouldn't happen, but push a new one if needed
+          const nb: ContentBlock = { type: "text", text: "" };
+          msg.blocks.push(nb);
+          return nb;
+        };
+
+        const fireDelta = () => {
+          if (!onDelta) {
+            return;
+          }
+          onDelta({ ...msg, blocks: msg.blocks.map((b) => ({ ...b })) });
+        };
+
+        const finish = (finalMsg: ChatMessage) => {
           if (resolved) {
             return;
           }
           resolved = true;
           clearTimeout(timeout);
-          unsub?.();
-          resolve(text);
+          unsubChat?.();
+          unsubAgent?.();
+          finalMsg.streaming = false;
+          const cloned = {
+            ...finalMsg,
+            blocks: finalMsg.blocks.map((b) => ({ ...b })),
+          };
+          if (onDelta) {
+            onDelta(cloned);
+          }
+          resolve(cloned);
         };
 
         const fail = (err: Error) => {
@@ -435,31 +504,32 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
           }
           resolved = true;
           clearTimeout(timeout);
-          unsub?.();
+          unsubChat?.();
+          unsubAgent?.();
           reject(err);
         };
 
         const timeout = setTimeout(
           () => fail(new Error("Agent response timed out")),
-          60000,
+          120000,
         );
 
         // Subscribe to chat events BEFORE sending the request,
         // per the ack-with-final streaming pattern (protocol §10).
-        // Events may arrive before the ack resolves.
-        const unsub = client.on("chat", (rawPayload: GatewayPayload) => {
+        const unsubChat = client.on("chat", (rawPayload: GatewayPayload) => {
           const payload = rawPayload as ChatEventPayload;
           if (runId && payload.runId !== runId) {
             return;
           }
 
           if (payload.state === "delta") {
-            const delta =
+            const text =
               payload.message?.content?.[0]?.text ||
               payload.message?.text ||
               payload.message?.delta ||
               "";
-            accumulated += delta;
+            currentTextBlock().text = text;
+            fireDelta();
           } else if (
             payload.state === "final" ||
             payload.state === "error" ||
@@ -468,13 +538,76 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             if (payload.state === "error") {
               fail(new Error(payload.errorMessage || "Agent error"));
             } else {
+              // Final payload text is authoritative — always prefer it
               const finalText =
-                payload.message?.content?.[0]?.text ||
-                payload.message?.text ||
-                accumulated ||
-                "[No response]";
-              finish(finalText);
+                payload.message?.content?.[0]?.text || payload.message?.text;
+              if (finalText) {
+                currentTextBlock().text = finalText;
+              } else if (!currentTextBlock().text) {
+                currentTextBlock().text = "[No response]";
+              }
+              finish(msg);
             }
+          }
+        });
+
+        // Subscribe to agent events for tool streaming
+        const unsubAgent = client.on("agent", (rawPayload: GatewayPayload) => {
+          const payload = rawPayload as AgentEventPayload;
+          if (payload.stream !== "tool") {
+            return;
+          }
+          if (runId && payload.runId !== runId) {
+            return;
+          }
+
+          const data = payload.data ?? {};
+          const toolCallId =
+            typeof data.toolCallId === "string" ? data.toolCallId : "";
+          const toolName = typeof data.name === "string" ? data.name : "tool";
+          const phase = data.phase as "start" | "update" | "result";
+
+          if (phase === "start") {
+            // Insert tool_call block before the trailing text block
+            const toolBlock: ContentBlock = {
+              type: "tool_call",
+              toolCallId,
+              toolName,
+              args: (data.args as Record<string, unknown>) ?? {},
+              output: null,
+              phase: "start",
+            };
+            // Insert before last text block
+            const lastIdx = msg.blocks.length - 1;
+            if (msg.blocks[lastIdx]?.type === "text") {
+              msg.blocks.splice(lastIdx, 0, toolBlock);
+            } else {
+              msg.blocks.push(toolBlock);
+            }
+            // Ensure trailing text block exists
+            if (msg.blocks[msg.blocks.length - 1]?.type !== "text") {
+              msg.blocks.push({ type: "text", text: "" });
+            }
+            fireDelta();
+          } else if (phase === "update") {
+            const block = msg.blocks.find(
+              (b) => b.type === "tool_call" && b.toolCallId === toolCallId,
+            );
+            if (block && block.type === "tool_call") {
+              block.output =
+                extractToolText(data.partialResult) ?? block.output;
+              block.phase = "update";
+            }
+            fireDelta();
+          } else if (phase === "result") {
+            const block = msg.blocks.find(
+              (b) => b.type === "tool_call" && b.toolCallId === toolCallId,
+            );
+            if (block && block.type === "tool_call") {
+              block.output = extractToolText(data.result) ?? block.output;
+              block.phase = "result";
+            }
+            fireDelta();
           }
         });
 
@@ -487,6 +620,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
           .then((rawAck: GatewayPayload) => {
             const ack = rawAck as AgentAckPayload;
             runId = ack?.runId ?? null;
+            msg.runId = runId ?? undefined;
 
             // If the server returned the complete result inline (status "ok"
             // with result payload), resolve immediately — no streaming follows.
@@ -497,7 +631,8 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
                   .map((p: { text?: string }) => p.text)
                   .filter(Boolean)
                   .join("\n") || "[No response]";
-              finish(finalText);
+              currentTextBlock().text = finalText;
+              finish(msg);
             }
             // Otherwise status is "accepted" (ack-with-final) — chat events
             // will stream in via the listener we set up above.

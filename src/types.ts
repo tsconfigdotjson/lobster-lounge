@@ -1,5 +1,25 @@
 // Gateway protocol types
 
+// ─── Chat message content blocks ─────────────────────────────
+export type ContentBlock =
+  | { type: "text"; text: string }
+  | {
+      type: "tool_call";
+      toolCallId: string;
+      toolName: string;
+      args: Record<string, unknown>;
+      output: string | null;
+      phase: "start" | "update" | "result";
+    };
+
+export interface ChatMessage {
+  id: string;
+  from: "user" | "agent";
+  blocks: ContentBlock[];
+  runId?: string;
+  streaming?: boolean;
+}
+
 export interface GatewayAgent {
   id: string;
   identity?: { name?: string; theme?: string };
@@ -108,8 +128,19 @@ export interface ChatEventPayload extends GatewayPayload {
 
 // Agent event payload
 export interface AgentEventPayload extends GatewayPayload {
-  data?: { agentId?: string };
+  runId?: string;
+  seq?: number;
+  ts?: number;
   stream?: string;
+  data?: {
+    agentId?: string;
+    toolCallId?: string;
+    name?: string;
+    phase?: string;
+    args?: Record<string, unknown>;
+    result?: unknown;
+    partialResult?: unknown;
+  };
 }
 
 // Ack response from agent request
