@@ -372,7 +372,7 @@ export default function GatewayScreen({
   if (phase === "error") {
     return (
       <div style={panelStyle as React.CSSProperties}>
-        <PanelHeader icon="\u26A0" title="CONNECTION FAILED" />
+        <PanelHeader icon="⚠️" title="CONNECTION FAILED" />
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div
             style={{

@@ -267,6 +267,9 @@ export default class GatewayClient {
       }
       entry.resolve(payload);
     } else {
+      if (entry.method === "connect") {
+        this.#intentionalClose = true;
+      }
       entry.reject(new Error(error?.message || "Request failed"));
     }
   }

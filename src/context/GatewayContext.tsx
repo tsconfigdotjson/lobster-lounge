@@ -178,6 +178,10 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
 
   // Stable event handler — reads from refs, no stale closures
   const handleEvent = useCallback((event: string, payload: GatewayPayload) => {
+    if (event === "error") {
+      setConnectionError(String(payload?.message || "Connection error"));
+      return;
+    }
     if (event === "agent") {
       const agentPayload = payload as AgentEventPayload;
       // Extract agent ID from sessionKey (format: "agent:{id}:{sub}")
