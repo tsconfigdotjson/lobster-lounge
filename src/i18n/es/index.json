@@ -1,1 +1,138 @@
-{}
+{
+  "chat": {
+    "clear": "BORRAR",
+    "clearTooltip": "Borrar historial de chat",
+    "emptyState": "Enviar un mensaje a {{agentId}}",
+    "emptyStateHint": "Prueba: \"Informe de estado\" o \"¿Qué encontraste?\"",
+    "newSession": "NUEVO",
+    "newSessionTooltip": "Iniciar una nueva sesión con este agente",
+    "placeholder": "Mensaje a {{agentId}}...",
+    "send": "ENVIAR"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "Autenticando identidad del dispositivo...",
+        "label": "Emparejamiento de dispositivo"
+      },
+      "discover": {
+        "desc": "Escaneando la red local del arrecife...",
+        "label": "Descubriendo puerta de enlace"
+      },
+      "handshake": {
+        "desc": "Estableciendo protocolo seguro de pinza...",
+        "label": "Apretón de pinza"
+      },
+      "ready": {
+        "desc": "Todos los sistemas nominales. Bienvenido al arrecife.",
+        "label": "Puerta de enlace conectada"
+      },
+      "sync": {
+        "desc": "Descargando mapas actuales y lista de agentes...",
+        "label": "Sincronizando datos de marea"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "AGENTE DESPLEGADO",
+    "agentDesignation": "DESIGNACIÓN DEL AGENTE",
+    "cancel": "CANCELAR",
+    "cancelWithIcon": "✕ CANCELAR",
+    "confirmDeploy": "🦞 CONFIRMAR Y DESPLEGAR",
+    "deployFailed": "El despliegue ha fallado",
+    "deploying": "⏳ DESPLEGANDO...",
+    "deploymentSpecs": "ESPECIFICACIONES DE DESPLIEGUE",
+    "editBack": "← EDITAR",
+    "fillInName": "Escribe un nombre",
+    "joinedPod": "se ha unido al van",
+    "nameLabel": "NOMBRE",
+    "namePlaceholder": "por ejemplo, CLAWZ, REEF, CORAL...",
+    "newBadge": "NUEVO",
+    "previewNext": "VISTA PREVIA DEL AGENTE →",
+    "previewTitle": "VISTA PREVIA DEL AGENTE",
+    "save": "GUARDAR",
+    "saving": "⏳ GUARDANDO...",
+    "shellColor": "COLOR DE CONCHA",
+    "spawnAnother": "GENERAR OTRO",
+    "spawnNewTitle": "GENERAR NUEVO AGENTE",
+    "specBootTime": "Tiempo de Arranque Est.",
+    "specBootTimeValue": "~3.2s",
+    "specDesignation": "Designación",
+    "specMode": "Modo",
+    "specModeValue": "Autónomo",
+    "specPodAssignment": "Asignación de Van",
+    "specPodAssignmentValue": "Por Defecto",
+    "specShellColor": "Color de Concha",
+    "updateFailed": "Actualización fallida"
+  },
+  "dashboard": {
+    "agentChat": "CHAT DEL AGENTE",
+    "chatButton": "CHAT",
+    "contractTooltip": "Contraer",
+    "current": {
+      "medium": "MEDIA",
+      "strong": "FUERTE",
+      "weak": "DÉBIL"
+    },
+    "currentLabel": "CORRIENTE",
+    "disconnect": "DESCONECTAR",
+    "editAgentTitle": "EDITAR AGENTE",
+    "editButton": "✎ EDITAR",
+    "expandTooltip": "Expandir",
+    "hudTitle": "HUD",
+    "missionLabel": "MISIÓN",
+    "missionValue": "OPS EN EL MAR PROFUNDO",
+    "podLabel": "VAN",
+    "podRosterTitle": "LISTA DE VAN",
+    "podValue": "{{count}} ACTIVO",
+    "skillsTitle": "HABILIDADES",
+    "spawnAgent": "+ GENERAR AGENTE",
+    "spawnAgentTitle": "GENERAR AGENTE",
+    "tideLogTitle": "REGISTRO DE MAREA",
+    "timeLabel": "HORA",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "CONECTAR",
+    "connectingTitle": "CONECTANDO...",
+    "connectionFailedDefault": "No se puede conectar a la puerta de enlace.",
+    "connectionFailedTitle": "CONEXIÓN FALLIDA",
+    "devicePaired": "DISPOSITIVO EMPAREJADO",
+    "devicePairedDesc": "El dispositivo {{deviceId}} tiene un token almacenado para esta puerta de enlace",
+    "loginDescription": "Conéctate a una puerta de enlace OpenClaw. Tu dispositivo se emparejará automáticamente.",
+    "loginTitle": "INICIO DE SESIÓN EN PUERTA DE ENLACE",
+    "newDevice": "NUEVO DISPOSITIVO",
+    "newDeviceDesc": "Dispositivo {{deviceId}} — se requiere token de puerta de enlace para el primer emparejamiento",
+    "pairingDescription": "Este dispositivo necesita ser aprobado por un operador existente. Ejecuta <code>openclaw devices approve</code> o pide a un operador que revise sus solicitudes de emparejamiento.",
+    "pairingInProgress": "Emparejamiento en curso",
+    "pairingWaiting": "Esperando aprobación del operador...",
+    "recent": "RECIENTE",
+    "recentConnections": "CONEXIONES RECIENTES",
+    "retryConnection": "REINTENTAR CONEXIÓN",
+    "tokenLabel": "TOKEN DE PUERTA DE ENLACE",
+    "tokenPlaceholder": "Pega el token de puerta de enlace para emparejar este dispositivo",
+    "tryAgain": "INTENTAR DE NUEVO",
+    "urlLabel": "URL DE PUERTA DE ENLACE"
+  },
+  "skills": {
+    "noAvailable": "No hay habilidades disponibles",
+    "noMatching": "No hay habilidades coincidentes",
+    "on": "ACTIVADO",
+    "searchPlaceholder": "Buscar habilidades..."
+  },
+  "tools": {
+    "applyPatch": "Aplicar Parche",
+    "browser": "Navegador",
+    "completed": "Completado",
+    "editFile": "Editar Archivo",
+    "fallback": "Llamada de Herramienta",
+    "fetchUrl": "Obtener URL",
+    "findFiles": "Buscar Archivos",
+    "readFile": "Leer Archivo",
+    "runCommand": "Ejecutar Comando",
+    "searchCode": "Buscar Código",
+    "subAgent": "Sub-Agente",
+    "webSearch": "Buscar en la Web",
+    "writeFile": "Escribir Archivo"
+  }
+}

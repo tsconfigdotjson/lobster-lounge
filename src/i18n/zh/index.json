@@ -1,1 +1,138 @@
-{}
+{
+  "chat": {
+    "clear": "清除",
+    "clearTooltip": "清除聊天记录",
+    "emptyState": "向{{agentId}}发送消息",
+    "emptyStateHint": "尝试: \"状态报告\" 或 \"你发现了什么？\"",
+    "newSession": "新建",
+    "newSessionTooltip": "与此代理开始新会话",
+    "placeholder": "消息{{agentId}}...",
+    "send": "发送"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "正在验证设备身份...",
+        "label": "设备配对"
+      },
+      "discover": {
+        "desc": "正在扫描局域网珊瑚礁...",
+        "label": "发现网关"
+      },
+      "handshake": {
+        "desc": "建立安全的捏协议...",
+        "label": "爪握手"
+      },
+      "ready": {
+        "desc": "所有系统正常。欢迎来到珊瑚礁。",
+        "label": "网关已连接"
+      },
+      "sync": {
+        "desc": "下载当前地图和代理人员名单...",
+        "label": "同步潮汐数据"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "代理已部署",
+    "agentDesignation": "代理命名",
+    "cancel": "取消",
+    "cancelWithIcon": "✕ 取消",
+    "confirmDeploy": "🦞 确认并部署",
+    "deployFailed": "部署失败",
+    "deploying": "⏳ 部署中...",
+    "deploymentSpecs": "部署规格",
+    "editBack": "← 编辑",
+    "fillInName": "请输入名称",
+    "joinedPod": "已加入模块",
+    "nameLabel": "名称",
+    "namePlaceholder": "例如 CLAWZ, REEF, CORAL...",
+    "newBadge": "新",
+    "previewNext": "预览代理 →",
+    "previewTitle": "预览代理",
+    "save": "保存",
+    "saving": "⏳ 保存中...",
+    "shellColor": "壳颜色",
+    "spawnAnother": "生成另一个",
+    "spawnNewTitle": "生成新代理",
+    "specBootTime": "预估启动时间",
+    "specBootTimeValue": "~3.2秒",
+    "specDesignation": "命名",
+    "specMode": "模式",
+    "specModeValue": "自动",
+    "specPodAssignment": "模块分配",
+    "specPodAssignmentValue": "默认",
+    "specShellColor": "壳颜色",
+    "updateFailed": "更新失败"
+  },
+  "dashboard": {
+    "agentChat": "代理聊天",
+    "chatButton": "聊天",
+    "contractTooltip": "收缩",
+    "current": {
+      "medium": "中",
+      "strong": "强",
+      "weak": "弱"
+    },
+    "currentLabel": "电流",
+    "disconnect": "断开连接",
+    "editAgentTitle": "编辑代理",
+    "editButton": "✎ 编辑",
+    "expandTooltip": "展开",
+    "hudTitle": "显示器",
+    "missionLabel": "任务",
+    "missionValue": "深海行动",
+    "podLabel": "模块",
+    "podRosterTitle": "模块清单",
+    "podValue": "{{count}} 活跃",
+    "skillsTitle": "技能",
+    "spawnAgent": "+ 生成代理",
+    "spawnAgentTitle": "生成代理",
+    "tideLogTitle": "潮汐日志",
+    "timeLabel": "时间",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "连接",
+    "connectingTitle": "连接中...",
+    "connectionFailedDefault": "无法连接到网关。",
+    "connectionFailedTitle": "连接失败",
+    "devicePaired": "设备已配对",
+    "devicePairedDesc": "设备{{deviceId}}已存储此网关的令牌",
+    "loginDescription": "连接到一个OpenClaw网关。您的设备将自动配对。",
+    "loginTitle": "网关登录",
+    "newDevice": "新设备",
+    "newDeviceDesc": "设备{{deviceId}} — 首次配对需要网关令牌",
+    "pairingDescription": "此设备需要现有操作员的批准。运行<code>openclaw devices approve</code>或请操作员查看他们的配对请求。",
+    "pairingInProgress": "配对进行中",
+    "pairingWaiting": "等待操作员批准...",
+    "recent": "最近",
+    "recentConnections": "最近连接",
+    "retryConnection": "重试连接",
+    "tokenLabel": "网关令牌",
+    "tokenPlaceholder": "粘贴网关令牌以配对此设备",
+    "tryAgain": "重试",
+    "urlLabel": "网关URL"
+  },
+  "skills": {
+    "noAvailable": "没有可用的技能",
+    "noMatching": "没有匹配的技能",
+    "on": "开",
+    "searchPlaceholder": "搜索技能..."
+  },
+  "tools": {
+    "applyPatch": "应用补丁",
+    "browser": "浏览器",
+    "completed": "完成",
+    "editFile": "编辑文件",
+    "fallback": "工具调用",
+    "fetchUrl": "获取URL",
+    "findFiles": "查找文件",
+    "readFile": "读取文件",
+    "runCommand": "运行命令",
+    "searchCode": "搜索代码",
+    "subAgent": "子代理",
+    "webSearch": "网络搜索",
+    "writeFile": "写入文件"
+  }
+}

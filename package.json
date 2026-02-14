@@ -25,7 +25,6 @@
     "translate": "bun run scripts/translate.ts"
   },
   "dependencies": {
-    "country-flag-icons": "^1.6.13",
     "i18next": "^25.8.7",
     "marked": "^17.0.2",
     "react": "^19.2.0",

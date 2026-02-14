@@ -1,1 +1,138 @@
-{}
+{
+  "chat": {
+    "clear": "BERSIHKAN",
+    "clearTooltip": "Bersihkan riwayat obrolan",
+    "emptyState": "Kirim pesan ke {{agentId}}",
+    "emptyStateHint": "Coba: \"Laporan status\" atau \"Apa yang Anda temukan?\"",
+    "newSession": "BARU",
+    "newSessionTooltip": "Mulai sesi baru dengan agen ini",
+    "placeholder": "Pesan {{agentId}}...",
+    "send": "KIRIM"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "Mengotentikasi identitas perangkat...",
+        "label": "Pemasangan perangkat"
+      },
+      "discover": {
+        "desc": "Memindai jaringan karang lokal...",
+        "label": "Menemukan gateway"
+      },
+      "handshake": {
+        "desc": "Membangun protokol cubitan aman...",
+        "label": "Jabat cakar"
+      },
+      "ready": {
+        "desc": "Semua sistem normal. Selamat datang di karang.",
+        "label": "Gateway terhubung"
+      },
+      "sync": {
+        "desc": "Mengunduh peta saat ini dan daftar agen...",
+        "label": "Sinkronisasi data pasang surut"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "AGEN DIMOBILISASI",
+    "agentDesignation": "PENUNJUKAN AGEN",
+    "cancel": "BATALKAN",
+    "cancelWithIcon": "✕ BATALKAN",
+    "confirmDeploy": "🦞 KONFIRMASI DAN MOBILISASI",
+    "deployFailed": "Mobilisasi gagal",
+    "deploying": "⏳ MEMOBILISASI...",
+    "deploymentSpecs": "SPESIFIKASI PENEMPATAN",
+    "editBack": "← EDIT",
+    "fillInName": "Isi nama",
+    "joinedPod": "telah bergabung dengan kelompok",
+    "nameLabel": "NAMA",
+    "namePlaceholder": "contoh: CLAWZ, REEF, CORAL...",
+    "newBadge": "BARU",
+    "previewNext": "PRATINJAU AGEN →",
+    "previewTitle": "PRATINJAU AGEN",
+    "save": "SIMPAN",
+    "saving": "⏳ MENYIMPAN...",
+    "shellColor": "WARNA CANGKANG",
+    "spawnAnother": "WUJUDKAN LAINNYA",
+    "spawnNewTitle": "WUJUDKAN AGEN BARU",
+    "specBootTime": "Perkiraan Waktu Boot",
+    "specBootTimeValue": "~3.2s",
+    "specDesignation": "Penunjukan",
+    "specMode": "Mode",
+    "specModeValue": "Otonom",
+    "specPodAssignment": "Penugasan Kelompok",
+    "specPodAssignmentValue": "Default",
+    "specShellColor": "Warna Cangkang",
+    "updateFailed": "Pembaruan gagal"
+  },
+  "dashboard": {
+    "agentChat": "OBROLAN AGEN",
+    "chatButton": "OBROLAN",
+    "contractTooltip": "Persempit",
+    "current": {
+      "medium": "SEDANG",
+      "strong": "KUAT",
+      "weak": "LEMAH"
+    },
+    "currentLabel": "ARUS",
+    "disconnect": "PUTUSKAN",
+    "editAgentTitle": "EDIT AGEN",
+    "editButton": "✎ EDIT",
+    "expandTooltip": "Perluas",
+    "hudTitle": "LAYAR",
+    "missionLabel": "MISIL",
+    "missionValue": "OPERASI LAUT DALAM",
+    "podLabel": "KUMPULAN",
+    "podRosterTitle": "DAFTAR KUMPULAN",
+    "podValue": "{{count}} AKTIF",
+    "skillsTitle": "KETERAMPILAN",
+    "spawnAgent": "+ WUJUDKAN AGEN",
+    "spawnAgentTitle": "WUJUDKAN AGEN",
+    "tideLogTitle": "CATATAN PASANG SURUT",
+    "timeLabel": "WAKTU",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "HUBUNGKAN",
+    "connectingTitle": "MENGHUBUNGKAN...",
+    "connectionFailedDefault": "Tidak dapat terhubung ke gateway.",
+    "connectionFailedTitle": "KONEKSI GAGAL",
+    "devicePaired": "PERANGKAT TERPASANG",
+    "devicePairedDesc": "Perangkat {{deviceId}} memiliki token tersimpan untuk gateway ini",
+    "loginDescription": "Sambungkan ke OpenClaw Gateway. Perangkat Anda akan dipasangkan secara otomatis.",
+    "loginTitle": "LOGIN GATEWAY",
+    "newDevice": "PERANGKAT BARU",
+    "newDeviceDesc": "Perangkat {{deviceId}} — token gateway diperlukan untuk pemasangan pertama",
+    "pairingDescription": "Perangkat ini perlu disetujui oleh operator yang ada. Jalankan <code>openclaw devices approve</code> atau minta operator untuk memeriksa permintaan pemasangan mereka.",
+    "pairingInProgress": "Pemasangan dalam proses",
+    "pairingWaiting": "Menunggu persetujuan operator...",
+    "recent": "TERKINI",
+    "recentConnections": "KONEKSI TERKINI",
+    "retryConnection": "ULANGI KONEKSI",
+    "tokenLabel": "TOKEN GATEWAY",
+    "tokenPlaceholder": "Tempel token gateway untuk memasangkan perangkat ini",
+    "tryAgain": "COBA LAGI",
+    "urlLabel": "URL GATEWAY"
+  },
+  "skills": {
+    "noAvailable": "Tidak ada keterampilan tersedia",
+    "noMatching": "Tidak ada keterampilan yang cocok",
+    "on": "NYALA",
+    "searchPlaceholder": "Cari keterampilan..."
+  },
+  "tools": {
+    "applyPatch": "Terapkan Patch",
+    "browser": "Peramban",
+    "completed": "Selesai",
+    "editFile": "Edit File",
+    "fallback": "Pemanggilan Alat",
+    "fetchUrl": "Ambil URL",
+    "findFiles": "Cari File",
+    "readFile": "Baca File",
+    "runCommand": "Jalankan Perintah",
+    "searchCode": "Cari Kode",
+    "subAgent": "Sub-Agen",
+    "webSearch": "Pencarian Web",
+    "writeFile": "Tulis File"
+  }
+}

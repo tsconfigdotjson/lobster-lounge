@@ -1,1 +1,138 @@
-{}
+{
+  "chat": {
+    "clear": "صاف کریں",
+    "clearTooltip": "چیٹ کی تاریخ صاف کریں",
+    "emptyState": "{{agentId}} کو پیغام بھیجیں",
+    "emptyStateHint": "آزمائیں: \"اسٹیٹس رپورٹ\" یا \"کیا دریافت کیا؟\"",
+    "newSession": "نیا",
+    "newSessionTooltip": "اس ایجنٹ کے ساتھ نیا سیشن شروع کریں",
+    "placeholder": "{{agentId}} کو پیغام...",
+    "send": "بھیجیں"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "آلہ کی شناخت کی توثیق کر رہا ہے...",
+        "label": "آلہ جوڑنا"
+      },
+      "discover": {
+        "desc": "مقامی ریف نیٹ ورک کا اسکین کر رہا ہے...",
+        "label": "گیٹ وے دریافت کرنا"
+      },
+      "handshake": {
+        "desc": "محفوظ پنچ پروٹوکول قائم کیا جا رہا ہے...",
+        "label": "کلیو مصافحہ"
+      },
+      "ready": {
+        "desc": "تمام سسٹمز معمول پر ہیں۔ ریف میں خوش آمدید۔",
+        "label": "گیٹ وے مربوط"
+      },
+      "sync": {
+        "desc": "موجودہ نقشے اور ایجنٹ کی فہرست ڈاؤن لوڈ کر رہا ہے...",
+        "label": "ٹائڈ ڈیٹا کو ہم آہنگ کرنا"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "ایجنٹ تعینات",
+    "agentDesignation": "ایجنٹ کی نامزدگی",
+    "cancel": "منسوخ کریں",
+    "cancelWithIcon": "✕ منسوخ کریں",
+    "confirmDeploy": "🦞 تصدیق کریں اور تعینات کریں",
+    "deployFailed": "تعیناتی ناکام",
+    "deploying": "⏳ تعینات کر رہا ہے...",
+    "deploymentSpecs": "تعیناتی کی تفصیلات",
+    "editBack": "← ترمیم کریں",
+    "fillInName": "ایک نام درج کریں",
+    "joinedPod": "پوڈ میں شامل ہوا ہے",
+    "nameLabel": "نام",
+    "namePlaceholder": "مثلاً کلاز، ریف، کورل...",
+    "newBadge": "نیا",
+    "previewNext": "ایجنٹ کا پیش نظارہ →",
+    "previewTitle": "ایجنٹ کا پیش نظارہ",
+    "save": "محفوظ کریں",
+    "saving": "⏳ محفوظ کر رہا ہے...",
+    "shellColor": "شیل رنگ",
+    "spawnAnother": "ایک اور پیدا کریں",
+    "spawnNewTitle": "نیا ایجنٹ پیدا کریں",
+    "specBootTime": "تخمینہ بوٹ وقت",
+    "specBootTimeValue": "~3.2 سیکنڈ",
+    "specDesignation": "نامزدگی",
+    "specMode": "موڈ",
+    "specModeValue": "خود مختار",
+    "specPodAssignment": "پوڈ اسائنمنٹ",
+    "specPodAssignmentValue": "ڈیفالٹ",
+    "specShellColor": "شیل رنگ",
+    "updateFailed": "اپ ڈیٹ ناکام ہوا"
+  },
+  "dashboard": {
+    "agentChat": "ایجنٹ چیٹ",
+    "chatButton": "چیٹ",
+    "contractTooltip": "معاہدہ",
+    "current": {
+      "medium": "درمیانہ",
+      "strong": "مضبوط",
+      "weak": "کمزور"
+    },
+    "currentLabel": "موجودہ",
+    "disconnect": "منقطع کریں",
+    "editAgentTitle": "ایجنٹ میں ترمیم کریں",
+    "editButton": "✎ ترمیم کریں",
+    "expandTooltip": "توسیع",
+    "hudTitle": "ایچ یو ڈی",
+    "missionLabel": "مشن",
+    "missionValue": "ڈیپ سی آپس",
+    "podLabel": "پوڈ",
+    "podRosterTitle": "پوڈ فہرست",
+    "podValue": "{{count}} فعال",
+    "skillsTitle": "مہارتیں",
+    "spawnAgent": "+ ایجنٹ پیدا کریں",
+    "spawnAgentTitle": "ایجنٹ پیدا کریں",
+    "tideLogTitle": "ٹائڈ لاگ",
+    "timeLabel": "وقت",
+    "timeValue": "{{time}} یو ٹی سی"
+  },
+  "gateway": {
+    "connect": "جڑیں",
+    "connectingTitle": "مربوط ہو رہا ہے...",
+    "connectionFailedDefault": "گیٹ وے سے جڑنے میں ناکامی۔",
+    "connectionFailedTitle": "کنکشن ناکام",
+    "devicePaired": "آلہ جوڑا گیا",
+    "devicePairedDesc": "آلہ {{deviceId}} کے پاس اس گیٹ وے کے لیے ایک ذخیرہ شدہ ٹوکن ہے",
+    "loginDescription": "ایک اوپن کلا گیٹ وے سے جڑیں۔ آپ کے آلے کو خود بخود جوڑ دیا جائے گا۔",
+    "loginTitle": "گیٹ وے لاگ ان",
+    "newDevice": "نیا آلہ",
+    "newDeviceDesc": "آلہ {{deviceId}} — پہلی بار جوڑنے کے لیے گیٹ وے ٹوکن درکار ہے",
+    "pairingDescription": "اس آلے کو موجودہ آپریٹر کی طرف سے منظور کرنے کی ضرورت ہے۔ <code>openclaw devices approve</code> چلائیں یا کسی آپریٹر سے کہیں کہ وہ ان کی جوڑنے کی درخواستیں چیک کریں۔",
+    "pairingInProgress": "جوڑنے کی کاروائی جاری ہے",
+    "pairingWaiting": "آپریٹر کی منظوری کے انتظار میں...",
+    "recent": "حالیہ",
+    "recentConnections": "حالیہ کنکشنز",
+    "retryConnection": "کنکشن دوبارہ کوشش کریں",
+    "tokenLabel": "گیٹ وے ٹوکن",
+    "tokenPlaceholder": "اس آلے کو جوڑنے کے لیے گیٹ وے ٹوکن چسپاں کریں",
+    "tryAgain": "دوبارہ کوشش کریں",
+    "urlLabel": "گیٹ وے یو آر ایل"
+  },
+  "skills": {
+    "noAvailable": "کوئی مہارت دستیاب نہیں",
+    "noMatching": "کوئی مطابقتی مہارتیں نہیں",
+    "on": "آن",
+    "searchPlaceholder": "مہارتیں تلاش کریں..."
+  },
+  "tools": {
+    "applyPatch": "پیچ لاگو کریں",
+    "browser": "براؤزر",
+    "completed": "مکمل ہوا",
+    "editFile": "فائل میں ترمیم کریں",
+    "fallback": "ٹول کال",
+    "fetchUrl": "یو آر ایل لائیں",
+    "findFiles": "فائلیں تلاش کریں",
+    "readFile": "فائل پڑھیں",
+    "runCommand": "کمانڈ چلائیں",
+    "searchCode": "کوڈ تلاش کریں",
+    "subAgent": "سب ایجنٹ",
+    "webSearch": "ویب تلاش",
+    "writeFile": "فائل لکھیں"
+  }
+}

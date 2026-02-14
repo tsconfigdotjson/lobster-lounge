@@ -1,1 +1,138 @@
-{}
+{
+  "chat": {
+    "clear": "지우기",
+    "clearTooltip": "채팅 기록 지우기",
+    "emptyState": "{{agentId}}에게 메시지를 보내세요",
+    "emptyStateHint": "\"상태 보고\" 또는 \"무엇을 발견했나요?\"를 시도하세요",
+    "newSession": "새로 만들기",
+    "newSessionTooltip": "이 에이전트와 새로운 세션 시작",
+    "placeholder": "{{agentId}}에게 메시지...",
+    "send": "보내기"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "기기 신원 인증 중...",
+        "label": "기기 페어링"
+      },
+      "discover": {
+        "desc": "지역 리프 네트워크 스캔 중...",
+        "label": "게이트웨이 검색 중"
+      },
+      "handshake": {
+        "desc": "보안 핀치 프로토콜 설정 중...",
+        "label": "클로 핸드셰이크"
+      },
+      "ready": {
+        "desc": "모든 시스템 정상. 리프에 오신 것을 환영합니다.",
+        "label": "게이트웨이 연결됨"
+      },
+      "sync": {
+        "desc": "현재 지도 및 에이전트 명단 다운로드 중...",
+        "label": "조수 데이터 동기화 중"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "에이전트 배치됨",
+    "agentDesignation": "에이전트 명칭",
+    "cancel": "취소",
+    "cancelWithIcon": "✕ 취소",
+    "confirmDeploy": "🦞 확인하고 배치",
+    "deployFailed": "배치 실패",
+    "deploying": "⏳ 배치 중...",
+    "deploymentSpecs": "배치 사양",
+    "editBack": "← 편집",
+    "fillInName": "이름을 입력하세요",
+    "joinedPod": "포드에 합류했습니다",
+    "nameLabel": "이름",
+    "namePlaceholder": "예: CLAWZ, REEF, CORAL...",
+    "newBadge": "새로움",
+    "previewNext": "에이전트 미리보기 →",
+    "previewTitle": "에이전트 미리보기",
+    "save": "저장",
+    "saving": "⏳ 저장 중...",
+    "shellColor": "껍질 색상",
+    "spawnAnother": "다른 에이전트 생성",
+    "spawnNewTitle": "새 에이전트 생성",
+    "specBootTime": "예상 부팅 시간",
+    "specBootTimeValue": "~3.2초",
+    "specDesignation": "명칭",
+    "specMode": "모드",
+    "specModeValue": "자율",
+    "specPodAssignment": "포드 할당",
+    "specPodAssignmentValue": "기본값",
+    "specShellColor": "껍질 색상",
+    "updateFailed": "업데이트 실패"
+  },
+  "dashboard": {
+    "agentChat": "에이전트 채팅",
+    "chatButton": "채팅",
+    "contractTooltip": "축소",
+    "current": {
+      "medium": "중간",
+      "strong": "강함",
+      "weak": "약함"
+    },
+    "currentLabel": "현재",
+    "disconnect": "연결 해제",
+    "editAgentTitle": "에이전트 편집",
+    "editButton": "✎ 편집",
+    "expandTooltip": "확장",
+    "hudTitle": "HUD",
+    "missionLabel": "미션",
+    "missionValue": "심해 작업",
+    "podLabel": "포드",
+    "podRosterTitle": "포드 명단",
+    "podValue": "{{count}} 활성화됨",
+    "skillsTitle": "기술",
+    "spawnAgent": "+ 에이전트 생성",
+    "spawnAgentTitle": "에이전트 생성",
+    "tideLogTitle": "조수 기록",
+    "timeLabel": "시간",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "연결",
+    "connectingTitle": "연결 중...",
+    "connectionFailedDefault": "게이트웨이에 연결할 수 없습니다.",
+    "connectionFailedTitle": "연결 실패",
+    "devicePaired": "기기 페어링됨",
+    "devicePairedDesc": "기기 {{deviceId}}에 이 게이트웨이의 저장된 토큰이 있습니다.",
+    "loginDescription": "OpenClaw 게이트웨이에 연결하십시오. 기기가 자동으로 페어링됩니다.",
+    "loginTitle": "게이트웨이 로그인",
+    "newDevice": "새 기기",
+    "newDeviceDesc": "기기 {{deviceId}} — 초기 페어링을 위한 게이트웨이 토큰이 필요합니다.",
+    "pairingDescription": "이 기기는 기존 운영자의 승인이 필요합니다. <code>openclaw devices approve</code>를 실행하거나 운영자에게 페어링 요청을 확인하도록 요청하십시오.",
+    "pairingInProgress": "페어링 진행 중",
+    "pairingWaiting": "운영자 승인 대기 중...",
+    "recent": "최근",
+    "recentConnections": "최근 연결",
+    "retryConnection": "연결 재시도",
+    "tokenLabel": "게이트웨이 토큰",
+    "tokenPlaceholder": "이 기기를 페어링하려면 게이트웨이 토큰을 붙여넣으세요",
+    "tryAgain": "다시 시도",
+    "urlLabel": "게이트웨이 URL"
+  },
+  "skills": {
+    "noAvailable": "사용 가능한 기술 없음",
+    "noMatching": "일치하는 기술 없음",
+    "on": "켜짐",
+    "searchPlaceholder": "기술 검색..."
+  },
+  "tools": {
+    "applyPatch": "패치 적용",
+    "browser": "브라우저",
+    "completed": "완료됨",
+    "editFile": "파일 편집",
+    "fallback": "도구 호출",
+    "fetchUrl": "URL 가져오기",
+    "findFiles": "파일 찾기",
+    "readFile": "파일 읽기",
+    "runCommand": "명령 실행",
+    "searchCode": "코드 검색",
+    "subAgent": "하위 에이전트",
+    "webSearch": "웹 검색",
+    "writeFile": "파일 쓰기"
+  }
+}

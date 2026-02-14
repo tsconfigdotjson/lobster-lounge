@@ -1,1 +1,138 @@
-{}
+{
+  "chat": {
+    "clear": "XÓA",
+    "clearTooltip": "Xóa lịch sử trò chuyện",
+    "emptyState": "Gửi tin nhắn đến {{agentId}}",
+    "emptyStateHint": "Thử: \"Báo cáo tình hình\" hoặc \"Bạn tìm thấy gì?\"",
+    "newSession": "MỚI",
+    "newSessionTooltip": "Bắt đầu một phiên làm việc mới với tác nhân này",
+    "placeholder": "Tin nhắn {{agentId}}...",
+    "send": "GỬI"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "Xác thực danh tính thiết bị...",
+        "label": "Ghép nối thiết bị"
+      },
+      "discover": {
+        "desc": "Quét mạng rạn san hô địa phương...",
+        "label": "Khám phá cổng"
+      },
+      "handshake": {
+        "desc": "Thiết lập giao thức bảo mật chụp...",
+        "label": "Bắt tay vuốt"
+      },
+      "ready": {
+        "desc": "Tất cả hệ thống bình thường. Chào mừng đến với rạn san hô.",
+        "label": "Kết nối cổng"
+      },
+      "sync": {
+        "desc": "Tải xuống bản đồ hiện tại và danh sách tác nhân...",
+        "label": "Đồng bộ dữ liệu thủy triều"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "TÁC NHÂN ĐƯỢC TRIỂN KHAI",
+    "agentDesignation": "ĐỊNH DANH TÁC NHÂN",
+    "cancel": "HỦY",
+    "cancelWithIcon": "✕ HỦY",
+    "confirmDeploy": "🦞 XÁC NHẬN VÀ TRIỂN KHAI",
+    "deployFailed": "Triển khai thất bại",
+    "deploying": "⏳ ĐANG TRIỂN KHAI...",
+    "deploymentSpecs": "THÔNG SỐ TRIỂN KHAI",
+    "editBack": "← CHỈNH SỬA",
+    "fillInName": "Điền tên",
+    "joinedPod": "đã tham gia pod",
+    "nameLabel": "TÊN",
+    "namePlaceholder": "ví dụ: CLAWZ, REEF, CORAL...",
+    "newBadge": "MỚI",
+    "previewNext": "XEM TRƯỚC TÁC NHÂN →",
+    "previewTitle": "XEM TRƯỚC TÁC NHÂN",
+    "save": "LƯU",
+    "saving": "⏳ ĐANG LƯU...",
+    "shellColor": "MÀU VỎ",
+    "spawnAnother": "TẠO TÁC NHÂN KHÁC",
+    "spawnNewTitle": "TẠO TÁC NHÂN MỚI",
+    "specBootTime": "Thời gian khởi động dự kiến",
+    "specBootTimeValue": "~3.2s",
+    "specDesignation": "Định danh",
+    "specMode": "Chế độ",
+    "specModeValue": "Tự trị",
+    "specPodAssignment": "Gán pod",
+    "specPodAssignmentValue": "Mặc định",
+    "specShellColor": "Màu vỏ",
+    "updateFailed": "Cập nhật thất bại"
+  },
+  "dashboard": {
+    "agentChat": "TRÒ CHUYỆN TÁC NHÂN",
+    "chatButton": "TRÒ CHUYỆN",
+    "contractTooltip": "Thu nhỏ",
+    "current": {
+      "medium": "TRUNG BÌNH",
+      "strong": "MẠNH",
+      "weak": "YẾU"
+    },
+    "currentLabel": "DÒNG CHẢY",
+    "disconnect": "NGẮT KẾT NỐI",
+    "editAgentTitle": "CHỈNH SỬA TÁC NHÂN",
+    "editButton": "✎ CHỈNH SỬA",
+    "expandTooltip": "Mở rộng",
+    "hudTitle": "HUD",
+    "missionLabel": "NHIỆM VỤ",
+    "missionValue": "TPS BIỂN SÂU",
+    "podLabel": "POD",
+    "podRosterTitle": "DANH SÁCH POD",
+    "podValue": "{{count}} ĐANG HOẠT ĐỘNG",
+    "skillsTitle": "KỸ NĂNG",
+    "spawnAgent": "+ TRÌNH SINH TẠO TÁC NHÂN",
+    "spawnAgentTitle": "TẠO TÁC NHÂN",
+    "tideLogTitle": "NHẬT KÝ THỦY TRIỀU",
+    "timeLabel": "THỜI GIAN",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "KẾT NỐI",
+    "connectingTitle": "ĐANG KẾT NỐI...",
+    "connectionFailedDefault": "Không thể kết nối đến cổng.",
+    "connectionFailedTitle": "KẾT NỐI THẤT BẠI",
+    "devicePaired": "THIẾT BỊ ĐÃ GHÉP NỐI",
+    "devicePairedDesc": "Thiết bị {{deviceId}} có một mã thông báo lưu trữ cho cổng này",
+    "loginDescription": "Kết nối với OpenClaw Gateway. Thiết bị của bạn sẽ được ghép nối tự động.",
+    "loginTitle": "ĐĂNG NHẬP CỔNG",
+    "newDevice": "THIẾT BỊ MỚI",
+    "newDeviceDesc": "Thiết bị {{deviceId}} — mã thông báo cổng yêu cầu cho lần ghép nối đầu tiên",
+    "pairingDescription": "Thiết bị này cần được phê duyệt bởi một người điều hành hiện tại. Chạy <code>openclaw devices approve</code> hoặc yêu cầu người điều hành kiểm tra yêu cầu ghép nối của họ.",
+    "pairingInProgress": "Đang thực hiện ghép nối",
+    "pairingWaiting": "Đang chờ phê duyệt từ người điều hành...",
+    "recent": "GẦN ĐÂY",
+    "recentConnections": "KẾT NỐI GẦN ĐÂY",
+    "retryConnection": "THỬ LẠI KẾT NỐI",
+    "tokenLabel": "MÃ THÔNG BÁO CỔNG",
+    "tokenPlaceholder": "Dán mã thông báo cổng để ghép nối thiết bị này",
+    "tryAgain": "THỬ LẠI",
+    "urlLabel": "URL CỔNG"
+  },
+  "skills": {
+    "noAvailable": "Không có kỹ năng nào có sẵn",
+    "noMatching": "Không có kỹ năng phù hợp",
+    "on": "BẬT",
+    "searchPlaceholder": "Tìm kiếm kỹ năng..."
+  },
+  "tools": {
+    "applyPatch": "Áp dụng bản vá",
+    "browser": "Trình duyệt",
+    "completed": "Hoàn thành",
+    "editFile": "Chỉnh sửa tệp",
+    "fallback": "Gọi công cụ",
+    "fetchUrl": "Lấy URL",
+    "findFiles": "Tìm tệp",
+    "readFile": "Đọc tệp",
+    "runCommand": "Chạy lệnh",
+    "searchCode": "Tìm kiếm mã",
+    "subAgent": "Tác nhân phụ",
+    "webSearch": "Tìm kiếm web",
+    "writeFile": "Ghi tệp"
+  }
+}
