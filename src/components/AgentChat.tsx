@@ -128,8 +128,12 @@ export default function AgentChat({
   // Auto-scroll on new messages / streaming updates
   const msgCount = msgs.length;
   const lastMsg = msgs[msgCount - 1];
+  const lastTextLen = lastMsg?.blocks.reduce(
+    (n, b) => n + (b.type === "text" ? b.text.length : 0),
+    0,
+  );
   const scrollKey = lastMsg?.streaming
-    ? `${msgCount}-${lastMsg.blocks.length}`
+    ? `${msgCount}-${lastMsg.blocks.length}-${lastTextLen}`
     : `${msgCount}`;
   // biome-ignore lint/correctness/useExhaustiveDependencies: scrollKey intentionally triggers scroll on content changes
   useEffect(() => {
@@ -380,9 +384,18 @@ export default function AgentChat({
                         background: C.chatAgent,
                         border: `1px solid ${active.color}18`,
                         marginBottom: bi < m.blocks.length - 1 ? 4 : 0,
+                        fontSize: 13,
+                        lineHeight: 1.55,
+                        color: C.text,
+                        whiteSpace: m.streaming ? "pre-wrap" : undefined,
+                        wordBreak: m.streaming ? "break-word" : undefined,
                       }}
                     >
-                      <MarkdownRenderer content={block.text} />
+                      {m.streaming ? (
+                        block.text
+                      ) : (
+                        <MarkdownRenderer content={block.text} />
+                      )}
                     </div>
                   );
                 })}

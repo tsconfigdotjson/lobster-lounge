@@ -32,6 +32,39 @@ import type {
   SkillWithStatus,
 } from "../types";
 
+/** Extract display text from a tool result/partialResult payload.
+ *  Wire format is typically { content: [{ type: "text", text: "..." }] }. */
+function formatToolOutput(value: unknown): string | null {
+  if (value == null) return null;
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
+  if (typeof value === "object") {
+    const rec = value as Record<string, unknown>;
+    // { text: "..." }
+    if (typeof rec.text === "string") return rec.text;
+    // { content: [{ type: "text", text: "..." }, ...] }
+    if (Array.isArray(rec.content)) {
+      const parts = rec.content
+        .filter(
+          (item): item is { type: string; text: string } =>
+            !!item &&
+            typeof item === "object" &&
+            (item as Record<string, unknown>).type === "text" &&
+            typeof (item as Record<string, unknown>).text === "string",
+        )
+        .map((item) => item.text);
+      if (parts.length > 0) return parts.join("\n");
+    }
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
+
 const STORAGE_KEY = "openclaw-gateway";
 const HISTORY_KEY = "openclaw-gateway-history";
 const MAX_HISTORY = 5;
@@ -458,7 +491,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
               clearTimeout(debounceTimer);
               debounceTimer = null;
             }
-            onDelta({ ...msg, blocks: [...msg.blocks] });
+            onDelta({ ...msg, blocks: msg.blocks.map((b) => ({ ...b })) });
             return;
           }
           if (debounceTimer) {
@@ -466,7 +499,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
           }
           debounceTimer = setTimeout(() => {
             debounceTimer = null;
-            onDelta({ ...msg, blocks: [...msg.blocks] });
+            onDelta({ ...msg, blocks: msg.blocks.map((b) => ({ ...b })) });
           }, 80);
         };
 
@@ -483,10 +516,14 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
           unsubChat?.();
           unsubAgent?.();
           finalMsg.streaming = false;
+          const cloned = {
+            ...finalMsg,
+            blocks: finalMsg.blocks.map((b) => ({ ...b })),
+          };
           if (onDelta) {
-            onDelta({ ...finalMsg, blocks: [...finalMsg.blocks] });
+            onDelta(cloned);
           }
-          resolve(finalMsg);
+          resolve(cloned);
         };
 
         const fail = (err: Error) => {
@@ -590,9 +627,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             );
             if (block && block.type === "tool_call") {
               block.output =
-                data.partialResult != null
-                  ? String(data.partialResult)
-                  : block.output;
+                formatToolOutput(data.partialResult) ?? block.output;
               block.phase = "update";
             }
             fireDelta();
@@ -602,7 +637,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             );
             if (block && block.type === "tool_call") {
               block.output =
-                data.result != null ? String(data.result) : block.output;
+                formatToolOutput(data.result) ?? block.output;
               block.phase = "result";
             }
             fireDelta(true);
