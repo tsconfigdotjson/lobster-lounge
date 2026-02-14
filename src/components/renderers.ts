@@ -69,26 +69,26 @@ export function drawSand(ctx: CanvasRenderingContext2D, x: number, y: number) {
   }
 }
 
-export function drawLodgeWall(
+export function drawLoungeWall(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
 ) {
-  ctx.fillStyle = C.lodge1;
+  ctx.fillStyle = C.lounge1;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
   // Wood plank lines
-  ctx.fillStyle = C.lodgeD;
+  ctx.fillStyle = C.loungeD;
   ctx.fillRect(x * TILE, y * TILE + 4, TILE, 1);
   ctx.fillRect(x * TILE, y * TILE + 10, TILE, 1);
   // Knot detail
   if ((x + y) % 4 === 0) {
-    ctx.fillStyle = C.lodge0;
+    ctx.fillStyle = C.lounge0;
     ctx.fillRect(x * TILE + 6, y * TILE + 6, 3, 3);
-    ctx.fillStyle = C.lodge2;
+    ctx.fillStyle = C.lounge2;
     ctx.fillRect(x * TILE + 7, y * TILE + 7, 1, 1);
   }
   // Right edge shadow
-  ctx.fillStyle = C.lodgeD;
+  ctx.fillStyle = C.loungeD;
   ctx.fillRect(x * TILE + TILE - 1, y * TILE, 1, TILE);
 }
 
@@ -116,7 +116,7 @@ export function drawShellRoof(
 }
 
 export function drawDoor(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  ctx.fillStyle = C.lodge1;
+  ctx.fillStyle = C.lounge1;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
   // Arched doorway
   ctx.fillStyle = C.deep0;
@@ -140,10 +140,10 @@ export function drawPorthole(
   x: number,
   y: number,
 ) {
-  ctx.fillStyle = C.lodge1;
+  ctx.fillStyle = C.lounge1;
   ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
   // Wood plank bg
-  ctx.fillStyle = C.lodgeD;
+  ctx.fillStyle = C.loungeD;
   ctx.fillRect(x * TILE, y * TILE + 4, TILE, 1);
   ctx.fillRect(x * TILE, y * TILE + 10, TILE, 1);
   // Porthole frame (brass)
@@ -377,7 +377,7 @@ export function drawSignpost(
   x: number,
   y: number,
 ) {
-  ctx.fillStyle = C.lodge0;
+  ctx.fillStyle = C.lounge0;
   ctx.fillRect(x + 7, y + 6, 2, 10);
   ctx.fillStyle = C.shellD;
   ctx.fillRect(x + 0, y + 0, 16, 8);

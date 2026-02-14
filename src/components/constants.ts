@@ -33,15 +33,15 @@ export const C = {
   lob1: "#e74c3c",
   lob2: "#ff6b5c",
   lobD: "#8b1a10",
-  // Shell / lodge
+  // Shell / lounge
   shell0: "#d4a06a",
   shell1: "#e8be8a",
   shell2: "#f5d6a8",
   shellD: "#b08040",
-  lodge0: "#8b4513",
-  lodge1: "#a0522d",
-  lodge2: "#cd853f",
-  lodgeD: "#5c2e0a",
+  lounge0: "#8b4513",
+  lounge1: "#a0522d",
+  lounge2: "#cd853f",
+  loungeD: "#5c2e0a",
   // Bubbles & highlights
   bubble: "rgba(180,220,255,0.5)",
   bubbleH: "rgba(220,240,255,0.7)",
@@ -67,7 +67,7 @@ export const C = {
 };
 
 // ─── TILEMAP ──────────────────────────────────────────────────
-// 0=ocean, 1=sand path, 2=deep water, 3=lodge wall, 4=lodge roof (shell),
+// 0=ocean, 1=sand path, 2=deep water, 3=lounge wall, 4=lounge roof (shell),
 // 5=door, 6=porthole window, 7=coral, 8=kelp, 9=shell deco
 export const MAP = [
   [2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2],

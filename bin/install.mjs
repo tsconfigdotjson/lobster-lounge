@@ -11,8 +11,8 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
-const LODGE_DIR = "lodge";
-const CONTROL_UI_SUBDIR = join("dist", "control-ui", LODGE_DIR);
+const LOUNGE_DIR = "lounge";
+const CONTROL_UI_SUBDIR = join("dist", "control-ui", LOUNGE_DIR);
 
 // ── CLI args ─────────────────────────────────────────────────────
 
@@ -21,9 +21,9 @@ const command = args[0];
 
 if (!command || command === "--help" || command === "-h") {
   console.log(`
-  lobster-lodge install [--openclaw-root <path>]
+  lobster-lounge install [--openclaw-root <path>]
 
-  Locates your OpenClaw installation and copies the Lodge UI
+  Locates your OpenClaw installation and copies the Lounge UI
   into its control-ui static directory.
 
   Options:
@@ -35,7 +35,7 @@ if (!command || command === "--help" || command === "-h") {
 
 if (command !== "install") {
   console.error(`Unknown command: ${command}`);
-  console.error(`Run "lobster-lodge --help" for usage.`);
+  console.error(`Run "lobster-lounge --help" for usage.`);
   process.exit(1);
 }
 
@@ -58,22 +58,22 @@ if (!openclawRoot) {
   console.error(
     "Could not locate your OpenClaw installation.\n" +
       "Make sure 'openclaw' is installed and on your PATH, or use:\n\n" +
-      "  npx lobster-lodge install --openclaw-root /path/to/openclaw\n",
+      "  npx lobster-lounge install --openclaw-root /path/to/openclaw\n",
   );
   process.exit(1);
 }
 
 console.log(`Found OpenClaw at: ${openclawRoot}`);
 
-// ── Build Lodge ──────────────────────────────────────────────────
+// ── Build Lounge ──────────────────────────────────────────────────
 
-const lodgeRoot = findLodgeRoot();
-const distDir = join(lodgeRoot, "dist");
+const loungeRoot = findLoungeRoot();
+const distDir = join(loungeRoot, "dist");
 
 if (!existsSync(distDir) || readdirSync(distDir).length === 0) {
-  console.log("Building Lobster Lodge...");
+  console.log("Building Lobster Lounge...");
   const buildResult = spawnSync("npm", ["run", "build"], {
-    cwd: lodgeRoot,
+    cwd: loungeRoot,
     stdio: "inherit",
     shell: true,
   });
@@ -104,11 +104,11 @@ mkdirSync(targetDir, { recursive: true });
 cpSync(distDir, targetDir, { recursive: true });
 
 console.log(`
-  Done! Lobster Lodge has been installed.
+  Done! Lobster Lounge has been installed.
 
   Open your gateway in a browser and go to:
 
-    /lodge/
+    /lounge/
 
   (The trailing slash is important.)
 
@@ -191,8 +191,8 @@ function findOpenClawRoot() {
   return null;
 }
 
-function findLodgeRoot() {
-  // The script lives at <lodge-root>/bin/install.mjs
+function findLoungeRoot() {
+  // The script lives at <lounge-root>/bin/install.mjs
   const scriptDir = dirname(new URL(import.meta.url).pathname);
   return resolve(scriptDir, "..");
 }

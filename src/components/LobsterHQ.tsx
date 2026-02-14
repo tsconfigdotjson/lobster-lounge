@@ -10,7 +10,7 @@ import {
   drawDoor,
   drawKelp,
   drawLobsterAgent,
-  drawLodgeWall,
+  drawLoungeWall,
   drawOcean,
   drawPorthole,
   drawSand,
@@ -122,7 +122,7 @@ export default function LobsterHQ({
               drawDeep(ctx, x, y, f);
               break;
             case 3:
-              drawLodgeWall(ctx, x, y);
+              drawLoungeWall(ctx, x, y);
               break;
             case 4:
               drawShellRoof(ctx, x, y);
@@ -167,7 +167,7 @@ export default function LobsterHQ({
       ctx.fillStyle = "rgba(10,22,40,0.85)";
       ctx.fillRect(7 * TILE + 8, 5 * TILE + 10, 7 * TILE, 9);
       ctx.fillStyle = C.amber;
-      drawPixelText(ctx, "LOBSTER LODGE", 7 * TILE + 12, 5 * TILE + 12, 1);
+      drawPixelText(ctx, "LOBSTER LOUNGE", 7 * TILE + 12, 5 * TILE + 12, 1);
 
       drawBubbles(ctx, f);
 
