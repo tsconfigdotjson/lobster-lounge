@@ -411,8 +411,7 @@ export default function DashboardView() {
       {showCreator && !editingAgent && (
         <DraggablePanel
           title="SPAWN AGENT"
-          defaultX={Math.max(16, (window.innerWidth - 340) / 2)}
-          defaultY={80}
+          centered
         >
           <AgentCreator
             onDeploy={handleCreate}
@@ -425,8 +424,7 @@ export default function DashboardView() {
       {editingAgent && (
         <DraggablePanel
           title="EDIT AGENT"
-          defaultX={Math.max(16, (window.innerWidth - 340) / 2)}
-          defaultY={80}
+          centered
         >
           <AgentCreator
             key={editingAgent._gatewayId}

@@ -1,15 +1,28 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { C } from "./constants";
 
 export default function DraggablePanel({
   children,
   defaultX = 0,
   defaultY = 0,
+  centered = false,
   title,
   style,
 }) {
   const [pos, setPos] = useState({ x: defaultX, y: defaultY });
+  const [ready, setReady] = useState(!centered);
   const dragRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (centered && dragRef.current && !ready) {
+      const rect = dragRef.current.getBoundingClientRect();
+      setPos({
+        x: Math.max(16, (window.innerWidth - rect.width) / 2),
+        y: Math.max(16, (window.innerHeight - rect.height) / 2),
+      });
+      setReady(true);
+    }
+  }, [centered, ready]);
 
   const onPointerDown = useCallback(
     (e) => {
@@ -44,6 +57,7 @@ export default function DraggablePanel({
         borderRadius: 4,
         backdropFilter: "blur(8px)",
         boxShadow: "0 4px 24px rgba(0,0,0,0.5)",
+        opacity: ready ? 1 : 0,
         ...style,
       }}
     >
