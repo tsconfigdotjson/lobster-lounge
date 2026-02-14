@@ -20,7 +20,7 @@ Lobster Lodge is a supplemental UI that sits alongside the default OpenClaw Cont
 
 ## Installation
 
-Lobster Lodge is designed to be dropped into an existing OpenClaw installation. It piggybacks on the gateway's static file server by placing its built assets into a `lodge/` subdirectory of the Control UI root.
+Lobster Lodge is designed to be dropped into an existing OpenClaw installation. It piggybacks on the gateway's static file server by placing a single `index.html` into a `lodge/` subdirectory of the Control UI root.
 
 ```
 npx lobster-lodge install
@@ -29,8 +29,8 @@ npx lobster-lodge install
 That's it. The installer will:
 
 1. Locate your OpenClaw installation (by resolving the `openclaw` binary and walking up to find the package root)
-2. Build the Lodge assets if needed
-3. Copy them into `<openclaw-root>/dist/control-ui/lodge/`
+2. Build Lodge into a single self-contained `index.html` (all JS and CSS inlined)
+3. Copy it into `<openclaw-root>/dist/control-ui/lodge/`
 
 Then open your gateway in a browser and navigate to `/lodge/` (trailing slash required).
 
@@ -46,7 +46,7 @@ Or if you want to build and copy the files yourself:
 
 ```
 bun run build
-cp -r dist/* /path/to/openclaw/dist/control-ui/lodge/
+cp dist/index.html /path/to/openclaw/dist/control-ui/lodge/index.html
 ```
 
 ### After OpenClaw upgrades
@@ -72,7 +72,7 @@ This starts Vite's dev server with hot reload. Lodge will render the login scree
 bun run build
 ```
 
-Output goes to `dist/`. The build is a standard Vite production build with hash-based routing so it works correctly when served from a subdirectory.
+Output goes to `dist/`. The build inlines all JS and CSS into a single `index.html` so the gateway only needs to serve one file.
 
 ### Lint / Format
 
