@@ -71,6 +71,18 @@ const loungeRoot = findLoungeRoot();
 const distDir = join(loungeRoot, "dist");
 
 if (!existsSync(distDir) || readdirSync(distDir).length === 0) {
+  // Ensure platform-specific native deps (e.g. rollup) are installed
+  console.log("Installing dependencies...");
+  const installResult = spawnSync("npm", ["install", "--prefer-offline"], {
+    cwd: loungeRoot,
+    stdio: "inherit",
+    shell: true,
+  });
+  if (installResult.status !== 0) {
+    console.error("npm install failed.");
+    process.exit(1);
+  }
+
   console.log("Building Lobster Lounge...");
   const buildResult = spawnSync("npm", ["run", "build"], {
     cwd: loungeRoot,
