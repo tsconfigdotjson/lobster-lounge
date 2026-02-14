@@ -14,6 +14,7 @@ export const SUPPORTED_LANGUAGES = [
   "ur",
   "ko",
   "fr",
+  "no",
 ] as const;
 
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -34,6 +35,7 @@ export const languageNames: Record<SupportedLanguage, string> = {
   ur: "اردو",
   ko: "한국어",
   fr: "Français",
+  no: "Norsk",
 };
 
 export type CountryCode =
@@ -51,7 +53,8 @@ export type CountryCode =
   | "BD"
   | "PK"
   | "KR"
-  | "FR";
+  | "FR"
+  | "NO";
 
 export const languageToCountry: Record<SupportedLanguage, CountryCode> = {
   en: "US",
@@ -69,4 +72,5 @@ export const languageToCountry: Record<SupportedLanguage, CountryCode> = {
   ur: "PK",
   ko: "KR",
   fr: "FR",
+  no: "NO",
 };

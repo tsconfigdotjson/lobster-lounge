@@ -10,6 +10,7 @@ import hi from "./hi/index.json";
 import id from "./id/index.json";
 import ja from "./ja/index.json";
 import ko from "./ko/index.json";
+import no from "./no/index.json";
 import pt from "./pt/index.json";
 import ru from "./ru/index.json";
 import ur from "./ur/index.json";
@@ -32,6 +33,7 @@ const resources = {
   ur: { translation: ur },
   ko: { translation: ko },
   fr: { translation: fr },
+  no: { translation: no },
 };
 
 const saved = localStorage.getItem("lobster-lounge-lang");

@@ -250,6 +250,23 @@ const drawFR: DrawFn = (ctx) => {
   px(ctx, 11, 3, 5, 10);
 };
 
+/** Norway — red field + blue cross outlined in white */
+const drawNO: DrawFn = (ctx) => {
+  // Red field
+  ctx.fillStyle = "#ef2b2d";
+  px(ctx, 0, 3, 16, 10);
+  // White cross (horizontal)
+  ctx.fillStyle = "#ffffff";
+  px(ctx, 0, 6, 16, 4);
+  // White cross (vertical)
+  px(ctx, 4, 3, 4, 10);
+  // Blue cross (horizontal)
+  ctx.fillStyle = "#002868";
+  px(ctx, 0, 7, 16, 2);
+  // Blue cross (vertical)
+  px(ctx, 5, 3, 2, 10);
+};
+
 /* ── Country code → draw function lookup ──────────────────── */
 const DRAW_MAP: Record<string, DrawFn> = {
   US: drawUS,
@@ -267,6 +284,7 @@ const DRAW_MAP: Record<string, DrawFn> = {
   PK: drawPK,
   KR: drawKR,
   FR: drawFR,
+  NO: drawNO,
 };
 
 /* ── Component ─────────────────────────────────────────────── */
