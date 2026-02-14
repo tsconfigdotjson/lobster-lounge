@@ -1,5 +1,5 @@
+import { GatewayScreen, OceanBg } from "./components";
 import DashboardView from "./components/DashboardView";
-import { GatewayScreen, OceanBg } from "./components/open-claw";
 import { GatewayProvider, useGateway } from "./context/GatewayContext";
 
 function AppContent() {

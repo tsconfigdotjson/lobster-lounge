@@ -3,15 +3,16 @@ import { useGateway } from "../context/GatewayContext";
 import { setAgentColor } from "../services/data-mappers";
 import {
   ActivityLog,
+  AgentChat,
+  AgentCreator,
   Divider,
   DraggablePanel,
   HudItem,
   LobsterHQ,
-} from "./lobster-hq";
-import { C } from "./lobster-hq/constants";
-import { AgentChat, AgentCreator } from "./open-claw";
-import SkillsPanel from "./open-claw/SkillsPanel";
-import { btnSecondaryStyle } from "./open-claw/styles";
+} from ".";
+import { C } from "./constants";
+import SkillsPanel from "./SkillsPanel";
+import { btnSecondaryStyle } from "./styles";
 
 export default function DashboardView() {
   const {
@@ -305,7 +306,7 @@ export default function DashboardView() {
                     : "transparent",
                 border:
                   selectedAgent === a.id
-                    ? `1px solid ${C.uiBorderAlt}`
+                    ? `1px solid ${C.uiBorder}`
                     : "1px solid transparent",
                 borderRadius: 2,
                 cursor: "pointer",
@@ -352,7 +353,7 @@ export default function DashboardView() {
           left: 16,
           zIndex: 200,
           width: skillsCollapsed ? "auto" : 320,
-          border: `2px solid ${C.uiBorderAlt}`,
+          border: `2px solid ${C.uiBorder}`,
           boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
           borderRadius: 6,
           overflow: "hidden",
@@ -524,7 +525,7 @@ export default function DashboardView() {
             right: 16,
             zIndex: 200,
             width: chatCollapsed ? "auto" : 420,
-            border: `2px solid ${C.uiBorderAlt}`,
+            border: `2px solid ${C.uiBorder}`,
             boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
             borderRadius: 6,
             overflow: "hidden",

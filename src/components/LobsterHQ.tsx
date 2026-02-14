@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { setAgentPosition } from "../../services/data-mappers";
+import { setAgentPosition } from "../services/data-mappers";
 import { C, COLS, MAP, ROWS, TILE } from "./constants";
 import { drawPixelText } from "./helpers";
 import {

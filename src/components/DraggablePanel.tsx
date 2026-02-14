@@ -53,7 +53,7 @@ export default function DraggablePanel({
         top: pos.y,
         zIndex: 50,
         background: C.uiBg,
-        border: `2px solid ${C.uiBorderAlt}`,
+        border: `2px solid ${C.uiBorder}`,
         borderRadius: 4,
         backdropFilter: "blur(8px)",
         boxShadow: "0 4px 24px rgba(0,0,0,0.5)",

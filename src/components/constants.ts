@@ -47,16 +47,23 @@ export const C = {
   bubbleH: "rgba(220,240,255,0.7)",
   // UI
   uiBg: "rgba(10, 22, 40, 0.93)",
-  uiBorder: "#e74c3c",
-  uiBorderAlt: "#f4a261",
+  uiBg2: "rgba(14, 28, 50, 0.97)",
+  uiBorder: "#f4a261",
+  uiBorderDim: "rgba(244,162,97,0.25)",
+  inputBg: "rgba(15, 30, 55, 0.9)",
+  inputBorder: "rgba(244,162,97,0.35)",
   text: "#e8e0d0",
   textDim: "#6a8090",
   textBright: "#ffffff",
   green: "#2ecc71",
+  greenDim: "rgba(46,204,113,0.15)",
   amber: "#f4a261",
   red: "#e74c3c",
   cyan: "#5dade2",
+  purple: "#9b59b6",
   black: "#0a0a14",
+  chatUser: "rgba(244,162,97,0.10)",
+  chatAgent: "rgba(46,204,113,0.08)",
 };
 
 // ─── TILEMAP ──────────────────────────────────────────────────
@@ -134,3 +141,37 @@ export const BUBBLES = Array.from({ length: 18 }, (_, _i) => ({
   size: 1 + Math.floor(Math.random() * 2),
   wobble: Math.random() * Math.PI * 2,
 }));
+
+// ─── CONNECTION STEPS ────────────────────────────────────────
+export const CONNECTION_STEPS = [
+  {
+    id: "discover",
+    label: "Discovering gateway",
+    desc: "Scanning local reef network...",
+    duration: 1800,
+  },
+  {
+    id: "handshake",
+    label: "Claw handshake",
+    desc: "Establishing secure pinch protocol...",
+    duration: 2200,
+  },
+  {
+    id: "auth",
+    label: "Device pairing",
+    desc: "Authenticating device identity...",
+    duration: 1600,
+  },
+  {
+    id: "sync",
+    label: "Syncing tide data",
+    desc: "Downloading current maps and agent roster...",
+    duration: 2400,
+  },
+  {
+    id: "ready",
+    label: "Gateway connected",
+    desc: "All systems nominal. Welcome to the reef.",
+    duration: 0,
+  },
+];

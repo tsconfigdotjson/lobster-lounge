@@ -1,7 +1,12 @@
+export { default as ActivityLog } from "./ActivityLog";
 export { default as AgentChat } from "./AgentChat";
 export { default as AgentCreator } from "./AgentCreator";
+export { default as Divider } from "./Divider";
+export { default as DraggablePanel } from "./DraggablePanel";
 export { default as GatewayScreen } from "./GatewayScreen";
+export { default as HudItem } from "./HudItem";
 export { default as LobsterAvatar } from "./LobsterAvatar";
+export { default as LobsterHQ } from "./LobsterHQ";
 export { default as OceanBg } from "./OceanBg";
 export { default as PanelHeader } from "./PanelHeader";
 export { default as Section } from "./Section";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { loadConnectionHistory } from "../../context/GatewayContext";
-import { getDeviceToken } from "../../services/device-identity";
+import { loadConnectionHistory } from "../context/GatewayContext";
+import { getDeviceToken } from "../services/device-identity";
 import { C, CONNECTION_STEPS } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
 import PanelHeader from "./PanelHeader";
