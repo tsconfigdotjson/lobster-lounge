@@ -142,8 +142,8 @@ export default function AgentChat({
   const scrollKey = lastMsg?.streaming
     ? `${msgCount}-${lastMsg.blocks.length}-${lastTextLen}`
     : `${msgCount}`;
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scrollKey intentionally triggers scroll on content changes
   useEffect(() => {
+    void scrollKey;
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [scrollKey]);
 
