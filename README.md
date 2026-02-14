@@ -7,7 +7,7 @@ Lobster Lounge is a supplemental UI that sits alongside the default OpenClaw Con
 ## What it does
 
 - **The Reef** -- A 22x16 pixel tilemap rendered on a `<canvas>`. Your agents appear as animated pixel lobsters with snapping claws, bobbing antennae, and name tags. Click one to select it, then click a walkable tile to move it around. The ocean has kelp, coral, shell decorations, floating bubbles, and a lounge building with porthole windows.
-- **Agent Chat** -- Collapsible chat panel in the bottom-right corner. Pick an agent tab and talk to it. Messages go through the gateway's `agent` request method and stream back via the ack-with-final pattern. Real typing indicators and everything.
+- **Agent Chat** -- Collapsible chat panel in the bottom-right corner. Pick an agent tab and talk to it. Messages go through the gateway's `agent` request method and stream back via the ack-with-final pattern. Real typing indicators and everything. Chat history is persisted locally via IndexedDB so conversations survive page refreshes.
 - **Spawn Agents** -- Hit "+ SPAWN AGENT" in the status bar. Pick a shell color, give it a designation, preview the deployment specs, and confirm. It calls `agents.create` on the gateway and the new lobster appears on the reef.
 - **Edit Agents** -- Select a lobster, click EDIT on the tooltip, change its name or color.
 - **Skills Panel** -- Collapsible panel in the bottom-left. Shows all available skills from the gateway, lets you toggle them on/off. Search and filter included.
@@ -92,7 +92,7 @@ Lounge is a single-page React app (React 19, TypeScript, Vite) with zero runtime
 
 The gateway connection is managed by a custom `GatewayClient` class that handles the full OpenClaw WebSocket protocol: challenge-response auth, Ed25519 device signatures, request/response with timeout, event subscriptions, tick keepalive, and automatic reconnection with exponential backoff. During pairing it reconnects on a fixed 3-second interval until the operator approves the device.
 
-The tilemap is a hardcoded 22x16 grid where each cell type (ocean, sand, deep water, lounge wall, shell roof, door, porthole, coral, kelp, shell deco) has its own pixel renderer. Agents move one axis at a time with smooth interpolation. Positions and colors are persisted to localStorage so your lobsters stay where you put them.
+The tilemap is a hardcoded 22x16 grid where each cell type (ocean, sand, deep water, lounge wall, shell roof, door, porthole, coral, kelp, shell deco) has its own pixel renderer. Agents move one axis at a time with smooth interpolation. Positions and colors are persisted to localStorage so your lobsters stay where you put them. Chat messages are stored in IndexedDB (keyed by gateway URL and agent ID) so conversations persist across refreshes, with automatic pruning to keep the database from growing indefinitely.
 
 ## URL note
 
