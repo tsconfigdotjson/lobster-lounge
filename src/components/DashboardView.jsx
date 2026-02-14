@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useGateway } from "../context/GatewayContext";
 import { setAgentColor } from "../services/data-mappers";
 import {
@@ -37,6 +37,22 @@ export default function DashboardView() {
   const [tick, setTick] = useState(0);
   const [showCreator, setShowCreator] = useState(false);
   const [editingAgent, setEditingAgent] = useState(null);
+  const chatRef = useRef(null);
+  const skillsRef = useRef(null);
+
+  useEffect(() => {
+    if (chatCollapsed && skillsCollapsed) return;
+    const handleClickOutside = (e) => {
+      if (!chatCollapsed && chatRef.current && !chatRef.current.contains(e.target)) {
+        setChatCollapsed(true);
+      }
+      if (!skillsCollapsed && skillsRef.current && !skillsRef.current.contains(e.target)) {
+        setSkillsCollapsed(true);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [chatCollapsed, skillsCollapsed]);
 
   useEffect(() => {
     const iv = setInterval(() => {
@@ -128,12 +144,7 @@ export default function DashboardView() {
       <LobsterHQ
         agents={agents}
         selectedAgent={selectedAgent}
-        onSelectAgent={(id) => {
-          setSelectedAgent(id);
-          if (id && !chatCollapsed) {
-            setChatCollapsed(true);
-          }
-        }}
+        onSelectAgent={setSelectedAgent}
       />
 
       {/* Status bar */}
@@ -292,6 +303,7 @@ export default function DashboardView() {
 
       {/* Skills panel — bottom-left collapsible */}
       <div
+        ref={skillsRef}
         style={{
           position: "fixed",
           bottom: 16,
@@ -458,6 +470,7 @@ export default function DashboardView() {
       {/* Collapsible AgentChat overlay */}
       {chatAgents.length > 0 && (
         <div
+          ref={chatRef}
           style={{
             position: "fixed",
             bottom: 16,
