@@ -5,8 +5,13 @@ import { shadeColor } from "./helpers";
 type DrawFn = (ctx: CanvasRenderingContext2D, accent: string) => void;
 
 /* ── Pixel helpers ─────────────────────────────────────────── */
-const px = (ctx: CanvasRenderingContext2D, x: number, y: number, w = 1, h = 1) =>
-  ctx.fillRect(x, y, w, h);
+const px = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w = 1,
+  h = 1,
+) => ctx.fillRect(x, y, w, h);
 
 /* ── Sprite draw functions (16×16 grid) ────────────────────── */
 
@@ -447,9 +452,13 @@ export default function ToolIcon({
 
   useEffect(() => {
     const cv = ref.current;
-    if (!cv) { return; }
+    if (!cv) {
+      return;
+    }
     const ctx = cv.getContext("2d");
-    if (!ctx) { return; }
+    if (!ctx) {
+      return;
+    }
     ctx.clearRect(0, 0, 16, 16);
     const draw = lookupDraw(toolName);
     draw(ctx, color);

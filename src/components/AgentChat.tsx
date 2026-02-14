@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatAgent, ChatMessage } from "../types";
 import { C } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
@@ -33,6 +33,8 @@ export default function AgentChat({
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const msgIdRef = useRef(0);
+  const nextId = useCallback(() => `msg-${++msgIdRef.current}`, []);
   const msgs = active ? messages[active.id] || [] : [];
   const sc: Record<string, string> = {
     active: C.green,
@@ -66,12 +68,14 @@ export default function AgentChat({
 
     // Add user message
     const userMsg: ChatMessage = {
+      id: nextId(),
       from: "user",
       blocks: [{ type: "text", text }],
     };
 
     // Add streaming placeholder for agent
     const placeholderMsg: ChatMessage = {
+      id: nextId(),
       from: "agent",
       blocks: [{ type: "text", text: "" }],
       streaming: true,
@@ -113,6 +117,7 @@ export default function AgentChat({
       setTimeout(
         () => {
           const mockMsg: ChatMessage = {
+            id: nextId(),
             from: "agent",
             blocks: [{ type: "text", text: `[${agentId}] Message received.` }],
           };
@@ -283,7 +288,7 @@ export default function AgentChat({
             </div>
           </div>
         )}
-        {msgs.map((m, idx) => {
+        {msgs.map((m) => {
           if (m.from === "user") {
             // User messages: plain text
             const text = m.blocks
@@ -292,7 +297,7 @@ export default function AgentChat({
               .join("");
             return (
               <div
-                key={`user-${idx}`}
+                key={m.id}
                 style={{
                   display: "flex",
                   flexDirection: "row-reverse",
@@ -327,7 +332,7 @@ export default function AgentChat({
           if (!hasContent && m.streaming) {
             return (
               <div
-                key={`agent-${idx}`}
+                key={m.id}
                 style={{ display: "flex", gap: 8, alignItems: "flex-end" }}
               >
                 <LobsterAvatar
@@ -351,7 +356,7 @@ export default function AgentChat({
 
           return (
             <div
-              key={`agent-${idx}`}
+              key={m.id}
               style={{
                 display: "flex",
                 gap: 8,
@@ -380,7 +385,7 @@ export default function AgentChat({
                   }
                   return (
                     <div
-                      key={`text-${bi}`}
+                      key={`${m.id}-text-${bi}`}
                       style={{
                         padding: "8px 12px",
                         borderRadius: "8px 8px 8px 2px",

@@ -34,8 +34,12 @@ import type {
 
 /** Wire format: { content: [{ type: "text", text: "..." }] } */
 function extractToolText(value: unknown): string | null {
-  if (value == null) return null;
-  if (typeof value === "string") return value;
+  if (value == null) {
+    return null;
+  }
+  if (typeof value === "string") {
+    return value;
+  }
   const rec = value as Record<string, unknown>;
   const content = rec?.content;
   if (Array.isArray(content)) {
@@ -450,6 +454,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
 
         // Build mutable ChatMessage for streaming
         const msg: ChatMessage = {
+          id: crypto.randomUUID(),
           from: "agent",
           blocks: [{ type: "text", text: "" }],
           streaming: true,
@@ -535,8 +540,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             } else {
               // Final payload text is authoritative — always prefer it
               const finalText =
-                payload.message?.content?.[0]?.text ||
-                payload.message?.text;
+                payload.message?.content?.[0]?.text || payload.message?.text;
               if (finalText) {
                 currentTextBlock().text = finalText;
               } else if (!currentTextBlock().text) {
@@ -600,8 +604,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
               (b) => b.type === "tool_call" && b.toolCallId === toolCallId,
             );
             if (block && block.type === "tool_call") {
-              block.output =
-                extractToolText(data.result) ?? block.output;
+              block.output = extractToolText(data.result) ?? block.output;
               block.phase = "result";
             }
             fireDelta();

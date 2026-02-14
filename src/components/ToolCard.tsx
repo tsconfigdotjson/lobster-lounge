@@ -10,20 +10,20 @@ type ToolCallBlock = Extract<ContentBlock, { type: "tool_call" }>;
 type ToolDef = { label: string; detailKeys?: string[] };
 
 const TOOL_CONFIG: Record<string, ToolDef> = {
-  read:        { label: "Read File",    detailKeys: ["file_path", "path"] },
-  write:       { label: "Write File",   detailKeys: ["file_path", "path"] },
-  edit:        { label: "Edit File",    detailKeys: ["file_path", "path"] },
-  bash:        { label: "Run Command",  detailKeys: ["command", "cmd"] },
-  exec:        { label: "Run Command",  detailKeys: ["command", "cmd"] },
-  glob:        { label: "Find Files",   detailKeys: ["pattern", "path"] },
-  grep:        { label: "Search Code",  detailKeys: ["pattern", "query"] },
-  web_fetch:   { label: "Fetch URL",    detailKeys: ["url", "targetUrl"] },
-  webfetch:    { label: "Fetch URL",    detailKeys: ["url", "targetUrl"] },
-  web_search:  { label: "Web Search",   detailKeys: ["query"] },
-  websearch:   { label: "Web Search",   detailKeys: ["query"] },
-  task:        { label: "Sub-Agent",    detailKeys: ["prompt", "description"] },
-  browser:     { label: "Browser",      detailKeys: ["targetUrl", "url"] },
-  apply_patch: { label: "Apply Patch",  detailKeys: ["path"] },
+  read: { label: "Read File", detailKeys: ["file_path", "path"] },
+  write: { label: "Write File", detailKeys: ["file_path", "path"] },
+  edit: { label: "Edit File", detailKeys: ["file_path", "path"] },
+  bash: { label: "Run Command", detailKeys: ["command", "cmd"] },
+  exec: { label: "Run Command", detailKeys: ["command", "cmd"] },
+  glob: { label: "Find Files", detailKeys: ["pattern", "path"] },
+  grep: { label: "Search Code", detailKeys: ["pattern", "query"] },
+  web_fetch: { label: "Fetch URL", detailKeys: ["url", "targetUrl"] },
+  webfetch: { label: "Fetch URL", detailKeys: ["url", "targetUrl"] },
+  web_search: { label: "Web Search", detailKeys: ["query"] },
+  websearch: { label: "Web Search", detailKeys: ["query"] },
+  task: { label: "Sub-Agent", detailKeys: ["prompt", "description"] },
+  browser: { label: "Browser", detailKeys: ["targetUrl", "url"] },
+  apply_patch: { label: "Apply Patch", detailKeys: ["path"] },
 };
 
 function lookupConfig(toolName: string): ToolDef {

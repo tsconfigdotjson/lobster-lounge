@@ -32,7 +32,9 @@ export default function DashboardView() {
     allSkills,
   } = useGateway();
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
-  const [chatState, setChatState] = useState<"collapsed" | "normal" | "expanded">("collapsed");
+  const [chatState, setChatState] = useState<
+    "collapsed" | "normal" | "expanded"
+  >("collapsed");
   const [chatInitialAgentId, setChatInitialAgentId] = useState<string | null>(
     null,
   );
@@ -539,7 +541,8 @@ export default function DashboardView() {
                 : chatState === "expanded"
                   ? "max(50vw, 420px)"
                   : 420,
-            maxWidth: chatState === "expanded" ? "calc(100vw - 32px)" : undefined,
+            maxWidth:
+              chatState === "expanded" ? "calc(100vw - 32px)" : undefined,
             height: chatState === "expanded" ? "calc(100vh - 68px)" : undefined,
             display: chatState === "expanded" ? "flex" : undefined,
             flexDirection: chatState === "expanded" ? "column" : undefined,
@@ -566,7 +569,9 @@ export default function DashboardView() {
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setChatState(chatState === "expanded" ? "normal" : "expanded");
+                  setChatState(
+                    chatState === "expanded" ? "normal" : "expanded",
+                  );
                 }}
                 style={{
                   display: "flex",
@@ -582,14 +587,38 @@ export default function DashboardView() {
                 title={chatState === "expanded" ? "Contract" : "Expand"}
               >
                 {chatState === "expanded" ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m14 10 7-7" /><path d="M20 10h-6V4" />
-                    <path d="m3 21 7-7" /><path d="M4 14h6v6" />
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <title>Contract</title>
+                    <path d="m14 10 7-7" />
+                    <path d="M20 10h-6V4" />
+                    <path d="m3 21 7-7" />
+                    <path d="M4 14h6v6" />
                   </svg>
                 ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M15 3h6v6" /><path d="m21 3-7 7" />
-                    <path d="m3 21 7-7" /><path d="M9 21H3v-6" />
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <title>Expand</title>
+                    <path d="M15 3h6v6" />
+                    <path d="m21 3-7 7" />
+                    <path d="m3 21 7-7" />
+                    <path d="M9 21H3v-6" />
                   </svg>
                 )}
               </button>
@@ -610,7 +639,8 @@ export default function DashboardView() {
                 alignItems: "center",
                 gap: 8,
                 flex: 1,
-                padding: chatState !== "collapsed" ? "8px 14px 8px 0" : "8px 14px",
+                padding:
+                  chatState !== "collapsed" ? "8px 14px 8px 0" : "8px 14px",
                 background: "transparent",
                 border: "none",
                 cursor: "pointer",
@@ -630,11 +660,18 @@ export default function DashboardView() {
               </span>
             </button>
           </div>
-          <div style={{
-            display: chatState === "collapsed" ? "none" : chatState === "expanded" ? "flex" : "contents",
-            flex: chatState === "expanded" ? 1 : undefined,
-            minHeight: 0,
-          }}>
+          <div
+            style={{
+              display:
+                chatState === "collapsed"
+                  ? "none"
+                  : chatState === "expanded"
+                    ? "flex"
+                    : "contents",
+              flex: chatState === "expanded" ? 1 : undefined,
+              minHeight: 0,
+            }}
+          >
             <AgentChat
               agents={chatAgents}
               onSendMessage={sendAgentMessage}

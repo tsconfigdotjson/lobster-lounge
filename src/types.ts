@@ -13,6 +13,7 @@ export type ContentBlock =
     };
 
 export interface ChatMessage {
+  id: string;
   from: "user" | "agent";
   blocks: ContentBlock[];
   runId?: string;
