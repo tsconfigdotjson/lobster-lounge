@@ -45,7 +45,7 @@ npx lobster-lodge install --openclaw-root /path/to/openclaw
 Or if you want to build and copy the files yourself:
 
 ```
-npm run build
+bun run build
 cp -r dist/* /path/to/openclaw/dist/control-ui/lodge/
 ```
 
@@ -60,8 +60,8 @@ npx lobster-lodge install
 ## Development
 
 ```
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 This starts Vite's dev server with hot reload. Lodge will render the login screen where you can enter your gateway's WebSocket URL (e.g. `ws://127.0.0.1:18789`). For development you're connecting directly to the gateway -- no need to install into OpenClaw's file tree.
@@ -69,7 +69,7 @@ This starts Vite's dev server with hot reload. Lodge will render the login scree
 ### Build
 
 ```
-npm run build
+bun run build
 ```
 
 Output goes to `dist/`. The build is a standard Vite production build with hash-based routing so it works correctly when served from a subdirectory.
@@ -77,7 +77,7 @@ Output goes to `dist/`. The build is a standard Vite production build with hash-
 ### Lint / Format
 
 ```
-npm run check
+bun run check
 ```
 
 Uses [Biome](https://biomejs.dev/) for linting and formatting.
