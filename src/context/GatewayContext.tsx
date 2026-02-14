@@ -570,13 +570,14 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             if (payload.state === "error") {
               fail(new Error(payload.errorMessage || "Agent error"));
             } else {
-              // Use final text if current text block is empty
-              const tb = currentTextBlock();
-              if (!tb.text) {
-                tb.text =
-                  payload.message?.content?.[0]?.text ||
-                  payload.message?.text ||
-                  "[No response]";
+              // Final payload text is authoritative — always prefer it
+              const finalText =
+                payload.message?.content?.[0]?.text ||
+                payload.message?.text;
+              if (finalText) {
+                currentTextBlock().text = finalText;
+              } else if (!currentTextBlock().text) {
+                currentTextBlock().text = "[No response]";
               }
               finish(msg);
             }

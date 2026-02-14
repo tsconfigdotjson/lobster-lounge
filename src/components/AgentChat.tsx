@@ -384,18 +384,9 @@ export default function AgentChat({
                         background: C.chatAgent,
                         border: `1px solid ${active.color}18`,
                         marginBottom: bi < m.blocks.length - 1 ? 4 : 0,
-                        fontSize: 13,
-                        lineHeight: 1.55,
-                        color: C.text,
-                        whiteSpace: m.streaming ? "pre-wrap" : undefined,
-                        wordBreak: m.streaming ? "break-word" : undefined,
                       }}
                     >
-                      {m.streaming ? (
-                        block.text
-                      ) : (
-                        <MarkdownRenderer content={block.text} />
-                      )}
+                      <MarkdownRenderer content={block.text} />
                     </div>
                   );
                 })}
