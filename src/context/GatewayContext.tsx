@@ -555,12 +555,12 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
           }
 
           if (payload.state === "delta") {
-            const delta =
+            const text =
               payload.message?.content?.[0]?.text ||
               payload.message?.text ||
               payload.message?.delta ||
               "";
-            currentTextBlock().text += delta;
+            currentTextBlock().text = text;
             fireDelta();
           } else if (
             payload.state === "final" ||
