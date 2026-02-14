@@ -280,9 +280,13 @@ export default function LobsterHQ({
       onClick={handleCanvasClick}
       style={{
         position: "fixed",
-        inset: 0,
-        width: "100vw",
-        height: "100vh",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        maxWidth: "100vw",
+        maxHeight: "100vh",
+        width: `min(100vw, calc(100vh * ${COLS} / ${ROWS}))`,
+        height: `min(100vh, calc(100vw * ${ROWS} / ${COLS}))`,
         imageRendering: "pixelated",
         cursor: "pointer",
         display: "block",
