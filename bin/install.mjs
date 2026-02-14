@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 
 import { execSync, spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 const LODGE_DIR = "lodge";
@@ -50,8 +57,8 @@ if (rootIdx !== -1 && args[rootIdx + 1]) {
 if (!openclawRoot) {
   console.error(
     "Could not locate your OpenClaw installation.\n" +
-    "Make sure 'openclaw' is installed and on your PATH, or use:\n\n" +
-    "  npx lobster-lodge install --openclaw-root /path/to/openclaw\n"
+      "Make sure 'openclaw' is installed and on your PATH, or use:\n\n" +
+      "  npx lobster-lodge install --openclaw-root /path/to/openclaw\n",
   );
   process.exit(1);
 }
@@ -77,7 +84,7 @@ if (!existsSync(distDir) || readdirSync(distDir).length === 0) {
 }
 
 if (!existsSync(distDir)) {
-  console.error("Build output not found at: " + distDir);
+  console.error(`Build output not found at: ${distDir}`);
   process.exit(1);
 }
 
@@ -116,9 +123,12 @@ function findOpenClawRoot() {
     const bin = execSync("which openclaw", { encoding: "utf8" }).trim();
     if (bin) {
       // Follow symlinks (npm .bin symlinks -> actual package)
-      const realBin = execSync(`readlink -f "${bin}" 2>/dev/null || realpath "${bin}" 2>/dev/null || echo "${bin}"`, {
-        encoding: "utf8",
-      }).trim();
+      const realBin = execSync(
+        `readlink -f "${bin}" 2>/dev/null || realpath "${bin}" 2>/dev/null || echo "${bin}"`,
+        {
+          encoding: "utf8",
+        },
+      ).trim();
       // Walk up from the binary looking for package.json with name "openclaw"
       let dir = dirname(realBin);
       for (let i = 0; i < 8; i++) {
@@ -134,7 +144,9 @@ function findOpenClawRoot() {
           }
         }
         const parent = dirname(dir);
-        if (parent === dir) break;
+        if (parent === dir) {
+          break;
+        }
         dir = parent;
       }
     }
@@ -144,7 +156,13 @@ function findOpenClawRoot() {
 
   // Strategy 2: check common global node_modules locations
   const globalDirs = [
-    join(process.env.HOME || "", ".npm-global", "lib", "node_modules", "openclaw"),
+    join(
+      process.env.HOME || "",
+      ".npm-global",
+      "lib",
+      "node_modules",
+      "openclaw",
+    ),
     join(process.env.HOME || "", ".nvm", "versions", "node"),
     "/usr/local/lib/node_modules/openclaw",
     "/usr/lib/node_modules/openclaw",
@@ -164,7 +182,9 @@ function findOpenClawRoot() {
       return candidate;
     }
     const parent = dirname(dir);
-    if (parent === dir) break;
+    if (parent === dir) {
+      break;
+    }
     dir = parent;
   }
 
