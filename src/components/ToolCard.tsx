@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ContentBlock } from "../types";
 import { C } from "./constants";
 import Spinner from "./Spinner";
@@ -6,29 +7,41 @@ import ToolIcon from "./ToolIcon";
 
 type ToolCallBlock = Extract<ContentBlock, { type: "tool_call" }>;
 
-// Tool config: label and keys to try for the detail line
-type ToolDef = { label: string; detailKeys?: string[] };
+// Tool config: labelKey for i18n and keys to try for the detail line
+type ToolDef = { labelKey: string; detailKeys?: string[] };
 
 const TOOL_CONFIG: Record<string, ToolDef> = {
-  read: { label: "Read File", detailKeys: ["file_path", "path"] },
-  write: { label: "Write File", detailKeys: ["file_path", "path"] },
-  edit: { label: "Edit File", detailKeys: ["file_path", "path"] },
-  bash: { label: "Run Command", detailKeys: ["command", "cmd"] },
-  exec: { label: "Run Command", detailKeys: ["command", "cmd"] },
-  glob: { label: "Find Files", detailKeys: ["pattern", "path"] },
-  grep: { label: "Search Code", detailKeys: ["pattern", "query"] },
-  web_fetch: { label: "Fetch URL", detailKeys: ["url", "targetUrl"] },
-  webfetch: { label: "Fetch URL", detailKeys: ["url", "targetUrl"] },
-  web_search: { label: "Web Search", detailKeys: ["query"] },
-  websearch: { label: "Web Search", detailKeys: ["query"] },
-  task: { label: "Sub-Agent", detailKeys: ["prompt", "description"] },
-  browser: { label: "Browser", detailKeys: ["targetUrl", "url"] },
-  apply_patch: { label: "Apply Patch", detailKeys: ["path"] },
+  read: { labelKey: "tools.readFile", detailKeys: ["file_path", "path"] },
+  write: { labelKey: "tools.writeFile", detailKeys: ["file_path", "path"] },
+  edit: { labelKey: "tools.editFile", detailKeys: ["file_path", "path"] },
+  bash: { labelKey: "tools.runCommand", detailKeys: ["command", "cmd"] },
+  exec: { labelKey: "tools.runCommand", detailKeys: ["command", "cmd"] },
+  glob: { labelKey: "tools.findFiles", detailKeys: ["pattern", "path"] },
+  grep: { labelKey: "tools.searchCode", detailKeys: ["pattern", "query"] },
+  web_fetch: {
+    labelKey: "tools.fetchUrl",
+    detailKeys: ["url", "targetUrl"],
+  },
+  webfetch: {
+    labelKey: "tools.fetchUrl",
+    detailKeys: ["url", "targetUrl"],
+  },
+  web_search: { labelKey: "tools.webSearch", detailKeys: ["query"] },
+  websearch: { labelKey: "tools.webSearch", detailKeys: ["query"] },
+  task: {
+    labelKey: "tools.subAgent",
+    detailKeys: ["prompt", "description"],
+  },
+  browser: {
+    labelKey: "tools.browser",
+    detailKeys: ["targetUrl", "url"],
+  },
+  apply_patch: { labelKey: "tools.applyPatch", detailKeys: ["path"] },
 };
 
 function lookupConfig(toolName: string): ToolDef {
   const key = toolName.trim().toLowerCase();
-  return TOOL_CONFIG[key] ?? { label: toolName || "Tool Call" };
+  return TOOL_CONFIG[key] ?? { labelKey: "" };
 }
 
 const INLINE_THRESHOLD = 80;
@@ -99,6 +112,7 @@ export default function ToolCard({
   block: ToolCallBlock;
   agentColor: string;
 }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const cfg = lookupConfig(block.toolName);
   const isRunning = block.phase !== "result";
@@ -140,7 +154,9 @@ export default function ToolCard({
             whiteSpace: "nowrap",
           }}
         >
-          {cfg.label}
+          {cfg.labelKey
+            ? t(cfg.labelKey)
+            : block.toolName || t("tools.fallback")}
         </span>
         {isRunning ? (
           <Spinner color={agentColor} />
@@ -210,7 +226,7 @@ export default function ToolCard({
             letterSpacing: 0.5,
           }}
         >
-          Completed
+          {t("tools.completed")}
         </div>
       )}
 

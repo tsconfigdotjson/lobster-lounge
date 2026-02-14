@@ -1,0 +1,138 @@
+{
+  "chat": {
+    "clear": "LIMPAR",
+    "clearTooltip": "Limpar histórico de chat",
+    "emptyState": "Envie uma mensagem para {{agentId}}",
+    "emptyStateHint": "Tente: \"Relatório de status\" ou \"O que você encontrou?\"",
+    "newSession": "NOVA",
+    "newSessionTooltip": "Iniciar uma nova sessão com este agente",
+    "placeholder": "Mensagem para {{agentId}}...",
+    "send": "ENVIAR"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "Autenticando identidade do dispositivo...",
+        "label": "Pareamento do dispositivo"
+      },
+      "discover": {
+        "desc": "Analisando rede local do recife...",
+        "label": "Descobrindo gateway"
+      },
+      "handshake": {
+        "desc": "Estabelecendo protocolo seguro de pinça...",
+        "label": "Aperto de garra"
+      },
+      "ready": {
+        "desc": "Todos os sistemas normais. Bem-vindo ao recife.",
+        "label": "Gateway conectado"
+      },
+      "sync": {
+        "desc": "Baixando mapas atuais e lista de agentes...",
+        "label": "Sincronizando dados de maré"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "AGENTE DESDOBRADO",
+    "agentDesignation": "DESIGNAÇÃO DO AGENTE",
+    "cancel": "CANCELAR",
+    "cancelWithIcon": "✕ CANCELAR",
+    "confirmDeploy": "🦞 CONFIRMAR E DESDOBRAR",
+    "deployFailed": "Desdobramento falhou",
+    "deploying": "⏳ DESDOBRANDO...",
+    "deploymentSpecs": "ESPECIFICAÇÕES DE IMPLEMENTAÇÃO",
+    "editBack": "← EDITAR",
+    "fillInName": "Preencha um nome",
+    "joinedPod": "entrou no pod",
+    "nameLabel": "NOME",
+    "namePlaceholder": "ex. CLAWZ, REEF, CORAL...",
+    "newBadge": "NOVO",
+    "previewNext": "PRÉ-VISUALIZAR AGENTE →",
+    "previewTitle": "PRÉ-VISUALIZAR AGENTE",
+    "save": "SALVAR",
+    "saving": "⏳ SALVANDO...",
+    "shellColor": "COR DA CASCA",
+    "spawnAnother": "GERAR OUTRO",
+    "spawnNewTitle": "GERAR NOVO AGENTE",
+    "specBootTime": "Tempo de Inicialização Estimado",
+    "specBootTimeValue": "~3.2s",
+    "specDesignation": "Designação",
+    "specMode": "Modo",
+    "specModeValue": "Autônomo",
+    "specPodAssignment": "Atribuição de Pod",
+    "specPodAssignmentValue": "Padrão",
+    "specShellColor": "Cor da Casca",
+    "updateFailed": "Falha na atualização"
+  },
+  "dashboard": {
+    "agentChat": "CHAT DO AGENTE",
+    "chatButton": "CHAT",
+    "contractTooltip": "Contrair",
+    "current": {
+      "medium": "MÉDIA",
+      "strong": "FORTE",
+      "weak": "FRACA"
+    },
+    "currentLabel": "CORRENTE",
+    "disconnect": "DESCONECTAR",
+    "editAgentTitle": "EDITAR AGENTE",
+    "editButton": "✎ EDITAR",
+    "expandTooltip": "Expandir",
+    "hudTitle": "HUD",
+    "missionLabel": "MISSÃO",
+    "missionValue": "OPERAÇÕES NO FUNDO DO MAR",
+    "podLabel": "POD",
+    "podRosterTitle": "LISTA DE POD",
+    "podValue": "{{count}} ATIVOS",
+    "skillsTitle": "HABILIDADES",
+    "spawnAgent": "+ GERAR AGENTE",
+    "spawnAgentTitle": "GERAR AGENTE",
+    "tideLogTitle": "REGISTRO DE MARÉ",
+    "timeLabel": "TEMPO",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "CONECTAR",
+    "connectingTitle": "CONECTANDO...",
+    "connectionFailedDefault": "Não foi possível conectar ao gateway.",
+    "connectionFailedTitle": "CONEXÃO FALHOU",
+    "devicePaired": "DISPOSITIVO PAREADO",
+    "devicePairedDesc": "Dispositivo {{deviceId}} possui um token armazenado para este gateway",
+    "loginDescription": "Conecte-se a um Gateway OpenClaw. Seu dispositivo será pareado automaticamente.",
+    "loginTitle": "LOGIN DO GATEWAY",
+    "newDevice": "NOVO DISPOSITIVO",
+    "newDeviceDesc": "Dispositivo {{deviceId}} — token do gateway necessário para o primeiro pareamento",
+    "pairingDescription": "Este dispositivo precisa ser aprovado por um operador existente. Execute <code>openclaw devices approve</code> ou peça a um operador para verificar suas solicitações de pareamento.",
+    "pairingInProgress": "Pareamento em andamento",
+    "pairingWaiting": "Aguardando aprovação do operador...",
+    "recent": "RECENTE",
+    "recentConnections": "CONEXÕES RECENTES",
+    "retryConnection": "TENTAR CONEXÃO NOVAMENTE",
+    "tokenLabel": "TOKEN DO GATEWAY",
+    "tokenPlaceholder": "Cole o token do gateway para parear este dispositivo",
+    "tryAgain": "TENTAR NOVAMENTE",
+    "urlLabel": "URL DO GATEWAY"
+  },
+  "skills": {
+    "noAvailable": "Nenhuma habilidade disponível",
+    "noMatching": "Nenhuma habilidade correspondente",
+    "on": "LIGADO",
+    "searchPlaceholder": "Pesquisar habilidades..."
+  },
+  "tools": {
+    "applyPatch": "Aplicar Patch",
+    "browser": "Navegador",
+    "completed": "Concluído",
+    "editFile": "Editar Arquivo",
+    "fallback": "Chamada de Ferramenta",
+    "fetchUrl": "Buscar URL",
+    "findFiles": "Encontrar Arquivos",
+    "readFile": "Ler Arquivo",
+    "runCommand": "Executar Comando",
+    "searchCode": "Pesquisar Código",
+    "subAgent": "Sub-Agente",
+    "webSearch": "Pesquisa na Web",
+    "writeFile": "Escrever Arquivo"
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "chat": {
+    "clear": "LEEREN",
+    "clearTooltip": "Chatverlauf löschen",
+    "emptyState": "Nachricht an {{agentId}} senden",
+    "emptyStateHint": "Versuche: \"Statistikbericht\" oder \"Was hast du gefunden?\"",
+    "newSession": "NEU",
+    "newSessionTooltip": "Eine neue Sitzung mit diesem Agenten starten",
+    "placeholder": "Nachricht an {{agentId}}...",
+    "send": "SENDEN"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "Geräteidentität wird authentifiziert...",
+        "label": "Geräteverbindung"
+      },
+      "discover": {
+        "desc": "Lokales Reef-Netzwerk wird gescannt...",
+        "label": "Gateway entdecken"
+      },
+      "handshake": {
+        "desc": "Sicheres Pinch-Protokoll wird etabliert...",
+        "label": "Claw Handschlag"
+      },
+      "ready": {
+        "desc": "Alle Systeme sind nominal. Willkommen im Reef.",
+        "label": "Gateway verbunden"
+      },
+      "sync": {
+        "desc": "Aktuelle Karten und Agentenliste werden heruntergeladen...",
+        "label": "Tidedaten synchronisieren"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "AGENT EINGESETZT",
+    "agentDesignation": "AGENTENBEZEICHNUNG",
+    "cancel": "ABBRECHEN",
+    "cancelWithIcon": "✕ ABBRECHEN",
+    "confirmDeploy": "🦞 BESTÄTIGEN UND EINSETZEN",
+    "deployFailed": "Einsatz fehlgeschlagen",
+    "deploying": "⏳ WIRD EINGESETZT...",
+    "deploymentSpecs": "EINSATZ SPEZIFIKATIONEN",
+    "editBack": "← BEARBEITEN",
+    "fillInName": "Namen angeben",
+    "joinedPod": "ist dem Pod beigetreten",
+    "nameLabel": "NAME",
+    "namePlaceholder": "z.B. CLAWZ, REEF, CORAL...",
+    "newBadge": "NEU",
+    "previewNext": "AGENT VORSCHAU →",
+    "previewTitle": "AGENT VORSCHAU",
+    "save": "SPEICHERN",
+    "saving": "⏳ SPEICHERN...",
+    "shellColor": "PANZERFARBE",
+    "spawnAnother": "EINEN WEITEREN ERZEUGEN",
+    "spawnNewTitle": "NEUEN AGENT ERZEUGEN",
+    "specBootTime": "Geschätzte Boot-Zeit",
+    "specBootTimeValue": "~3.2s",
+    "specDesignation": "Benennung",
+    "specMode": "Modus",
+    "specModeValue": "Autonom",
+    "specPodAssignment": "Pod-Zuordnung",
+    "specPodAssignmentValue": "Standard",
+    "specShellColor": "Panzerfarbe",
+    "updateFailed": "Aktualisierung fehlgeschlagen"
+  },
+  "dashboard": {
+    "agentChat": "AGENTEN-CHAT",
+    "chatButton": "CHAT",
+    "contractTooltip": "Zusammenziehen",
+    "current": {
+      "medium": "MITTEL",
+      "strong": "STARK",
+      "weak": "SCHWACH"
+    },
+    "currentLabel": "STROM",
+    "disconnect": "TRENNEN",
+    "editAgentTitle": "AGENT BEARBEITEN",
+    "editButton": "✎ BEARBEITEN",
+    "expandTooltip": "Erweitern",
+    "hudTitle": "HUD",
+    "missionLabel": "MISSION",
+    "missionValue": "TIEFSEE-EINSÄTZE",
+    "podLabel": "POD",
+    "podRosterTitle": "POD-LISTE",
+    "podValue": "{{count}} AKTIV",
+    "skillsTitle": "FÄHIGKEITEN",
+    "spawnAgent": "+ AGENT ERZEUGEN",
+    "spawnAgentTitle": "AGENT ERZEUGEN",
+    "tideLogTitle": "TIDE-LOG",
+    "timeLabel": "ZEIT",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "VERBINDEN",
+    "connectingTitle": "VERBINDUNG WIRD HERGESTELLT...",
+    "connectionFailedDefault": "Verbindung zum Gateway nicht möglich.",
+    "connectionFailedTitle": "VERBINDUNG FEHLGESCHLAGEN",
+    "devicePaired": "GERÄT GEKOPPELT",
+    "devicePairedDesc": "Gerät {{deviceId}} hat ein gespeichertes Token für dieses Gateway",
+    "loginDescription": "Verbinde dich mit einem OpenClaw Gateway. Dein Gerät wird automatisch gekoppelt.",
+    "loginTitle": "GATEWAY-LOGIN",
+    "newDevice": "NEUES GERÄT",
+    "newDeviceDesc": "Gerät {{deviceId}} — Gateway-Token erforderlich für die erste Kopplung",
+    "pairingDescription": "Dieses Gerät muss von einem bestehenden Betreiber bestätigt werden. Führen Sie <code>openclaw devices approve</code> aus oder bitten Sie einen Betreiber, die Kopplungsanfragen zu überprüfen.",
+    "pairingInProgress": "Kopplung läuft",
+    "pairingWaiting": "Warten auf Betreiberbestätigung...",
+    "recent": "LETZTE",
+    "recentConnections": "LETZTE VERBINDUNGEN",
+    "retryConnection": "VERBINDUNG ERNEUT VERSUCHEN",
+    "tokenLabel": "GATEWAY-TOKEN",
+    "tokenPlaceholder": "Gateway-Token einfügen, um dieses Gerät zu koppeln",
+    "tryAgain": "ERNEUT VERSUCHEN",
+    "urlLabel": "GATEWAY-URL"
+  },
+  "skills": {
+    "noAvailable": "Keine Fähigkeiten verfügbar",
+    "noMatching": "Keine passenden Fähigkeiten",
+    "on": "EIN",
+    "searchPlaceholder": "Fähigkeiten suchen..."
+  },
+  "tools": {
+    "applyPatch": "Patch anwenden",
+    "browser": "Browser",
+    "completed": "Abgeschlossen",
+    "editFile": "Datei bearbeiten",
+    "fallback": "Tool-Aufruf",
+    "fetchUrl": "URL abrufen",
+    "findFiles": "Dateien finden",
+    "readFile": "Datei lesen",
+    "runCommand": "Befehl ausführen",
+    "searchCode": "Code durchsuchen",
+    "subAgent": "Sub-Agent",
+    "webSearch": "Websuche",
+    "writeFile": "Datei schreiben"
+  }
+}

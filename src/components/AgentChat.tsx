@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   clearMessages,
   loadMessages,
@@ -30,6 +31,7 @@ export default function AgentChat({
   expanded?: boolean;
   gatewayUrl?: string;
 }) {
+  const { t } = useTranslation();
   const [active, setActive] = useState(
     () =>
       (initialActiveId && agents.find((a) => a.id === initialActiveId)) ||
@@ -295,7 +297,7 @@ export default function AgentChat({
             {active.id}
           </div>
           <div style={{ fontSize: 11, color: C.textDim }}>
-            {active.role} · {active.status.toUpperCase()}
+            {active.role} &middot; {active.status.toUpperCase()}
           </div>
         </div>
         <button
@@ -314,9 +316,9 @@ export default function AgentChat({
             letterSpacing: 1,
             opacity: typing ? 0.3 : 0.7,
           }}
-          title="Start a new session with this agent"
+          title={t("chat.newSessionTooltip")}
         >
-          NEW
+          {t("chat.newSession")}
         </button>
         {msgs.length > 0 && (
           <button
@@ -339,9 +341,9 @@ export default function AgentChat({
               letterSpacing: 1,
               opacity: 0.7,
             }}
-            title="Clear chat history"
+            title={t("chat.clearTooltip")}
           >
-            CLEAR
+            {t("chat.clear")}
           </button>
         )}
       </div>
@@ -377,11 +379,9 @@ export default function AgentChat({
                 lineHeight: 1.6,
               }}
             >
-              Send a message to {active.id}
+              {t("chat.emptyState", { agentId: active.id })}
               <br />
-              <span style={{ fontSize: 11 }}>
-                Try: "Status report" or "What did you find?"
-              </span>
+              <span style={{ fontSize: 11 }}>{t("chat.emptyStateHint")}</span>
             </div>
           </div>
         )}
@@ -521,7 +521,7 @@ export default function AgentChat({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder={`Message ${active.id}...`}
+          placeholder={t("chat.placeholder", { agentId: active.id })}
           style={{ ...inputStyle, marginBottom: 0, flex: 1 }}
         />
         <button
@@ -535,7 +535,7 @@ export default function AgentChat({
             fontSize: 12,
           }}
         >
-          SEND
+          {t("chat.send")}
         </button>
       </div>
     </div>

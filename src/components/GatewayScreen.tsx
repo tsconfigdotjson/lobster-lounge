@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { loadConnectionHistory } from "../context/GatewayContext";
 import { getDeviceToken } from "../services/device-identity";
 import { C, CONNECTION_STEPS } from "./constants";
+import LanguageDropdown from "./LanguageDropdown";
 import LobsterAvatar from "./LobsterAvatar";
 import PanelHeader from "./PanelHeader";
 import Spinner from "./Spinner";
@@ -28,6 +30,7 @@ export default function GatewayScreen({
   onRetryPairing?: () => void;
   deviceId?: string | null;
 }) {
+  const { t } = useTranslation();
   const defaultGatewayUrl = (() => {
     const proto = location.protocol === "https:" ? "wss" : "ws";
     return `${proto}://${location.host}`;
@@ -100,8 +103,14 @@ export default function GatewayScreen({
 
   if (phase === "select") {
     return (
-      <div style={panelStyle as React.CSSProperties}>
-        <PanelHeader icon="🌊" title="GATEWAY LOGIN" />
+      <div
+        style={{ ...(panelStyle as React.CSSProperties), overflow: "visible" }}
+      >
+        <PanelHeader
+          icon="🌊"
+          title={t("gateway.loginTitle")}
+          trailing={<LanguageDropdown />}
+        />
         <div
           style={{
             fontSize: 11,
@@ -110,12 +119,11 @@ export default function GatewayScreen({
             lineHeight: 1.5,
           }}
         >
-          Connect to an OpenClaw Gateway. Your device will be paired
-          automatically.
+          {t("gateway.loginDescription")}
         </div>
 
         <label style={labelStyle} htmlFor="gateway-url">
-          GATEWAY URL
+          {t("gateway.urlLabel")}
         </label>
         <input
           id="gateway-url"
@@ -156,7 +164,9 @@ export default function GatewayScreen({
                 letterSpacing: 0.5,
               }}
             >
-              {hasPairedToken ? "DEVICE PAIRED" : "NEW DEVICE"}
+              {hasPairedToken
+                ? t("gateway.devicePaired")
+                : t("gateway.newDevice")}
             </span>
           </div>
           {truncatedDeviceId && (
@@ -169,8 +179,12 @@ export default function GatewayScreen({
               }}
             >
               {hasPairedToken
-                ? `Device ${truncatedDeviceId} has a stored token for this gateway`
-                : `Device ${truncatedDeviceId} — gateway token required for first pairing`}
+                ? t("gateway.devicePairedDesc", {
+                    deviceId: truncatedDeviceId,
+                  })
+                : t("gateway.newDeviceDesc", {
+                    deviceId: truncatedDeviceId,
+                  })}
             </div>
           )}
         </div>
@@ -178,13 +192,13 @@ export default function GatewayScreen({
         {!hasPairedToken && (
           <>
             <label style={labelStyle} htmlFor="gateway-token">
-              GATEWAY TOKEN
+              {t("gateway.tokenLabel")}
             </label>
             <input
               id="gateway-token"
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              placeholder="Paste gateway token to pair this device"
+              placeholder={t("gateway.tokenPlaceholder")}
               type="password"
               style={inputStyle}
               onKeyDown={(e) => e.key === "Enter" && startConnect()}
@@ -210,7 +224,7 @@ export default function GatewayScreen({
             gap: 8,
           }}
         >
-          <LobsterAvatar color={C.green} size={16} /> CONNECT
+          <LobsterAvatar color={C.green} size={16} /> {t("gateway.connect")}
         </button>
 
         {history.length > 0 && (
@@ -231,7 +245,7 @@ export default function GatewayScreen({
                 }}
               />
               <span style={{ fontSize: 9, color: C.textDim, letterSpacing: 2 }}>
-                RECENT
+                {t("gateway.recent")}
               </span>
               <div
                 style={{
@@ -242,7 +256,7 @@ export default function GatewayScreen({
               />
             </div>
 
-            <span style={labelStyle}>RECENT CONNECTIONS</span>
+            <span style={labelStyle}>{t("gateway.recentConnections")}</span>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {history.map((entry) => {
                 const ts = entry.ts ? new Date(entry.ts) : null;
@@ -325,7 +339,7 @@ export default function GatewayScreen({
                         </span>
                         {timeStr && (
                           <>
-                            <span>·</span>
+                            <span>&middot;</span>
                             <span>{timeStr}</span>
                           </>
                         )}
@@ -334,7 +348,7 @@ export default function GatewayScreen({
                     <div
                       style={{ fontSize: 14, color: C.amber, flexShrink: 0 }}
                     >
-                      →
+                      &rarr;
                     </div>
                   </button>
                 );
@@ -349,7 +363,7 @@ export default function GatewayScreen({
   if (phase === "error") {
     return (
       <div style={panelStyle as React.CSSProperties}>
-        <PanelHeader icon="⚠️" title="CONNECTION FAILED" />
+        <PanelHeader icon="⚠️" title={t("gateway.connectionFailedTitle")} />
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div
             style={{
@@ -371,7 +385,7 @@ export default function GatewayScreen({
             lineHeight: 1.5,
           }}
         >
-          {connectionError || "Unable to connect to gateway."}
+          {connectionError || t("gateway.connectionFailedDefault")}
         </div>
         <button
           type="button"
@@ -380,7 +394,7 @@ export default function GatewayScreen({
           }}
           style={{ ...btnPrimaryStyle(C.amber), width: "100%" }}
         >
-          TRY AGAIN
+          {t("gateway.tryAgain")}
         </button>
       </div>
     );
@@ -396,7 +410,7 @@ export default function GatewayScreen({
 
     return (
       <div style={panelStyle as React.CSSProperties}>
-        <PanelHeader icon={"\u27F3"} title="CONNECTING..." />
+        <PanelHeader icon={"\u27F3"} title={t("gateway.connectingTitle")} />
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div
             style={{
@@ -494,12 +508,12 @@ export default function GatewayScreen({
                       color: stepColor,
                     }}
                   >
-                    {step.label.toUpperCase()}
+                    {t(`connection.steps.${step.id}.label`).toUpperCase()}
                   </div>
                   <div style={{ fontSize: 9, color: C.textDim, marginTop: 2 }}>
                     {isPairingStep
-                      ? "Waiting for operator approval..."
-                      : step.desc}
+                      ? t("gateway.pairingWaiting")
+                      : t(`connection.steps.${step.id}.desc`)}
                   </div>
                   {isActive && !isPairingStep && (
                     <div
@@ -542,14 +556,14 @@ export default function GatewayScreen({
                         }}
                       />
                       <span style={{ fontSize: 9, color: C.purple }}>
-                        Pairing in progress
+                        {t("gateway.pairingInProgress")}
                       </span>
                     </div>
                   )}
                 </div>
                 {isDone && (
                   <span style={{ fontSize: 9, color: C.green, flexShrink: 0 }}>
-                    ✓
+                    &#10003;
                   </span>
                 )}
                 {isActive && !isPairingStep && <Spinner color={C.amber} />}
@@ -569,19 +583,22 @@ export default function GatewayScreen({
             }}
           >
             <div style={{ fontSize: 10, color: C.textDim, lineHeight: 1.5 }}>
-              This device needs to be approved by an existing operator. Run{" "}
-              <code
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  padding: "2px 5px",
-                  borderRadius: 3,
-                  fontSize: 10,
-                  color: C.purple,
+              <Trans
+                i18nKey="gateway.pairingDescription"
+                components={{
+                  code: (
+                    <code
+                      style={{
+                        background: "rgba(255,255,255,0.06)",
+                        padding: "2px 5px",
+                        borderRadius: 3,
+                        fontSize: 10,
+                        color: C.purple,
+                      }}
+                    />
+                  ),
                 }}
-              >
-                openclaw devices approve
-              </code>{" "}
-              or ask an operator to check their pairing requests.
+              />
             </div>
             <button
               type="button"
@@ -592,7 +609,7 @@ export default function GatewayScreen({
                 marginTop: 12,
               }}
             >
-              RETRY CONNECTION
+              {t("gateway.retryConnection")}
             </button>
           </div>
         )}

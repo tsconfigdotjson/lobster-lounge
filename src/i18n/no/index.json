@@ -1,0 +1,138 @@
+{
+  "chat": {
+    "clear": "TØM",
+    "clearTooltip": "Tøm chat-historikk",
+    "emptyState": "Send en melding til {{agentId}}",
+    "emptyStateHint": "Prøv: \"Statusrapport\" eller \"Hva fant du?\"",
+    "newSession": "NY",
+    "newSessionTooltip": "Start en ny økt med denne agenten",
+    "placeholder": "Melding {{agentId}}...",
+    "send": "SEND"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "Autentiserer enhetsidentitet...",
+        "label": "Enhetsparet"
+      },
+      "discover": {
+        "desc": "Skanning lokal revnettverk...",
+        "label": "Oppdager gateway"
+      },
+      "handshake": {
+        "desc": "Etablerer sikker knipeprotokoll...",
+        "label": "Kloklemming"
+      },
+      "ready": {
+        "desc": "Alle systemer er nominelle. Velkommen til revet.",
+        "label": "Gateway tilkoblet"
+      },
+      "sync": {
+        "desc": "Laster ned aktuelle kart og agentliste...",
+        "label": "Synkroniserer tidevannsdata"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "AGENT UTPLASSERT",
+    "agentDesignation": "AGENTBETEGNELSE",
+    "cancel": "AVBRYT",
+    "cancelWithIcon": "✕ AVBRYT",
+    "confirmDeploy": "🦞 BEKREFT OG UTPLASSER",
+    "deployFailed": "Utplassering mislyktes",
+    "deploying": "⏳ UTPLASSERER...",
+    "deploymentSpecs": "UTPLASSERINGSSPESIFIKASJONER",
+    "editBack": "← REDIGER",
+    "fillInName": "Fyll inn et navn",
+    "joinedPod": "har sluttet seg til gruppen",
+    "nameLabel": "NAVN",
+    "namePlaceholder": "f.eks. CLAWZ, REEF, CORAL...",
+    "newBadge": "NY",
+    "previewNext": "FORHÅNDSVIS AGENT →",
+    "previewTitle": "FORHÅNDSVISNING AGENT",
+    "save": "LAGRE",
+    "saving": "⏳ LAGRER...",
+    "shellColor": "SKALLFARGE",
+    "spawnAnother": "OPPRETT EN TIL",
+    "spawnNewTitle": "OPPRETT NY AGENT",
+    "specBootTime": "Estimert Oppstartstid",
+    "specBootTimeValue": "~3.2s",
+    "specDesignation": "Betegnelse",
+    "specMode": "Modus",
+    "specModeValue": "Autonom",
+    "specPodAssignment": "Gruppetildeling",
+    "specPodAssignmentValue": "Standard",
+    "specShellColor": "Skallfarge",
+    "updateFailed": "Oppdatering mislyktes"
+  },
+  "dashboard": {
+    "agentChat": "AGENTCHAT",
+    "chatButton": "CHAT",
+    "contractTooltip": "Trekk sammen",
+    "current": {
+      "medium": "MEDIUM",
+      "strong": "STERK",
+      "weak": "SVAK"
+    },
+    "currentLabel": "STRØM",
+    "disconnect": "KOBLE FRA",
+    "editAgentTitle": "REDIGER AGENT",
+    "editButton": "✎ REDIGER",
+    "expandTooltip": "Utvid",
+    "hudTitle": "HUD",
+    "missionLabel": "OPPDRAG",
+    "missionValue": "DYPLITTSOPPDRAG",
+    "podLabel": "GRUPPE",
+    "podRosterTitle": "GRUPPELISTER",
+    "podValue": "{{count}} AKTIV",
+    "skillsTitle": "FERDIGHETER",
+    "spawnAgent": "+ OPPRETT AGENT",
+    "spawnAgentTitle": "OPPRETT AGENT",
+    "tideLogTitle": "TIDEVANNSLOGG",
+    "timeLabel": "TID",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "KOBLE TIL",
+    "connectingTitle": "KOBLER TIL...",
+    "connectionFailedDefault": "Kunne ikke koble til gateway.",
+    "connectionFailedTitle": "TILKOBLING FEILET",
+    "devicePaired": "ENHET PARET",
+    "devicePairedDesc": "Enhet {{deviceId}} har et lagret token for denne gatewayen",
+    "loginDescription": "Koble til en OpenClaw Gateway. Enheten din vil bli paret automatisk.",
+    "loginTitle": "GATEWAY INNLOGGING",
+    "newDevice": "NY ENHET",
+    "newDeviceDesc": "Enhet {{deviceId}} — gateway-token nødvendig for førstegangspaaring",
+    "pairingDescription": "Denne enheten må godkjennes av en eksisterende operatør. Kjør <code>openclaw devices approve</code> eller be en operatør sjekke sine paringsforespørsler.",
+    "pairingInProgress": "Paring pågår",
+    "pairingWaiting": "Venter på operatørgodkjenning...",
+    "recent": "NYLIG",
+    "recentConnections": "NYLIGE TILKOBLINGER",
+    "retryConnection": "PRØV Å KOBLE TIL IGJEN",
+    "tokenLabel": "GATEWAY TOKEN",
+    "tokenPlaceholder": "Lim inn gateway-token for å pare denne enheten",
+    "tryAgain": "PRØV IGJEN",
+    "urlLabel": "GATEWAY URL"
+  },
+  "skills": {
+    "noAvailable": "Ingen tilgjengelige ferdigheter",
+    "noMatching": "Ingen samsvarende ferdigheter",
+    "on": "PÅ",
+    "searchPlaceholder": "Søk ferdigheter..."
+  },
+  "tools": {
+    "applyPatch": "Påfør Lapp",
+    "browser": "Nettleser",
+    "completed": "Fullført",
+    "editFile": "Rediger Fil",
+    "fallback": "Verktøy Kall",
+    "fetchUrl": "Hent URL",
+    "findFiles": "Finn Filer",
+    "readFile": "Les Fil",
+    "runCommand": "Kjør Kommando",
+    "searchCode": "Søk Kode",
+    "subAgent": "Sub-agent",
+    "webSearch": "Nettsøk",
+    "writeFile": "Skriv Fil"
+  }
+}

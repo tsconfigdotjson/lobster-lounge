@@ -1,0 +1,138 @@
+{
+  "chat": {
+    "clear": "クリア",
+    "clearTooltip": "チャット履歴をクリア",
+    "emptyState": "{{agentId}} にメッセージを送信",
+    "emptyStateHint": "試してみてください: 「ステータスレポート」または「何を見つけた？」",
+    "newSession": "新しい",
+    "newSessionTooltip": "このエージェントとの新しいセッションを開始",
+    "placeholder": "{{agentId}} にメッセージ...",
+    "send": "送信"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "デバイスの識別を認証中...",
+        "label": "デバイスペアリング"
+      },
+      "discover": {
+        "desc": "ローカルリーフネットワークをスキャン中...",
+        "label": "ゲートウェイを検出中"
+      },
+      "handshake": {
+        "desc": "安全なピンチプロトコルを確立中...",
+        "label": "クローハンドシェイク"
+      },
+      "ready": {
+        "desc": "すべてのシステムは正常です。リーフへようこそ。",
+        "label": "ゲートウェイ接続済み"
+      },
+      "sync": {
+        "desc": "最新の地図とエージェントロスターをダウンロード中...",
+        "label": "潮流データを同期中"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "エージェント配備済み",
+    "agentDesignation": "エージェント指定",
+    "cancel": "キャンセル",
+    "cancelWithIcon": "✕ キャンセル",
+    "confirmDeploy": "🦞 確認して配備",
+    "deployFailed": "配備失敗",
+    "deploying": "⏳ 配備中...",
+    "deploymentSpecs": "展開仕様",
+    "editBack": "← 編集",
+    "fillInName": "名前を入力してください",
+    "joinedPod": "ポッドに参加しました",
+    "nameLabel": "名前",
+    "namePlaceholder": "例: CLAWZ, REEF, CORAL...",
+    "newBadge": "新しい",
+    "previewNext": "エージェントプレビュー →",
+    "previewTitle": "エージェントプレビュー",
+    "save": "保存",
+    "saving": "⏳ 保存中...",
+    "shellColor": "シェルの色",
+    "spawnAnother": "別のエージェント生成",
+    "spawnNewTitle": "新しいエージェント生成",
+    "specBootTime": "推定ブート時間",
+    "specBootTimeValue": "約3.2秒",
+    "specDesignation": "指定",
+    "specMode": "モード",
+    "specModeValue": "自律的",
+    "specPodAssignment": "ポッドの割り当て",
+    "specPodAssignmentValue": "デフォルト",
+    "specShellColor": "シェルの色",
+    "updateFailed": "更新失敗"
+  },
+  "dashboard": {
+    "agentChat": "エージェントチャット",
+    "chatButton": "チャット",
+    "contractTooltip": "縮小",
+    "current": {
+      "medium": "中",
+      "strong": "強い",
+      "weak": "弱い"
+    },
+    "currentLabel": "潮流",
+    "disconnect": "切断",
+    "editAgentTitle": "エージェント編集",
+    "editButton": "✎ 編集",
+    "expandTooltip": "拡大",
+    "hudTitle": "HUD",
+    "missionLabel": "ミッション",
+    "missionValue": "深海作戦",
+    "podLabel": "ポッド",
+    "podRosterTitle": "ポッド名簿",
+    "podValue": "{{count}} 活動中",
+    "skillsTitle": "スキル",
+    "spawnAgent": "＋エージェント生成",
+    "spawnAgentTitle": "エージェント生成",
+    "tideLogTitle": "潮流ログ",
+    "timeLabel": "時間",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "接続",
+    "connectingTitle": "接続中...",
+    "connectionFailedDefault": "ゲートウェイに接続できません。",
+    "connectionFailedTitle": "接続失敗",
+    "devicePaired": "デバイス ペアード",
+    "devicePairedDesc": "デバイス {{deviceId}} はこのゲートウェイに保存されたトークンを持っています",
+    "loginDescription": "OpenClawゲートウェイに接続します。デバイスは自動的にペアリングされます。",
+    "loginTitle": "ゲートウェイ ログイン",
+    "newDevice": "新しいデバイス",
+    "newDeviceDesc": "デバイス {{deviceId}} ― 初回のペアリングにはゲートウェイトークンが必要です",
+    "pairingDescription": "このデバイスは既存のオペレーターによる承認が必要です。<code>openclaw devices approve</code> を実行するか、オペレーターにペアリングリクエストを確認してもらってください。",
+    "pairingInProgress": "ペアリング進行中",
+    "pairingWaiting": "オペレーターの承認を待っています...",
+    "recent": "最近",
+    "recentConnections": "最近の接続",
+    "retryConnection": "接続再試行",
+    "tokenLabel": "ゲートウェイ トークン",
+    "tokenPlaceholder": "このデバイスをペアリングするにはゲートウェイトークンを貼り付けてください",
+    "tryAgain": "再試行",
+    "urlLabel": "ゲートウェイ URL"
+  },
+  "skills": {
+    "noAvailable": "利用可能なスキルがありません",
+    "noMatching": "一致するスキルがありません",
+    "on": "オン",
+    "searchPlaceholder": "スキルを検索..."
+  },
+  "tools": {
+    "applyPatch": "パッチを適用",
+    "browser": "ブラウザ",
+    "completed": "完了",
+    "editFile": "ファイルを編集",
+    "fallback": "ツールコール",
+    "fetchUrl": "URLを取得",
+    "findFiles": "ファイルを探す",
+    "readFile": "ファイルを読む",
+    "runCommand": "コマンドを実行",
+    "searchCode": "コードを検索",
+    "subAgent": "サブエージェント",
+    "webSearch": "ウェブ検索",
+    "writeFile": "ファイルに書く"
+  }
+}

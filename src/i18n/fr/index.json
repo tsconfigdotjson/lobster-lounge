@@ -1,0 +1,138 @@
+{
+  "chat": {
+    "clear": "EFFACER",
+    "clearTooltip": "Effacer l'historique de la discussion",
+    "emptyState": "Envoyer un message à {{agentId}}",
+    "emptyStateHint": "Essayez : \"Rapport d'état\" ou \"Qu'avez-vous trouvé ?\"",
+    "newSession": "NOUVEAU",
+    "newSessionTooltip": "Commencer une nouvelle session avec cet agent",
+    "placeholder": "Message {{agentId}}...",
+    "send": "ENVOYER"
+  },
+  "connection": {
+    "steps": {
+      "auth": {
+        "desc": "Authentification de l'identité de l'appareil...",
+        "label": "Appairage de l'appareil"
+      },
+      "discover": {
+        "desc": "Analyse du réseau local du récif...",
+        "label": "Découverte de la passerelle"
+      },
+      "handshake": {
+        "desc": "Établissement du protocole sécurisé de pincement...",
+        "label": "Poignée de pince"
+      },
+      "ready": {
+        "desc": "Tous les systèmes sont nominaux. Bienvenue au récif.",
+        "label": "Passerelle connectée"
+      },
+      "sync": {
+        "desc": "Téléchargement des cartes actuelles et de la liste des agents...",
+        "label": "Synchronisation des données de marée"
+      }
+    }
+  },
+  "creator": {
+    "agentDeployed": "AGENT DÉPLOYÉ",
+    "agentDesignation": "DÉSIGNATION DE L'AGENT",
+    "cancel": "ANNULER",
+    "cancelWithIcon": "✕ ANNULER",
+    "confirmDeploy": "🦞 CONFIRMER ET DÉPLOYER",
+    "deployFailed": "Échec du déploiement",
+    "deploying": "⏳ DÉPLOIEMENT...",
+    "deploymentSpecs": "SPÉCIFICATIONS DE DÉPLOIEMENT",
+    "editBack": "← ÉDITER",
+    "fillInName": "Renseignez un nom",
+    "joinedPod": "a rejoint le pod",
+    "nameLabel": "NOM",
+    "namePlaceholder": "ex : CLAWZ, REEF, CORAL...",
+    "newBadge": "NOUVEAU",
+    "previewNext": "APERÇU DE L'AGENT →",
+    "previewTitle": "APERÇU DE L'AGENT",
+    "save": "ENREGISTRER",
+    "saving": "⏳ ENREGISTREMENT...",
+    "shellColor": "COULEUR DE COQUILLE",
+    "spawnAnother": "DÉPLOYER UN AUTRE",
+    "spawnNewTitle": "DÉPLOYER NOUVEL AGENT",
+    "specBootTime": "Temps de Démarrage Est.",
+    "specBootTimeValue": "~3.2s",
+    "specDesignation": "Désignation",
+    "specMode": "Mode",
+    "specModeValue": "Autonome",
+    "specPodAssignment": "Affectation du Pod",
+    "specPodAssignmentValue": "Par défaut",
+    "specShellColor": "Couleur de Coquille",
+    "updateFailed": "Échec de la mise à jour"
+  },
+  "dashboard": {
+    "agentChat": "DISCUSSION AGENT",
+    "chatButton": "DISCUSSION",
+    "contractTooltip": "Réduire",
+    "current": {
+      "medium": "MOYEN",
+      "strong": "FORT",
+      "weak": "FAIBLE"
+    },
+    "currentLabel": "COURANT",
+    "disconnect": "DÉCONNECTER",
+    "editAgentTitle": "ÉDITER AGENT",
+    "editButton": "✎ ÉDITER",
+    "expandTooltip": "Développer",
+    "hudTitle": "HUD",
+    "missionLabel": "MISSION",
+    "missionValue": "OPS EN EAUX PROFONDES",
+    "podLabel": "POD",
+    "podRosterTitle": "LISTE DU POD",
+    "podValue": "{{count}} ACTIF",
+    "skillsTitle": "COMPÉTENCES",
+    "spawnAgent": "+ DÉPLOYER AGENT",
+    "spawnAgentTitle": "DÉPLOYER AGENT",
+    "tideLogTitle": "LOG DE MARÉE",
+    "timeLabel": "HEURE",
+    "timeValue": "{{time}} UTC"
+  },
+  "gateway": {
+    "connect": "CONNECTER",
+    "connectingTitle": "CONNEXION...",
+    "connectionFailedDefault": "Impossible de se connecter à la passerelle.",
+    "connectionFailedTitle": "ÉCHEC DE LA CONNEXION",
+    "devicePaired": "APPAREIL APPARIÉ",
+    "devicePairedDesc": "L'appareil {{deviceId}} possède un jeton stocké pour cette passerelle",
+    "loginDescription": "Connectez-vous à une passerelle OpenClaw. Votre appareil sera appairé automatiquement.",
+    "loginTitle": "CONNEXION À LA PASSERELLE",
+    "newDevice": "NOUVEL APPAREIL",
+    "newDeviceDesc": "L'appareil {{deviceId}} — un jeton de passerelle est requis pour le premier appairage",
+    "pairingDescription": "Cet appareil doit être approuvé par un opérateur existant. Exécutez <code>openclaw devices approve</code> ou demandez à un opérateur de vérifier ses demandes d'appairage.",
+    "pairingInProgress": "Appairage en cours",
+    "pairingWaiting": "En attente de l'approbation de l'opérateur...",
+    "recent": "RÉCENT",
+    "recentConnections": "CONNEXIONS RÉCENTES",
+    "retryConnection": "RÉESSAYER LA CONNEXION",
+    "tokenLabel": "JETON DE LA PASSERELLE",
+    "tokenPlaceholder": "Collez le jeton de passerelle pour appairer cet appareil",
+    "tryAgain": "RÉESSAYER",
+    "urlLabel": "URL DE LA PASSERELLE"
+  },
+  "skills": {
+    "noAvailable": "Aucune compétence disponible",
+    "noMatching": "Aucune compétence correspondante",
+    "on": "ACTIVÉ",
+    "searchPlaceholder": "Rechercher des compétences..."
+  },
+  "tools": {
+    "applyPatch": "Appliquer le patch",
+    "browser": "Navigateur",
+    "completed": "Terminé",
+    "editFile": "Éditer le fichier",
+    "fallback": "Appel d'outil",
+    "fetchUrl": "Récupérer l'URL",
+    "findFiles": "Trouver des fichiers",
+    "readFile": "Lire le fichier",
+    "runCommand": "Exécuter la commande",
+    "searchCode": "Rechercher du code",
+    "subAgent": "Sous-Agent",
+    "webSearch": "Recherche Web",
+    "writeFile": "Écrire le fichier"
+  }
+}
