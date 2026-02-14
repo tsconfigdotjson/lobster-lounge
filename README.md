@@ -64,6 +64,12 @@ bun run dev
 
 This starts Vite's dev server with hot reload. Lounge will render the login screen where you can enter your gateway's WebSocket URL (e.g. `ws://127.0.0.1:18789`). For development you're connecting directly to the gateway -- no need to install into OpenClaw's file tree.
 
+You'll need to allow the dev server origin in your gateway config:
+
+```
+openclaw config set gateway.controlUi.allowedOrigins '["http://localhost:5173"]'
+```
+
 ### Build
 
 ```
