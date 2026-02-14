@@ -22,6 +22,7 @@ export default function GatewayScreen({
   connectionState,
   connectionError,
   onStartConnect,
+  onRetryPairing,
   serverInfo,
   helloPayload,
   deviceId,
@@ -30,6 +31,7 @@ export default function GatewayScreen({
   connectionState: string;
   connectionError?: string | null;
   onStartConnect?: (url: string, token?: string) => void;
+  onRetryPairing?: () => void;
   serverInfo?: ServerInfo | null;
   helloPayload?: HelloPayload | null;
   deviceId?: string | null;
@@ -599,9 +601,31 @@ export default function GatewayScreen({
             }}
           >
             <div style={{ fontSize: 10, color: C.textDim, lineHeight: 1.5 }}>
-              This device needs to be approved by an existing operator. Ask them
-              to check their pairing requests.
+              This device needs to be approved by an existing operator. Run{" "}
+              <code
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  padding: "2px 5px",
+                  borderRadius: 3,
+                  fontSize: 10,
+                  color: C.purple,
+                }}
+              >
+                openclaw devices approve
+              </code>{" "}
+              or ask an operator to check their pairing requests.
             </div>
+            <button
+              type="button"
+              onClick={() => onRetryPairing?.()}
+              style={{
+                ...btnPrimaryStyle(C.purple),
+                width: "100%",
+                marginTop: 12,
+              }}
+            >
+              RETRY CONNECTION
+            </button>
           </div>
         )}
         {phase === "done" && (

@@ -101,6 +101,7 @@ interface GatewayContextValue {
   deviceId: string | null;
   connect: (url: string, gatewayToken?: string) => void;
   disconnect: () => void;
+  retryPairing: () => void;
   agents: HqAgent[];
   rawAgents: GatewayAgent[];
   chatAgents: ChatAgent[];
@@ -422,7 +423,12 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
             syncAgents(client);
           }
           if (state === "disconnected") {
-            setConnectionPhase("disconnected");
+            setPairingState((prev) => {
+              if (!prev) {
+                setConnectionPhase("disconnected");
+              }
+              return prev;
+            });
           }
         },
         onEvent: handleEvent,
@@ -457,6 +463,14 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
     setSkills([]);
     setAllSkills([]);
   }, [cleanup]);
+
+  const retryPairing = useCallback(() => {
+    const client = clientRef.current;
+    if (client) {
+      setPairingState(null);
+      client.retry();
+    }
+  }, []);
 
   const sendAgentMessage = useCallback(
     (
@@ -704,6 +718,7 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
     deviceId,
     connect,
     disconnect,
+    retryPairing,
     agents,
     rawAgents,
     chatAgents,
