@@ -33,8 +33,12 @@ export default function DashboardView() {
   const [chatCollapsed, setChatCollapsed] = useState(true);
   const [chatInitialAgentId, setChatInitialAgentId] = useState(null);
   const [skillsCollapsed, setSkillsCollapsed] = useState(true);
-  const [time, setTime] = useState("08:00");
+  const [time, setTime] = useState(() => {
+    const now = new Date();
+    return `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;
+  });
   const [tick, setTick] = useState(0);
+  const [currentStrength, setCurrentStrength] = useState("STRONG");
   const [showCreator, setShowCreator] = useState(false);
   const [editingAgent, setEditingAgent] = useState(null);
   const chatRef = useRef(null);
@@ -55,11 +59,19 @@ export default function DashboardView() {
   }, [chatCollapsed, skillsCollapsed]);
 
   useEffect(() => {
+    const CURRENT_OPTIONS = ["STRONG", "MEDIUM", "WEAK"];
+    let nextChange = Date.now() + (60 + Math.random() * 180) * 1000;
     const iv = setInterval(() => {
       setTick((t) => t + 1);
-      const h = 8 + Math.floor((Date.now() / 3000) % 10);
-      const m = Math.floor((Date.now() / 500) % 60);
-      setTime(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      const now = new Date();
+      setTime(`${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`);
+      if (Date.now() >= nextChange) {
+        setCurrentStrength((prev) => {
+          const others = CURRENT_OPTIONS.filter((o) => o !== prev);
+          return others[Math.floor(Math.random() * others.length)];
+        });
+        nextChange = Date.now() + (60 + Math.random() * 180) * 1000;
+      }
     }, 1000);
     return () => clearInterval(iv);
   }, []);
@@ -234,9 +246,14 @@ export default function DashboardView() {
             color={C.green}
           />
           <Divider />
-          <HudItem label="TIDE" value={time} color={C.amber} />
+          <HudItem label="TIME" value={`${time} UTC`} color={C.amber} />
           <Divider />
-          <HudItem label="CURRENT" value="STRONG" color={C.green} pulse />
+          <HudItem
+            label="CURRENT"
+            value={currentStrength}
+            color={currentStrength === "STRONG" ? C.red : currentStrength === "MEDIUM" ? C.amber : C.green}
+            pulse={currentStrength === "STRONG"}
+          />
         </div>
       </DraggablePanel>
 
