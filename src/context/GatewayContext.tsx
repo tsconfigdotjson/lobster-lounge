@@ -159,11 +159,21 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
   const [allSkills, setAllSkills] = useState<SkillWithStatus[]>([]);
   const clientRef = useRef<GatewayClient | null>(null);
   const unsubsRef = useRef<Array<() => void>>([]);
+  const rawAgentsRef = useRef<GatewayAgent[]>([]);
+  const agentsRef = useRef<HqAgent[]>([]);
 
   // Initialize device ID on mount
   useEffect(() => {
     getOrCreateIdentity().then((id) => setDeviceId(id.deviceId));
   }, []);
+
+  // Keep refs in sync so the onEvent closure can access current agents
+  useEffect(() => {
+    rawAgentsRef.current = rawAgents;
+  }, [rawAgents]);
+  useEffect(() => {
+    agentsRef.current = agents;
+  }, [agents]);
 
   const cleanup = useCallback(() => {
     for (const fn of unsubsRef.current) {
@@ -381,13 +391,28 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
         onEvent: (event: string, payload: GatewayPayload) => {
           if (event === "agent") {
             const agentPayload = payload as AgentEventPayload;
-            const label = agentPayload?.data?.agentId || "AGENT";
+            const agentId = agentPayload?.data?.agentId;
+            const gwAgent = rawAgentsRef.current.find(
+              (a) => a.id === agentId,
+            );
+            const label = (
+              gwAgent?.identity?.name ||
+              gwAgent?.name ||
+              agentId ||
+              "AGENT"
+            )
+              .toUpperCase()
+              .slice(0, 8);
+            const hqAgent = agentsRef.current.find(
+              (a) => a._gatewayId === agentId,
+            );
+            const color = hqAgent?.color || "#f4a261";
             setActivityLogs((prev) => [
               ...prev.slice(-50),
               createLogEntry(
-                label.toUpperCase().slice(0, 8),
+                label,
                 String(agentPayload?.stream || "event"),
-                "#f4a261",
+                color,
               ),
             ]);
           }

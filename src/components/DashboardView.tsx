@@ -471,19 +471,6 @@ export default function DashboardView() {
             </div>
             <div style={{ fontSize: 12, color: C.textDim }}>{sel.role}</div>
           </div>
-          <div
-            style={{
-              padding: "3px 10px",
-              borderRadius: 2,
-              background: "rgba(46,204,113,0.12)",
-              border: `1px solid ${C.green}`,
-              fontSize: 11,
-              color: C.green,
-              letterSpacing: 1,
-            }}
-          >
-            AUTONOMOUS
-          </div>
           <button
             type="button"
             onClick={handleEditClick}
@@ -500,6 +487,27 @@ export default function DashboardView() {
             }}
           >
             ✎ EDIT
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setChatInitialAgentId(selectedAgent);
+              setSelectedAgent(null);
+              setChatState("normal");
+            }}
+            style={{
+              background: "rgba(46,204,113,0.12)",
+              border: `1px solid ${C.green}`,
+              borderRadius: 2,
+              padding: "3px 10px",
+              cursor: "pointer",
+              fontSize: 11,
+              color: C.green,
+              fontFamily: "'Courier New', monospace",
+              letterSpacing: 1,
+            }}
+          >
+            CHAT
           </button>
         </div>
       )}
