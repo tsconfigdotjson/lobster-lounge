@@ -11,6 +11,7 @@ export default function AgentChat({
   agents = [],
   onSendMessage,
   initialActiveId,
+  expanded,
 }: {
   agents?: ChatAgent[];
   onSendMessage?: (
@@ -19,6 +20,7 @@ export default function AgentChat({
     onDelta?: (partial: ChatMessage) => void,
   ) => Promise<ChatMessage>;
   initialActiveId?: string | null;
+  expanded?: boolean;
 }) {
   const [active, setActive] = useState(
     () =>
@@ -156,7 +158,7 @@ export default function AgentChat({
         width: "100%",
         display: "flex",
         flexDirection: "column",
-        height: 560,
+        height: expanded ? "100%" : 560,
         boxSizing: "border-box",
         border: "none",
         borderRadius: 0,
