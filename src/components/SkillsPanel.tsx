@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { SkillWithStatus } from "../types";
 import { C } from "./constants";
 
@@ -9,6 +10,7 @@ export default function SkillsPanel({
   skills?: SkillWithStatus[];
   onToggle?: (skillId: string, enabled: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState("");
 
   const filtered = filter.trim()
@@ -38,7 +40,7 @@ export default function SkillsPanel({
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search skills..."
+            placeholder={t("skills.searchPlaceholder")}
             style={{
               width: "100%",
               padding: "6px 10px",
@@ -87,7 +89,7 @@ export default function SkillsPanel({
               padding: 16,
             }}
           >
-            {filter ? "No matching skills" : "No skills available"}
+            {filter ? t("skills.noMatching") : t("skills.noAvailable")}
           </div>
         ) : (
           sorted.map((s) => (
@@ -141,7 +143,7 @@ export default function SkillsPanel({
                     flexShrink: 0,
                   }}
                 >
-                  ON
+                  {t("skills.on")}
                 </span>
               )}
             </button>

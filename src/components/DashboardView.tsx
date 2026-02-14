@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useGateway } from "../context/GatewayContext";
 import { setAgentColor } from "../services/data-mappers";
 import type { EditAgentData } from "../types";
@@ -17,6 +18,7 @@ import SkillsPanel from "./SkillsPanel";
 import { btnSecondaryStyle } from "./styles";
 
 export default function DashboardView() {
+  const { t } = useTranslation();
   const {
     agents,
     chatAgents,
@@ -241,7 +243,7 @@ export default function DashboardView() {
             borderColor: `${C.green}40`,
           }}
         >
-          + SPAWN AGENT
+          {t("dashboard.spawnAgent")}
         </button>
         <button
           type="button"
@@ -254,13 +256,13 @@ export default function DashboardView() {
             borderColor: `${C.red}40`,
           }}
         >
-          DISCONNECT
+          {t("dashboard.disconnect")}
         </button>
       </div>
 
       {/* HUD overlay — top center */}
       <DraggablePanel
-        title="HUD"
+        title={t("dashboard.hudTitle")}
         defaultX={Math.max(16, (window.innerWidth - 460) / 2)}
         defaultY={40}
       >
@@ -273,19 +275,27 @@ export default function DashboardView() {
             flexWrap: "wrap",
           }}
         >
-          <HudItem label="MISSION" value="DEEP SEA OPS" color={C.lob1} />
+          <HudItem
+            label={t("dashboard.missionLabel")}
+            value={t("dashboard.missionValue")}
+            color={C.lob1}
+          />
           <Divider />
           <HudItem
-            label="POD"
-            value={`${agents.length} ACTIVE`}
+            label={t("dashboard.podLabel")}
+            value={t("dashboard.podValue", { count: agents.length })}
             color={C.green}
           />
           <Divider />
-          <HudItem label="TIME" value={`${time} UTC`} color={C.amber} />
+          <HudItem
+            label={t("dashboard.timeLabel")}
+            value={t("dashboard.timeValue", { time })}
+            color={C.amber}
+          />
           <Divider />
           <HudItem
-            label="CURRENT"
-            value={currentStrength}
+            label={t("dashboard.currentLabel")}
+            value={t(`dashboard.current.${currentStrength.toLowerCase()}`)}
             color={
               currentStrength === "STRONG"
                 ? C.red
@@ -306,7 +316,11 @@ export default function DashboardView() {
       </DraggablePanel>
 
       {/* Pod Roster overlay — top-left */}
-      <DraggablePanel title="POD ROSTER" defaultX={16} defaultY={120}>
+      <DraggablePanel
+        title={t("dashboard.podRosterTitle")}
+        defaultX={16}
+        defaultY={120}
+      >
         <div style={{ padding: "8px 10px", width: 155 }}>
           {agents.map((a) => (
             <button
@@ -412,7 +426,7 @@ export default function DashboardView() {
           <span style={{ color: C.amber }}>
             {skillsCollapsed ? "\u25B6" : "\u25BC"}
           </span>
-          SKILLS
+          {t("dashboard.skillsTitle")}
           <span style={{ marginLeft: "auto", fontSize: 10, opacity: 0.5 }}>
             {allSkills.filter((s) => s.enabled).length}/{allSkills.length}
           </span>
@@ -424,7 +438,7 @@ export default function DashboardView() {
 
       {/* Activity Log overlay — top-right */}
       <DraggablePanel
-        title="TIDE LOG"
+        title={t("dashboard.tideLogTitle")}
         defaultX={window.innerWidth - 200}
         defaultY={120}
       >
@@ -484,7 +498,7 @@ export default function DashboardView() {
               letterSpacing: 1,
             }}
           >
-            ✎ EDIT
+            {t("dashboard.editButton")}
           </button>
           <button
             type="button"
@@ -505,14 +519,14 @@ export default function DashboardView() {
               letterSpacing: 1,
             }}
           >
-            CHAT
+            {t("dashboard.chatButton")}
           </button>
         </div>
       )}
 
       {/* Agent Creator panel — create mode */}
       {showCreator && !editingAgent && (
-        <DraggablePanel title="SPAWN AGENT" centered>
+        <DraggablePanel title={t("dashboard.spawnAgentTitle")} centered>
           <AgentCreator
             onDeploy={handleCreate}
             onCancel={() => setShowCreator(false)}
@@ -522,7 +536,7 @@ export default function DashboardView() {
 
       {/* Agent Creator panel — edit mode */}
       {editingAgent && (
-        <DraggablePanel title="EDIT AGENT" centered>
+        <DraggablePanel title={t("dashboard.editAgentTitle")} centered>
           <AgentCreator
             key={editingAgent._gatewayId}
             editAgent={editingAgent}
@@ -590,7 +604,11 @@ export default function DashboardView() {
                   color: C.amber,
                   flexShrink: 0,
                 }}
-                title={chatState === "expanded" ? "Contract" : "Expand"}
+                title={
+                  chatState === "expanded"
+                    ? t("dashboard.contractTooltip")
+                    : t("dashboard.expandTooltip")
+                }
               >
                 {chatState === "expanded" ? (
                   <svg
@@ -603,7 +621,7 @@ export default function DashboardView() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <title>Contract</title>
+                    <title>{t("dashboard.contractTooltip")}</title>
                     <path d="m14 10 7-7" />
                     <path d="M20 10h-6V4" />
                     <path d="m3 21 7-7" />
@@ -620,7 +638,7 @@ export default function DashboardView() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <title>Expand</title>
+                    <title>{t("dashboard.expandTooltip")}</title>
                     <path d="M15 3h6v6" />
                     <path d="m21 3-7 7" />
                     <path d="m3 21 7-7" />
@@ -660,7 +678,7 @@ export default function DashboardView() {
               <span style={{ color: C.amber }}>
                 {chatState === "collapsed" ? "\u25B6" : "\u25BC"}
               </span>
-              AGENT CHAT
+              {t("dashboard.agentChat")}
               <span style={{ marginLeft: "auto", fontSize: 10, opacity: 0.5 }}>
                 {chatAgents.length}
               </span>

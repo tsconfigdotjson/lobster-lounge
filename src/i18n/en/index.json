@@ -1,0 +1,138 @@
+{
+  "connection": {
+    "steps": {
+      "discover": {
+        "label": "Discovering gateway",
+        "desc": "Scanning local reef network..."
+      },
+      "handshake": {
+        "label": "Claw handshake",
+        "desc": "Establishing secure pinch protocol..."
+      },
+      "auth": {
+        "label": "Device pairing",
+        "desc": "Authenticating device identity..."
+      },
+      "sync": {
+        "label": "Syncing tide data",
+        "desc": "Downloading current maps and agent roster..."
+      },
+      "ready": {
+        "label": "Gateway connected",
+        "desc": "All systems nominal. Welcome to the reef."
+      }
+    }
+  },
+  "gateway": {
+    "loginTitle": "GATEWAY LOGIN",
+    "loginDescription": "Connect to an OpenClaw Gateway. Your device will be paired automatically.",
+    "urlLabel": "GATEWAY URL",
+    "devicePaired": "DEVICE PAIRED",
+    "newDevice": "NEW DEVICE",
+    "devicePairedDesc": "Device {{deviceId}} has a stored token for this gateway",
+    "newDeviceDesc": "Device {{deviceId}} \u2014 gateway token required for first pairing",
+    "tokenLabel": "GATEWAY TOKEN",
+    "tokenPlaceholder": "Paste gateway token to pair this device",
+    "connect": "CONNECT",
+    "recent": "RECENT",
+    "recentConnections": "RECENT CONNECTIONS",
+    "connectionFailedTitle": "CONNECTION FAILED",
+    "connectionFailedDefault": "Unable to connect to gateway.",
+    "tryAgain": "TRY AGAIN",
+    "connectingTitle": "CONNECTING...",
+    "pairingWaiting": "Waiting for operator approval...",
+    "pairingInProgress": "Pairing in progress",
+    "pairingDescription": "This device needs to be approved by an existing operator. Run <code>openclaw devices approve</code> or ask an operator to check their pairing requests.",
+    "retryConnection": "RETRY CONNECTION"
+  },
+  "dashboard": {
+    "spawnAgent": "+ SPAWN AGENT",
+    "disconnect": "DISCONNECT",
+    "hudTitle": "HUD",
+    "missionLabel": "MISSION",
+    "missionValue": "DEEP SEA OPS",
+    "podLabel": "POD",
+    "podValue": "{{count}} ACTIVE",
+    "timeLabel": "TIME",
+    "timeValue": "{{time}} UTC",
+    "currentLabel": "CURRENT",
+    "current": {
+      "strong": "STRONG",
+      "medium": "MEDIUM",
+      "weak": "WEAK"
+    },
+    "podRosterTitle": "POD ROSTER",
+    "skillsTitle": "SKILLS",
+    "tideLogTitle": "TIDE LOG",
+    "editButton": "\u270e EDIT",
+    "chatButton": "CHAT",
+    "expandTooltip": "Expand",
+    "contractTooltip": "Contract",
+    "agentChat": "AGENT CHAT",
+    "spawnAgentTitle": "SPAWN AGENT",
+    "editAgentTitle": "EDIT AGENT"
+  },
+  "creator": {
+    "shellColor": "SHELL COLOR",
+    "nameLabel": "NAME",
+    "cancel": "CANCEL",
+    "saving": "\u23f3 SAVING...",
+    "save": "SAVE",
+    "updateFailed": "Update failed",
+    "agentDeployed": "AGENT DEPLOYED",
+    "joinedPod": "has joined the pod",
+    "spawnAnother": "SPAWN ANOTHER",
+    "previewTitle": "PREVIEW AGENT",
+    "newBadge": "NEW",
+    "deploymentSpecs": "DEPLOYMENT SPECS",
+    "specDesignation": "Designation",
+    "specShellColor": "Shell Color",
+    "specMode": "Mode",
+    "specModeValue": "Autonomous",
+    "specPodAssignment": "Pod Assignment",
+    "specPodAssignmentValue": "Default",
+    "specBootTime": "Est. Boot Time",
+    "specBootTimeValue": "~3.2s",
+    "editBack": "\u2190 EDIT",
+    "deploying": "\u23f3 DEPLOYING...",
+    "confirmDeploy": "\ud83e\udd9e CONFIRM AND DEPLOY",
+    "spawnNewTitle": "SPAWN NEW AGENT",
+    "agentDesignation": "AGENT DESIGNATION",
+    "namePlaceholder": "e.g. CLAWZ, REEF, CORAL...",
+    "cancelWithIcon": "\u2715 CANCEL",
+    "previewNext": "PREVIEW AGENT \u2192",
+    "fillInName": "Fill in a name",
+    "deployFailed": "Deploy failed"
+  },
+  "chat": {
+    "newSession": "NEW",
+    "newSessionTooltip": "Start a new session with this agent",
+    "clear": "CLEAR",
+    "clearTooltip": "Clear chat history",
+    "emptyState": "Send a message to {{agentId}}",
+    "emptyStateHint": "Try: \"Status report\" or \"What did you find?\"",
+    "placeholder": "Message {{agentId}}...",
+    "send": "SEND"
+  },
+  "skills": {
+    "searchPlaceholder": "Search skills...",
+    "noMatching": "No matching skills",
+    "noAvailable": "No skills available",
+    "on": "ON"
+  },
+  "tools": {
+    "readFile": "Read File",
+    "writeFile": "Write File",
+    "editFile": "Edit File",
+    "runCommand": "Run Command",
+    "findFiles": "Find Files",
+    "searchCode": "Search Code",
+    "fetchUrl": "Fetch URL",
+    "webSearch": "Web Search",
+    "subAgent": "Sub-Agent",
+    "browser": "Browser",
+    "applyPatch": "Apply Patch",
+    "fallback": "Tool Call",
+    "completed": "Completed"
+  }
+}

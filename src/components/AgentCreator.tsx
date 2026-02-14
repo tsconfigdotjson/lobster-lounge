@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { EditAgentData } from "../types";
 import { C } from "./constants";
 import LobsterAvatar from "./LobsterAvatar";
@@ -38,6 +39,7 @@ function PropertySheet({
   setDeploying: (v: boolean) => void;
   setDeployError: (v: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const [editingField, setEditingField] = useState<string | null>(null);
   const colors = [
     "#e74c3c",
@@ -85,7 +87,9 @@ function PropertySheet({
     try {
       await onUpdate?.({ ...editAgent, name, color });
     } catch (err: unknown) {
-      setDeployError(err instanceof Error ? err.message : "Update failed");
+      setDeployError(
+        err instanceof Error ? err.message : t("creator.updateFailed"),
+      );
     } finally {
       setDeploying(false);
     }
@@ -113,7 +117,7 @@ function PropertySheet({
           <LobsterAvatar color={color} size={48} />
         </div>
         <div style={{ flex: 1 }}>
-          <span style={labelStyle}>SHELL COLOR</span>
+          <span style={labelStyle}>{t("creator.shellColor")}</span>
           <div
             style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 4 }}
           >
@@ -156,7 +160,7 @@ function PropertySheet({
               flexShrink: 0,
             }}
           >
-            NAME
+            {t("creator.nameLabel")}
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
             {editingField === "name" ? (
@@ -213,7 +217,7 @@ function PropertySheet({
           onClick={onCancel}
           style={{ ...btnSecondaryStyle, flex: 1 }}
         >
-          CANCEL
+          {t("creator.cancel")}
         </button>
         <button
           type="button"
@@ -226,7 +230,7 @@ function PropertySheet({
             cursor: deploying ? "wait" : "pointer",
           }}
         >
-          {deploying ? "\u23F3 SAVING..." : "SAVE"}
+          {deploying ? t("creator.saving") : t("creator.save")}
         </button>
       </div>
     </div>
@@ -244,6 +248,7 @@ export default function AgentCreator({
   onUpdate?: (data: EditAgentData) => Promise<void>;
   onCancel?: () => void;
 }) {
+  const { t } = useTranslation();
   const isEdit = !!editAgent;
   const [name, setName] = useState(editAgent?.name || "");
   const [color, setColor] = useState(editAgent?.color || "#e74c3c");
@@ -308,7 +313,7 @@ export default function AgentCreator({
               animation: "fadeIn 0.4s ease",
             }}
           >
-            <span style={{ fontSize: 36, color: C.green }}>✓</span>
+            <span style={{ fontSize: 36, color: C.green }}>{"\u2713"}</span>
           </div>
           <div style={{ textAlign: "center" }}>
             <div
@@ -319,7 +324,7 @@ export default function AgentCreator({
                 letterSpacing: 2,
               }}
             >
-              AGENT DEPLOYED
+              {t("creator.agentDeployed")}
             </div>
             <div
               style={{ fontSize: 12, color, marginTop: 6, fontWeight: "bold" }}
@@ -327,7 +332,7 @@ export default function AgentCreator({
               {name.toUpperCase()}
             </div>
             <div style={{ fontSize: 10, color: C.textDim, marginTop: 4 }}>
-              has joined the pod
+              {t("creator.joinedPod")}
             </div>
           </div>
           <LobsterAvatar color={color} size={56} />
@@ -340,7 +345,7 @@ export default function AgentCreator({
             }}
             style={{ ...btnPrimaryStyle(C.amber), marginTop: 8 }}
           >
-            SPAWN ANOTHER
+            {t("creator.spawnAnother")}
           </button>
         </div>
         <style>{`@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
@@ -359,7 +364,9 @@ export default function AgentCreator({
       await onDeploy?.({ name, color });
       setPhase("deployed");
     } catch (err: unknown) {
-      setDeployError(err instanceof Error ? err.message : "Deploy failed");
+      setDeployError(
+        err instanceof Error ? err.message : t("creator.deployFailed"),
+      );
     } finally {
       setDeploying(false);
     }
@@ -368,15 +375,25 @@ export default function AgentCreator({
   // --- Preview phase ---
   if (phase === "preview") {
     const specRows = [
-      ["Designation", name.toUpperCase()],
-      ["Shell Color", color],
-      ["Mode", "Autonomous"],
-      ["Pod Assignment", "Default"],
-      ["Est. Boot Time", "~3.2s"],
+      { label: t("creator.specDesignation"), value: name.toUpperCase() },
+      {
+        label: t("creator.specShellColor"),
+        value: color,
+        isColor: true,
+      },
+      { label: t("creator.specMode"), value: t("creator.specModeValue") },
+      {
+        label: t("creator.specPodAssignment"),
+        value: t("creator.specPodAssignmentValue"),
+      },
+      {
+        label: t("creator.specBootTime"),
+        value: t("creator.specBootTimeValue"),
+      },
     ];
     return (
       <div style={containerStyle}>
-        <PanelHeader icon={"\uD83D\uDD0D"} title="PREVIEW AGENT" />
+        <PanelHeader icon={"\uD83D\uDD0D"} title={t("creator.previewTitle")} />
         <div
           style={{
             background: `linear-gradient(135deg, ${C.deep1}, ${C.deep2})`,
@@ -439,7 +456,7 @@ export default function AgentCreator({
                     letterSpacing: 1,
                   }}
                 >
-                  NEW
+                  {t("creator.newBadge")}
                 </span>
               </div>
             </div>
@@ -462,11 +479,11 @@ export default function AgentCreator({
               marginBottom: 10,
             }}
           >
-            DEPLOYMENT SPECS
+            {t("creator.deploymentSpecs")}
           </div>
-          {specRows.map(([k, v], i) => (
+          {specRows.map((row, i) => (
             <div
-              key={k}
+              key={row.label}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -478,14 +495,14 @@ export default function AgentCreator({
                 fontSize: 10,
               }}
             >
-              <span style={{ color: C.textDim }}>{k}</span>
+              <span style={{ color: C.textDim }}>{row.label}</span>
               <span
                 style={{
-                  color: k === "Shell Color" ? v : C.text,
+                  color: row.isColor ? row.value : C.text,
                   fontWeight: "bold",
                 }}
               >
-                {k === "Shell Color" ? (
+                {row.isColor ? (
                   <span
                     style={{
                       display: "inline-flex",
@@ -498,14 +515,14 @@ export default function AgentCreator({
                         width: 10,
                         height: 10,
                         borderRadius: 2,
-                        background: v,
+                        background: row.value,
                         display: "inline-block",
                       }}
                     />
-                    {v}
+                    {row.value}
                   </span>
                 ) : (
-                  v
+                  row.value
                 )}
               </span>
             </div>
@@ -536,7 +553,7 @@ export default function AgentCreator({
             }}
             style={{ ...btnSecondaryStyle, flex: 1 }}
           >
-            {"\u2190 EDIT"}
+            {t("creator.editBack")}
           </button>
           <button
             type="button"
@@ -549,9 +566,7 @@ export default function AgentCreator({
               cursor: deploying ? "wait" : "pointer",
             }}
           >
-            {deploying
-              ? "\u23F3 DEPLOYING..."
-              : "\uD83E\uDD9E CONFIRM AND DEPLOY"}
+            {deploying ? t("creator.deploying") : t("creator.confirmDeploy")}
           </button>
         </div>
       </div>
@@ -561,7 +576,7 @@ export default function AgentCreator({
   // --- Create form ---
   return (
     <div style={containerStyle}>
-      <PanelHeader icon={"\u2726"} title="SPAWN NEW AGENT" />
+      <PanelHeader icon={"\u2726"} title={t("creator.spawnNewTitle")} />
       <div
         style={{
           display: "flex",
@@ -581,7 +596,7 @@ export default function AgentCreator({
           <LobsterAvatar color={color} size={48} />
         </div>
         <div style={{ flex: 1 }}>
-          <span style={labelStyle}>SHELL COLOR</span>
+          <span style={labelStyle}>{t("creator.shellColor")}</span>
           <div
             style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 4 }}
           >
@@ -606,13 +621,13 @@ export default function AgentCreator({
         </div>
       </div>
       <label style={labelStyle} htmlFor="agent-name">
-        AGENT DESIGNATION
+        {t("creator.agentDesignation")}
       </label>
       <input
         id="agent-name"
         value={name}
         onChange={(e) => setName(e.target.value.slice(0, 12))}
-        placeholder="e.g. CLAWZ, REEF, CORAL..."
+        placeholder={t("creator.namePlaceholder")}
         maxLength={12}
         style={inputStyle}
       />
@@ -627,7 +642,7 @@ export default function AgentCreator({
             marginBottom: 8,
           }}
         >
-          ✕ CANCEL
+          {t("creator.cancelWithIcon")}
         </button>
       )}
       <button
@@ -641,7 +656,7 @@ export default function AgentCreator({
           cursor: isValid ? "pointer" : "not-allowed",
         }}
       >
-        {"PREVIEW AGENT \u2192"}
+        {t("creator.previewNext")}
       </button>
       {!isValid && (
         <div
@@ -652,7 +667,7 @@ export default function AgentCreator({
             textAlign: "center",
           }}
         >
-          Fill in a name
+          {t("creator.fillInName")}
         </div>
       )}
     </div>

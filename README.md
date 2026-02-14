@@ -1,4 +1,4 @@
-![Lobster Lounge](./github.jpg)
+![Lobster Lounge](./github.gif)
 
 A pixel-art control panel for [OpenClaw](https://github.com/openclaw/openclaw). Drag your agents around an underwater tilemap, chat with them, spawn new ones, and manage skills -- all from a cozy lounge on the ocean floor.
 

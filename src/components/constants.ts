@@ -144,34 +144,9 @@ export const BUBBLES = Array.from({ length: 18 }, (_, _i) => ({
 
 // ─── CONNECTION STEPS ────────────────────────────────────────
 export const CONNECTION_STEPS = [
-  {
-    id: "discover",
-    label: "Discovering gateway",
-    desc: "Scanning local reef network...",
-    duration: 1800,
-  },
-  {
-    id: "handshake",
-    label: "Claw handshake",
-    desc: "Establishing secure pinch protocol...",
-    duration: 2200,
-  },
-  {
-    id: "auth",
-    label: "Device pairing",
-    desc: "Authenticating device identity...",
-    duration: 1600,
-  },
-  {
-    id: "sync",
-    label: "Syncing tide data",
-    desc: "Downloading current maps and agent roster...",
-    duration: 2400,
-  },
-  {
-    id: "ready",
-    label: "Gateway connected",
-    desc: "All systems nominal. Welcome to the reef.",
-    duration: 0,
-  },
+  { id: "discover", duration: 1800 },
+  { id: "handshake", duration: 2200 },
+  { id: "auth", duration: 1600 },
+  { id: "sync", duration: 2400 },
+  { id: "ready", duration: 0 },
 ];
