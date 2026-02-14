@@ -98,13 +98,16 @@ export default function AgentChat({
     }
   }, [initialActiveId, agents]);
 
-  const send = () => {
-    if (!input.trim() || typing || !active) {
+  const sendRaw = (text: string, restoreDraft?: string) => {
+    if (!text.trim() || typing || !active) {
       return;
     }
-    const text = input.trim();
     const agentId = active.id;
-    setInput("");
+    if (restoreDraft !== undefined) {
+      setInput(restoreDraft);
+    } else {
+      setInput("");
+    }
 
     // Add user message
     const userMsg: ChatMessage = {
@@ -179,6 +182,18 @@ export default function AgentChat({
         1000 + Math.random() * 1200,
       );
     }
+  };
+
+  const send = () => {
+    sendRaw(input);
+  };
+
+  const newSession = () => {
+    if (!active || typing) {
+      return;
+    }
+    const draft = input.trim();
+    sendRaw("/new", draft);
   };
 
   // Auto-scroll on new messages / streaming updates
@@ -283,19 +298,26 @@ export default function AgentChat({
             {active.role} · {active.status.toUpperCase()}
           </div>
         </div>
-        <div
+        <button
+          type="button"
+          onClick={newSession}
+          disabled={typing}
           style={{
-            padding: "3px 8px",
+            background: "none",
+            border: `1px solid ${C.textDim}50`,
             borderRadius: 2,
-            background: `${sc[active.status]}12`,
-            border: `1px solid ${sc[active.status]}35`,
+            padding: "3px 8px",
+            cursor: typing ? "default" : "pointer",
             fontSize: 10,
-            color: sc[active.status],
+            color: C.textDim,
+            fontFamily: "'Courier New', monospace",
             letterSpacing: 1,
+            opacity: typing ? 0.3 : 0.7,
           }}
+          title="Start a new session with this agent"
         >
-          {active.status.toUpperCase()}
-        </div>
+          NEW
+        </button>
         {msgs.length > 0 && (
           <button
             type="button"
