@@ -23,19 +23,16 @@ export default function singleFile(): Plugin {
 
       for (const file of files) {
         const content = readFileSync(join(assetsDir, file), "utf8");
+        const escaped = file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         if (file.endsWith(".css")) {
           html = html.replace(
-            new RegExp(
-              `<link[^>]+href="[^"]*${file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>`,
-            ),
-            `<style>${content}</style>`,
+            new RegExp(`<link[^>]+href="[^"]*${escaped}"[^>]*>`),
+            () => `<style>${content}</style>`,
           );
         } else if (file.endsWith(".js")) {
           html = html.replace(
-            new RegExp(
-              `<script[^>]+src="[^"]*${file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*></script>`,
-            ),
-            `<script type="module">${content}</script>`,
+            new RegExp(`<script[^>]+src="[^"]*${escaped}"[^>]*></script>`),
+            () => `<script type="module">${content}</script>`,
           );
         }
       }
