@@ -105,27 +105,17 @@ export default function ToolCard({
   const detail = getDetail(block);
   const preview = getPreview(block.output);
 
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: role is conditionally set
-    <div
-      role={block.output ? "button" : undefined}
-      tabIndex={block.output ? 0 : undefined}
-      style={{
-        border: `1px solid ${isRunning ? `${agentColor}30` : `${C.green}25`}`,
-        borderRadius: 6,
-        background: "rgba(10,22,40,0.6)",
-        margin: "4px 0",
-        overflow: "hidden",
-        cursor: block.output ? "pointer" : "default",
-        transition: "border-color 0.2s",
-      }}
-      onClick={() => block.output && setExpanded((e) => !e)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          block.output && setExpanded((p) => !p);
-        }
-      }}
-    >
+  const containerStyle = {
+    border: `1px solid ${isRunning ? `${agentColor}30` : `${C.green}25`}`,
+    borderRadius: 6,
+    background: "rgba(10,22,40,0.6)",
+    margin: "4px 0",
+    overflow: "hidden" as const,
+    transition: "border-color 0.2s",
+  };
+
+  const content = (
+    <>
       {/* Header */}
       <div
         style={{
@@ -249,6 +239,28 @@ export default function ToolCard({
           </pre>
         </div>
       )}
-    </div>
+    </>
   );
+
+  if (block.output) {
+    return (
+      <button
+        type="button"
+        style={{
+          ...containerStyle,
+          cursor: "pointer",
+          width: "100%",
+          padding: 0,
+          textAlign: "left",
+          font: "inherit",
+          color: "inherit",
+        }}
+        onClick={() => setExpanded((e) => !e)}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div style={containerStyle}>{content}</div>;
 }
