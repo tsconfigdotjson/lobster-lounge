@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Lobster Lounge is a pixel-art control panel UI for OpenClaw, an AI agent orchestration platform. It connects to an OpenClaw gateway over WebSocket and lets operators manage AI agents visualized as animated pixel lobsters on a canvas tilemap. Single-page React app distributed as a single inlined HTML file.
+Lobster Lounge is a pixel-art control panel UI for OpenClaw, an AI agent orchestration platform. It connects to an OpenClaw gateway over WebSocket and lets operators manage AI agents visualized as animated pixel lobsters on a canvas tilemap. Single-page React app deployed to the OpenClaw gateway's control UI directory.
 
 ## Commands
 
 - **Dev server**: `bun run dev` (Vite with hot reload)
-- **Build**: `bun run build` (TypeScript compile + Vite build + single-file inlining)
+- **Build**: `bun run build` (TypeScript compile + Vite build)
 - **Format**: `bun run format` (Biome)
 - **Lint**: `bun run lint` (Biome)
 - **Check (format+lint)**: `bun run check`
@@ -31,8 +31,6 @@ No test suite exists.
 **Canvas rendering** (`components/LobsterHQ.tsx` + `renderers.ts` + `helpers.ts`): 22×16 tilemap at 16px tiles with 3× upscale. All pixel art drawn via `<canvas>` 2D context, not DOM/SVG. Agents are clickable/draggable with smooth interpolation movement. Animation via requestAnimationFrame.
 
 **Data mapping** (`services/data-mappers.ts`): Transforms gateway agent format into HQ (tilemap) and Chat display formats. 12-color rotation palette, positions/colors persisted to localStorage.
-
-**Single-file build** (`vite-plugin-single-file.ts`): Custom Vite plugin inlines all JS and CSS into one `index.html` for gateway deployment at `/lounge/`.
 
 ## Code Style & Conventions
 
