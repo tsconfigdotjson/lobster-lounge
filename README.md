@@ -19,7 +19,7 @@ Lobster Lounge is a supplemental UI that sits alongside the default OpenClaw Con
 
 ## Installation
 
-Lobster Lounge is designed to be dropped into an existing OpenClaw installation. It piggybacks on the gateway's static file server by placing a single `index.html` into a `lounge/` subdirectory of the Control UI root.
+Lobster Lounge is designed to be dropped into an existing OpenClaw installation. It piggybacks on the gateway's static file server by placing its build output into a `lounge/` subdirectory of the Control UI root.
 
 ```
 npx lobster-lounge install
@@ -28,8 +28,8 @@ npx lobster-lounge install
 That's it. The installer will:
 
 1. Locate your OpenClaw installation (by resolving the `openclaw` binary and walking up to find the package root)
-2. Build Lounge into a single self-contained `index.html` (all JS and CSS inlined)
-3. Copy it into `<openclaw-root>/dist/control-ui/lounge/`
+2. Build Lounge into `dist/` (HTML + JS/CSS assets)
+3. Copy the contents into `<openclaw-root>/dist/control-ui/lounge/`
 
 Then open your gateway in a browser and navigate to `/lounge/` (trailing slash required).
 
@@ -45,7 +45,7 @@ Or if you want to build and copy the files yourself:
 
 ```
 bun run build
-cp dist/index.html /path/to/openclaw/dist/control-ui/lounge/index.html
+cp -r dist/* /path/to/openclaw/dist/control-ui/lounge/
 ```
 
 ### After OpenClaw upgrades
@@ -77,7 +77,7 @@ openclaw config set gateway.controlUi.allowedOrigins '["http://localhost:5173"]'
 bun run build
 ```
 
-Output goes to `dist/`. The build inlines all JS and CSS into a single `index.html` so the gateway only needs to serve one file.
+Output goes to `dist/` (HTML + separate JS/CSS assets). Copy the full directory contents into the gateway's control UI lounge path.
 
 ### Lint / Format
 
